@@ -1,0 +1,654 @@
+{
+  "/api/v1/backupInfrastructure/proxies": {
+    "get": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "ViewProxies"
+        ]
+      },
+      "summary": "Get All Proxies",
+      "description": "The HTTP GET request to the `/api/v1/backupInfrastructure/proxies` path allows you to get an array of all backup proxies that are added to the backup infrastructure.<p>**Available to**&#58; Veeam Backup Administrator, Veeam Backup Operator, Veeam Restore Operator, Veeam Backup Viewer, Veeam Tape Operator.</p>",
+      "operationId": "GetAllProxies",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        },
+        {
+          "name": "skip",
+          "description": "Number of proxies to skip.",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesFilters"
+          }
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of proxies to return.",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 200
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesFilters"
+          }
+        },
+        {
+          "name": "orderColumn",
+          "description": "Sorts proxies by one of the proxy parameters.",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/EProxiesFiltersOrderColumn"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesFilters"
+          }
+        },
+        {
+          "name": "orderAsc",
+          "description": "If `true`, sorts proxies in the ascending order by the `orderColumn` parameter.",
+          "in": "query",
+          "schema": {
+            "type": "boolean"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesFilters"
+          }
+        },
+        {
+          "name": "nameFilter",
+          "description": "Filters proxies by the `nameFilter` pattern. The pattern can match any proxy parameter. To substitute one or more characters, use the asterisk (*) character at the beginning, at the end or both.",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesFilters"
+          }
+        },
+        {
+          "name": "typeFilter",
+          "description": "Filters proxies by proxy type.",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EProxyType"
+            }
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesFilters"
+          }
+        },
+        {
+          "name": "hostIdFilter",
+          "description": "Filters proxies by ID of the backup server.",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesFilters"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProxiesResult"
+              },
+              "examples": {
+                "ProxiesResultExample": {
+                  "$ref": "#/components/examples/ProxiesResultExample"
+                }
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    },
+    "post": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "CreateProxies"
+        ]
+      },
+      "summary": "Add Proxy",
+      "description": "The HTTP POST request to the `/api/v1/backupInfrastructure/proxies` path allows you to add a proxy to the backup infrastructure.<p> **Available to**&#58; Veeam Backup Administrator.</p>",
+      "operationId": "CreateProxy",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProxySpec"
+            },
+            "examples": {
+              "ViProxySpecExample": {
+                "$ref": "#/components/examples/ViProxySpecExample"
+              },
+              "GeneralPurposeProxySpecExample": {
+                "$ref": "#/components/examples/GeneralPurposeProxySpecExample"
+              },
+              "HvProxySpecExample": {
+                "$ref": "#/components/examples/HvProxySpecExample"
+              }
+            }
+          }
+        },
+        "required": true
+      },
+      "responses": {
+        "201": {
+          "description": "An `Infrastructure` session has been created to add the proxy. To check the progress, track the session `state`.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionModel"
+              },
+              "examples": {
+                "InfrastructureSessionModelExample": {
+                  "$ref": "#/components/examples/InfrastructureSessionModelExample"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "$ref": "#/components/responses/BadRequest"
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    }
+  },
+  "/api/v1/backupInfrastructure/proxies/{id}": {
+    "get": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "ViewProxies"
+        ]
+      },
+      "summary": "Get Proxy",
+      "description": "The HTTP GET request to the `/api/v1/backupInfrastructure/proxies/{id}` path allows you to get a backup proxy that has the specified `id`.<p>**Available to**&#58; Veeam Backup Administrator, Veeam Backup Operator, Veeam Restore Operator, Veeam Backup Viewer, Veeam Tape Operator.</p>",
+      "operationId": "GetProxy",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        },
+        {
+          "name": "id",
+          "description": "Backup proxy ID. To get the ID, run the [Get All Proxies](Proxies#operation/GetAllProxies) request.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProxyModel"
+              },
+              "examples": {
+                "ViProxyModelExample": {
+                  "$ref": "#/components/examples/ViProxyModelExample"
+                },
+                "GeneralPurposeProxyModelExample": {
+                  "$ref": "#/components/examples/GeneralPurposeProxyModelExample"
+                },
+                "HvProxyModelExample": {
+                  "$ref": "#/components/examples/HvProxyModelExample"
+                }
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    },
+    "put": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "UpdateProxies"
+        ]
+      },
+      "summary": "Edit Proxy",
+      "description": "The HTTP PUT request to the `/api/v1/backupInfrastructure/proxies/{id}` path allows you to edit a backup proxy that has the specified `id`.<p>**Available to**&#58; Veeam Backup Administrator.</p>",
+      "operationId": "UpdateProxy",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        },
+        {
+          "name": "id",
+          "description": "Backup proxy ID. To get the ID, run the [Get All Proxies](Proxies#operation/GetAllProxies) request.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProxyModel"
+            },
+            "examples": {
+              "ViProxyModelExample": {
+                "$ref": "#/components/examples/ViProxyModelExample"
+              },
+              "GeneralPurposeProxyModelExample": {
+                "$ref": "#/components/examples/GeneralPurposeProxyModelExample"
+              },
+              "HvProxyModelExample": {
+                "$ref": "#/components/examples/HvProxyModelExample"
+              }
+            }
+          }
+        },
+        "required": true
+      },
+      "responses": {
+        "201": {
+          "description": "An `Infrastructure` session has been created to edit the proxy. To check the progress, track the session `state`.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionModel"
+              },
+              "examples": {
+                "InfrastructureSessionModelExample": {
+                  "$ref": "#/components/examples/InfrastructureSessionModelExample"
+                }
+              }
+            }
+          }
+        },
+        "400": {
+          "$ref": "#/components/responses/BadRequest"
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "DeleteProxies"
+        ]
+      },
+      "summary": "Remove Proxy",
+      "description": "The HTTP DELETE request to the `/api/v1/backupInfrastructure/proxies/{id}` path allows you to remove a backup proxy that has the specified `id` from the backup infrastructure.<p>**Available to**&#58; Veeam Backup Administrator.</p>",
+      "operationId": "DeleteProxy",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        },
+        {
+          "name": "id",
+          "description": "Backup proxy ID. To get the ID, run the [Get All Proxies](Proxies#operation/GetAllProxies) request.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "$ref": "#/components/responses/Deleted"
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    }
+  },
+  "/api/v1/backupInfrastructure/proxies/{id}/enable": {
+    "post": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "UpdateProxies"
+        ]
+      },
+      "summary": "Enable Proxy",
+      "description": "The HTTP POST request to the `/api/v1/backupInfrastructure/proxies/{id}/enable` path allows you to enable a backup proxy that has the specified `id`.<p>**Available to**&#58; Veeam Backup Administrator.</p>",
+      "operationId": "EnableProxy",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        },
+        {
+          "name": "id",
+          "description": "Backup proxy ID. To get the ID, run the [Get All Proxies](Proxies#operation/GetAllProxies) request.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Proxy has been enabled."
+        },
+        "400": {
+          "$ref": "#/components/responses/BadRequest"
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    }
+  },
+  "/api/v1/backupInfrastructure/proxies/{id}/disable": {
+    "post": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "UpdateProxies"
+        ]
+      },
+      "summary": "Disable Proxy",
+      "description": "The HTTP POST request to the `/api/v1/backupInfrastructure/proxies/{id}/disable` path allows you to disable a backup proxy that has the specified `id`.<p>**Available to**&#58; Veeam Backup Administrator.</p>",
+      "operationId": "DisableProxy",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        },
+        {
+          "name": "id",
+          "description": "Backup proxy ID. To get the ID, run the [Get All Proxies](Proxies#operation/GetAllProxies) request.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "Proxy has been disabled."
+        },
+        "400": {
+          "$ref": "#/components/responses/BadRequest"
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "404": {
+          "$ref": "#/components/responses/NotFound"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    }
+  },
+  "/api/v1/backupInfrastructure/proxies/states": {
+    "get": {
+      "tags": [
+        "Proxies"
+      ],
+      "x-veeam-authorize": {
+        "claims": [
+          "ViewProxies"
+        ]
+      },
+      "summary": "Get All Proxy States",
+      "description": "The HTTP GET request to the `/api/v1/backupInfrastructure/proxies/states` path allows you to get an array of proxy states.<p>**Available to**&#58; Veeam Backup Administrator, Veeam Backup Operator, Veeam Restore Operator, Veeam Backup Viewer, Veeam Tape Operator.</p>",
+      "operationId": "GetAllProxiesStates",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/apiVersionParam"
+        },
+        {
+          "name": "skip",
+          "description": "Number of proxies to skip.",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of proxies to return.",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "default": 200
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "orderColumn",
+          "description": "Sorts proxies by one of the proxy parameters.",
+          "in": "query",
+          "schema": {
+            "$ref": "#/components/schemas/EProxiesFiltersOrderColumn"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "orderAsc",
+          "description": "If `true`, sorts proxies in the ascending order by the `orderColumn` parameter.",
+          "in": "query",
+          "schema": {
+            "type": "boolean"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "nameFilter",
+          "description": "Filters proxies by the `nameFilter` pattern. The pattern can match any proxy parameter. To substitute one or more characters, use the asterisk (*) character at the beginning, at the end or both.",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "typeFilter",
+          "description": "Filters proxies by proxy type.",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EProxyType"
+            }
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "hostIdFilter",
+          "description": "Filters proxies by ID of the backup server.",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "isDisabledFilter",
+          "description": "If `true`, Veeam Backup & Replication returns only disabled proxies.",
+          "in": "query",
+          "schema": {
+            "type": "boolean"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "isOnlineFilter",
+          "description": "If `true`, Veeam Backup & Replication returns only available proxies.",
+          "in": "query",
+          "schema": {
+            "type": "boolean"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        },
+        {
+          "name": "isOutOfDateFilter",
+          "description": "If `true`, Veeam Backup & Replication returns only proxies with outdated components.",
+          "in": "query",
+          "schema": {
+            "type": "boolean"
+          },
+          "x-veeam-spec": {
+            "$ref": "#/components/schemas/ProxiesStatesFilters"
+          }
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProxiesStatesResult"
+              },
+              "examples": {
+                "ProxiesStatesResultExample": {
+                  "$ref": "#/components/examples/ProxiesStatesResultExample"
+                }
+              }
+            }
+          }
+        },
+        "401": {
+          "$ref": "#/components/responses/Unauthorized"
+        },
+        "403": {
+          "$ref": "#/components/responses/Forbidden"
+        },
+        "500": {
+          "$ref": "#/components/responses/InternalServerError"
+        }
+      }
+    }
+  }
+}

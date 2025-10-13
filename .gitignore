@@ -1,0 +1,11 @@
+.gocache/
+.gomodcache/
+.DS_Store
+bin/
+.env.test
+.cache/
+smoke_test_logs/
+scripts/
+DEVELOPMENT_GUIDELINES.md
+AGENTS.md
+docs/
