@@ -1,14 +1,13 @@
 # VeeamGo CLI
 
-VeeamGo is a read-only command line client for exploring Veeam Backup & Replication (VBR) environments over the official REST API. It is designed for auditors, support engineers, and operations teams that need fast visibility into VBR metadata without touching the UI or modifying state.
+VeeamGo is a command line client for exploring Veeam Backup & Replication (VBR) environments over the official REST API. It is designed for auditors, support engineers, and operations teams that need fast visibility into VBR metadata without touching the UI or modifying state.
 
 Key features:
 
-- Verb-first command grammar (`veeamgo get …`, `veeamgo describe …`, `veeamgo rescan …`) aligned with kubectl-style conventions.
+- Verb-first command grammar (`veeamgo get …`, `veeamgo describe …`, `veeamgo rescan …`) .
 - Human-friendly tables with consistent timestamp formatting and automatic unit conversions, plus optional raw JSON passthrough for automation.
 - Authentication profile management (`login` / `logout`) with encrypted session caching and optional password persistence.
 - Coverage for the read-only inventory surface: jobs, repositories, proxies, restore points, replica points, license usage, security analyzer, traffic rules, and more.
-- Script-friendly behaviour—see `scripts/veeamgo_e2e.sh` for an end-to-end smoke workflow.
 
 ## Table of Contents
 
@@ -22,6 +21,11 @@ Key features:
 6. [Development](#development)
 7. [Documentation](#documentation)
 8. [License](#license)
+
+## Download
+
+
+
 
 ## Prerequisites
 
