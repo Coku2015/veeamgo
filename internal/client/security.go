@@ -232,6 +232,15 @@ func (c *Client) SecurityAnalyzerBestPractices(ctx context.Context) (*SecurityAn
 	}, nil
 }
 
+// StartSecurityAnalyzer triggers a new Security & Compliance Analyzer run.
+func (c *Client) StartSecurityAnalyzer(ctx context.Context) (*Session, error) {
+	var sess Session
+	if err := c.postJSON(ctx, "/api/v1/securityAnalyzer/start", nil, nil, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
 // AuthorizationEvents retrieves authorization events with optional filters.
 func (c *Client) AuthorizationEvents(ctx context.Context, filter AuthorizationEventsFilter) (*AuthorizationEventsResult, error) {
 	results := make([]AuthorizationEvent, 0)

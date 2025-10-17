@@ -1,0 +1,32 @@
+# VMware vSphere replica job (minimal)
+type: VSphereReplica
+name: "My vSphere Replica"
+description: "Continuous replica for critical VMs"
+
+virtualMachines:
+  includes:
+    - platform: VSphere
+      type: VirtualMachine
+      name: ""
+      objectId: ""
+      hostName: ""
+
+destination:
+  host:
+    platform: VSphere
+    type: Host
+    name: ""
+    objectId: ""
+    hostName: ""
+  datastore:
+    platform: VSphere
+    type: Datastore
+    name: ""
+    objectId: ""
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "22:00"

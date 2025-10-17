@@ -1,0 +1,149 @@
+# Backup copy job (full)
+type: BackupCopy                         # Job type (EJobType)
+name: "My Backup Copy"                   # Friendly job name
+description: "Off-site copy with granular scheduling"
+mode: Periodic                           # Periodic (copy every interval) | Immediate
+isHighPriority: false                    # Prioritise scheduler when true
+
+sourceObjects:                           # Source jobs/repositories to copy from
+  includes:
+    jobs:
+      - id: ""                           # Job ID to copy from (leave blank to fill later)
+        name: ""                         # Job name (optional but helpful for readability)
+        type: VSphereBackup              # Source job type (VSphereBackup, HyperVBackup, etc.)
+    repositories: []                     # Add repository IDs when copying entire repo contents
+  excludes:
+    jobs: []                             # List jobs to exclude from the copy scope
+    repositories: []                     # List repositories to exclude
+  enableTransactionLogCopy: false        # Copy transaction logs (SQL/Oracle) alongside backups
+
+copyInterval:                            # Copy interval for periodic mode
+  isEnabled: true                        # Enable copy interval for periodic jobs
+  intervalHours: 24                      # Copy every N hours (set to 0 to disable)
+
+dataTransfer:                            # WAN acceleration and seeding options
+  encryptionEnabled: false               # Encrypt network traffic between source/target
+  wanAcceleratorSettings:
+    transferMode: Direct                 # Direct | WithSeed | ViaWanAccelerators
+    sourceWANAcceleratorId: ""          # Source WAN accelerator (when ViaWanAccelerators)
+    targetWANAcceleratorId: ""          # Target WAN accelerator (when ViaWanAccelerators)
+    seedRepositoryId: ""               # Seed repository for initial copy (when WithSeed)
+
+schedule:
+  type: Periodic                         # Periodic | ImmediateCopy (legacy name Continuous)
+  runAutomatically: true                 # Run automatically on schedule
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "21:00"                 # Time to start the daily copy interval
+  periodically:
+    isEnabled: false                    # Enable additional periodic copy every N minutes
+    periodMinutes: 60
+  retry:
+    isEnabled: true                     # Retry failed copy sessions automatically
+    retryCount: 3
+    awaitMinutes: 20
+  backupWindow:
+    isEnabled: false                    # Restrict copy operations to specific windows
+    backupWindow:
+      days: []                          # Provide day/hour masks when enabled
+  afterThisJob:
+    isEnabled: false                    # Chain copy job after another job completes
+    jobName: ""                         # Name of the job to wait for when chaining
+
+  immediateCopy:
+    isEnabled: false                    # For mode=Immediate/Continuous copies
+    includeSyncPoints: false            # Copy new restore points immediately when enabled
+
+  # Optional continuous window configuration (only applies when immediateCopy.isEnabled)
+  continuously:
+    isEnabled: false
+    backupWindow:
+      days: []                          # Provide 24-value hour masks per day when enabled
+
+  # Optional additional periodic run inside the interval (rarely used)
+  copyEvery:
+    isEnabled: false
+    minutes: 240
+
+  postCopyActions:
+    isEnabled: false                    # Trigger additional jobs after copy completes
+    jobName: ""
+
+  maintenance:
+    compactFulls:
+      isEnabled: false
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+    healthCheck:
+      isEnabled: false
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+
+  defragmentAndCompact:
+    isEnabled: false
+
+  # Schedule-specific script hooks
+  scripts:
+    periodicityType: BackupSessions
+    runScriptEvery: 1
+    dayOfWeek: []
+    preCommand:
+      isEnabled: false
+      command: ""
+    postCommand:
+      isEnabled: false
+      command: ""
+
+target:                                    # Target repository and retention policies
+  backupRepositoryId: ""                  # Destination repository for copied backups
+  retentionPolicy:
+    type: RestorePoints                    # RestorePoints | Days
+    quantity: 30                           # Restore points or days to keep
+  gfsPolicy:                               # Grandfather-Father-Son settings
+    isEnabled: true
+    weekly:
+      isEnabled: true
+      desiredTime: saturday
+      keepForNumberOfWeeks: 4
+    monthly:
+      isEnabled: true
+      desiredTime: First
+      keepForNumberOfMonths: 12
+    yearly:
+      isEnabled: false
+      desiredTime: January
+      keepForNumberOfYears: 3
+  advancedSettings:
+    storageData:
+      compressionLevel: Optimal            # Compression level for copied data
+      encryption:
+        isEnabled: false
+        passwordId: ""                   # Encryption password ID when enabled
+    backupHealth:
+      isEnabled: false                     # Perform backup health checks on copy transforms
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+    useMostRecentRestorePoint: false       # Always copy the newest restore point when true
+    notifications:
+      sendSNMPNotifications: false
+      emailNotifications:
+        isEnabled: false
+        notificationType: OnFailure
+        recipients: []
+    scripts:
+      periodicityType: BackupSessions
+      runScriptEvery: 1
+      dayOfWeek: []
+      preCommand:
+        isEnabled: false
+        command: ""
+      postCommand:
+        isEnabled: false
+        command: ""

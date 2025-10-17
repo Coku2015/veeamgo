@@ -19,7 +19,6 @@ func serverCmd() *cobra.Command {
 		Short: "Server level operations",
 	}
 	root.AddCommand(serverGetCmd())
-	root.AddCommand(serverDescribeCmd())
 	root.AddCommand(serverRescanCmd())
 	root.AddCommand(serverVolumeCmd())
 	root.AddCommand(serverOptionalComponentsCmd())
@@ -33,7 +32,6 @@ func serverGetCmd() *cobra.Command {
 	}
 	get.AddCommand(serverInfoCmd())
 	get.AddCommand(serverTimeCmd())
-	get.AddCommand(serverManagedCmd())
 	return get
 }
 
@@ -118,106 +116,6 @@ func serverTimeCmd() *cobra.Command {
 	return cmd
 }
 
-func serverManagedCmd() *cobra.Command {
-	var (
-		typeFilters []string
-		nameFilter  string
-		limit       int
-	)
-
-	cmd := &cobra.Command{
-		Use:   cmdManagedUse,
-		Short: "List managed servers",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
-			defer cancel()
-
-			httpClient, _, err := newAPIClient(ctx)
-			if err != nil {
-				return err
-			}
-
-			servers, err := httpClient.ManagedServers(ctx, client.ManagedServersFilter{
-				Name:     nameFilter,
-				Types:    typeFilters,
-				MaxItems: limit,
-			})
-			if err != nil {
-				return err
-			}
-
-			format := outputFormat()
-			if format == "json" {
-				return output.Print(format, servers)
-			}
-
-			rows := make([]managedServerRow, 0, len(servers))
-			for _, srv := range servers {
-				rows = append(rows, managedServerRow{
-					Name:        srv.Name,
-					Type:        managedServerTypeDisplay(srv.Type),
-					Status:      srv.Status,
-					Description: srv.Description,
-				})
-			}
-
-			return output.Print(format, rows)
-		},
-	}
-
-	cmd.Flags().StringSliceVar(&typeFilters, "type", nil, "Filter by managed server type (e.g. WindowsHost, LinuxHost)")
-	cmd.Flags().StringVar(&nameFilter, "name", "", "Filter by name pattern (supports * wildcards)")
-	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum number of servers to return (default: all)")
-
-	return cmd
-}
-
-func serverDescribeCmd() *cobra.Command {
-	describe := &cobra.Command{
-		Use:   cmdDescribeUse,
-		Short: "Describe server resources",
-	}
-	describe.AddCommand(serverDescribeManagedCmd())
-	return describe
-}
-
-func serverDescribeManagedCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s <id>", cmdManagedUse),
-		Short: "Show detailed managed server information",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
-			defer cancel()
-
-			httpClient, _, err := newAPIClient(ctx)
-			if err != nil {
-				return err
-			}
-
-			server, err := httpClient.ManagedServer(ctx, args[0])
-			if err != nil {
-				return err
-			}
-
-			format := outputFormat()
-			if format == "json" {
-				return output.Print(format, server)
-			}
-
-			view := managedServerDetail{
-				Name:        server.Name,
-				Type:        server.Type,
-				Status:      server.Status,
-				Description: server.Description,
-				ID:          server.ID,
-			}
-
-			return output.Print(format, view)
-		},
-	}
-	return cmd
-}
 
 func serverVolumeCmd() *cobra.Command {
 	root := &cobra.Command{
@@ -433,21 +331,6 @@ type serverInfoView struct {
 type serverTimeView struct {
 	ServerTime string `json:"Server Time"`
 	TimeZone   string `json:"Timezone"`
-}
-
-type managedServerRow struct {
-	Name        string `json:"Name"`
-	Type        string `json:"Type"`
-	Status      string `json:"Status"`
-	Description string `json:"Description"`
-}
-
-type managedServerDetail struct {
-	Name        string `json:"Name"`
-	Type        string `json:"Type"`
-	Status      string `json:"Status"`
-	Description string `json:"Description"`
-	ID          string `json:"Id"`
 }
 
 func formatPatches(patches []string) string {

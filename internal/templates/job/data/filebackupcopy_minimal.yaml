@@ -1,0 +1,13 @@
+# File backup copy job (minimal)
+type: FileBackupCopy
+name: "My File Backup Copy"
+description: "Copy job for file backups"
+
+primaryJobId: ""                # Source backup job ID
+backupRepositoryId: ""           # Target repository for copies
+retentionPolicy:
+  type: RestorePoints
+  quantity: 14
+
+schedule:
+  type: Continuous

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -10,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/internal/session"
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
@@ -19,46 +17,10 @@ func sessionCmd() *cobra.Command {
 		Use:   "session",
 		Short: "Session management and diagnostics",
 	}
-	root.AddCommand(sessionCurrentCmd())
 	root.AddCommand(sessionListCmd())
 	root.AddCommand(sessionDescribeCmd())
 	root.AddCommand(sessionLogsCmd())
 	return root
-}
-
-func sessionCurrentCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "current",
-		Aliases: []string{"get", "cached"},
-		Short:   "Show cached authentication session information",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			_, _, profileName, profile, err := loadConfigAndProfile()
-			if err != nil {
-				return err
-			}
-			sess, err := loadSession(profileName)
-			if err != nil {
-				if errors.Is(err, session.ErrNotFound) {
-					return fmt.Errorf("no cached session for profile %q; run veeamgo login", profileName)
-				}
-				return err
-			}
-
-			expiresIn := time.Until(sess.ExpiresAt).Round(time.Second)
-			view := map[string]any{
-				"profile":     profileName,
-				"server_url":  profile.ServerURL,
-				"username":    profile.Username,
-				"token_type":  sess.TokenType,
-				"expires_at":  formatTimestampValue(sess.ExpiresAt),
-				"expires_in":  expiresIn.String(),
-				"insecureTLS": profile.Insecure,
-			}
-
-			return output.Print(outputFormat(), view)
-		},
-	}
-	return cmd
 }
 
 type sessionListOptions struct {
@@ -82,7 +44,7 @@ func sessionListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List Veeam job sessions",
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
 
@@ -157,6 +119,7 @@ func sessionListCmd() *cobra.Command {
 					Progress:  fmt.Sprintf("%d%%", sess.ProgressPercent),
 					CreatedAt: formatTimestampValue(sess.CreationTime),
 					EndedAt:   formatTimestamp(sess.EndTime),
+					SessionID: sess.ID,
 				})
 			}
 
@@ -181,11 +144,17 @@ func sessionListCmd() *cobra.Command {
 }
 
 func sessionDescribeCmd() *cobra.Command {
+	var sessionID string
+
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s <session-id>", cmdDescribeUse),
+		Use:   cmdDescribeUse,
 		Short: "Show detailed information about a session",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			if strings.TrimSpace(sessionID) == "" {
+				return requireFlag("--id", "provide the session ID to describe")
+			}
+
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
 
@@ -194,7 +163,7 @@ func sessionDescribeCmd() *cobra.Command {
 				return err
 			}
 
-			detail, err := httpClient.SessionDetail(ctx, args[0])
+			detail, err := httpClient.SessionDetail(ctx, sessionID)
 			if err != nil {
 				return err
 			}
@@ -224,6 +193,8 @@ func sessionDescribeCmd() *cobra.Command {
 			return output.Print(format, view)
 		},
 	}
+
+	cmd.Flags().StringVar(&sessionID, "id", "", "Session ID to describe")
 	return cmd
 }
 
@@ -233,12 +204,17 @@ type sessionLogsOptions struct {
 
 func sessionLogsCmd() *cobra.Command {
 	opts := sessionLogsOptions{}
+	var sessionID string
 
 	cmd := &cobra.Command{
-		Use:   "logs <session-id>",
+		Use:   "logs",
 		Short: "Show session log records",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(sessionID) == "" {
+				return requireFlag("--id", "provide the session ID to inspect")
+			}
+
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
 
@@ -247,7 +223,7 @@ func sessionLogsCmd() *cobra.Command {
 				return err
 			}
 
-			records, err := httpClient.SessionLogs(ctx, args[0], client.SessionLogsFilter{
+			records, err := httpClient.SessionLogs(ctx, sessionID, client.SessionLogsFilter{
 				Status: opts.status,
 			})
 			if err != nil {
@@ -277,6 +253,7 @@ func sessionLogsCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&opts.status, "status", "", "Filter log records by status")
+	cmd.Flags().StringVar(&sessionID, "id", "", "Session ID whose logs to fetch")
 
 	return cmd
 }
@@ -289,6 +266,7 @@ type sessionRow struct {
 	Progress  string `json:"Progress"`
 	CreatedAt string `json:"Created"`
 	EndedAt   string `json:"Ended"`
+	SessionID string `json:"Session ID"`
 }
 
 type sessionDetailView struct {

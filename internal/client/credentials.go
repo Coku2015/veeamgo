@@ -129,6 +129,20 @@ func (c *Client) CredentialByID(ctx context.Context, id string) (*CredentialDeta
 	}, nil
 }
 
+// CreateCredentials provisions a new credentials record using the supplied specification.
+func (c *Client) CreateCredentials(ctx context.Context, spec map[string]any) (*Credential, error) {
+	if spec == nil {
+		return nil, fmt.Errorf("credentials specification cannot be nil")
+	}
+
+	payload := shallowCopy(spec)
+	var result Credential
+	if err := c.postJSON(ctx, "/api/v1/credentials", nil, payload, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
 // CloudCredentialsFilter narrows cloud credential listings.
 type CloudCredentialsFilter struct {
 	Name        string

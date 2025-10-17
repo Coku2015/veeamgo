@@ -1,0 +1,220 @@
+# VMware Cloud Director backup job (full)
+type: CloudDirectorBackup                 # Job type (EJobType)
+name: "My Cloud Director Backup"          # Job name shown in the UI
+description: "Comprehensive backup for Cloud Director organizations"
+isHighPriority: false                      # Prioritise job scheduling when true
+
+virtualMachines:                           # Selection of organisations, vApps, or VMs
+  includes:
+    - platform: CloudDirector              # Inventory platform identifier
+      type: vApp                           # Object type: Organization | vApp | VirtualMachine
+      name: ""                             # Display name of the object
+      objectId: ""                        # URN or object ID from Cloud Director
+      hostName: ""                        # Cloud Director server managing the object
+      urn: ""                             # Optional URN when available
+  excludes:
+    templates:
+      isEnabled: false                     # Exclude templates from processing
+      excludeFromIncremental: false        # Skip templates only for incremental runs
+    vms: []                                # Additional VM-level exclusions
+    disks:                                 # Optional disk exclusions per object
+      - vmObject:
+          platform: CloudDirector
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        disksToProcess: SelectedDisks      # AllDisks | SystemOnly | SelectedDisks
+        disks: []                          # Disk IDs when SelectedDisks is used
+        removeFromVMConfiguration: false   # Detach excluded disks from replica config
+
+storage:                                   # Backup storage configuration
+  backupRepositoryId: ""                  # Target backup repository ID
+  backupProxies:
+    autoSelectEnabled: true                # Auto-select preferred proxies
+    proxyIds: []                           # Specify proxies when auto selection disabled
+  retentionPolicy:
+    type: RestorePoints                    # RestorePoints | Days retention mode
+    quantity: 30                           # Number of restore points/days to keep
+  gfsPolicy:                               # Grandfather-Father-Son retention
+    isEnabled: true
+    weekly:
+      isEnabled: true
+      desiredTime: saturday                # Day for weekly synthetic fulls
+      keepForNumberOfWeeks: 4
+    monthly:
+      isEnabled: true
+      desiredTime: First                   # First | Second | Third | Fourth | Last
+      keepForNumberOfMonths: 12
+    yearly:
+      isEnabled: false
+      desiredTime: January
+      keepForNumberOfYears: 3
+  advancedSettings:
+    backupModeType: Incremental            # Incremental | ReverseIncremental
+    storageData:
+      compressionLevel: Optimal            # Compression level
+      storageOptimization: LocalTarget     # Block size optimisation
+      inlineDataDedupEnabled: true         # Enable per-job dedupe
+      excludeDeletedFileBlocks: true       # Skip deleted blocks in backups
+      excludeSwapFileBlocks: true          # Skip swap file blocks
+    synthenticFulls:
+      isEnabled: true                      # Enable synthetic full backups
+      weekly:
+        isEnabled: true
+        days: [saturday]
+        localTime: "22:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "22:00"
+        months: [January, April, July, October]
+    activeFulls:
+      isEnabled: false                     # Enable active full backups on schedule
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "00:00"
+        months: []
+    backupHealth:
+      isEnabled: false                     # Run backup health checks
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "00:00"
+        months: []
+    fullBackupMaintenance:
+      RemoveData:
+        isEnabled: false                   # Remove data for deleted VMs after X days
+        afterDays: 30
+      defragmentAndCompact:
+        isEnabled: false                   # Compact backup files periodically
+        weekly:
+          isEnabled: false
+          days: []
+          localTime: "00:00"
+        monthly:
+          isEnabled: false
+          dayNumberInMonth: First
+          dayOfWeek: saturday
+          localTime: "00:00"
+          months: []
+    notifications:
+      sendSNMPNotifications: false         # Emit SNMP traps on warnings/errors
+      emailNotifications:
+        isEnabled: false
+        notificationType: OnFailure        # Notification scope
+        recipients: []
+        customNotificationSettings: {}     # Advanced notification options
+      vmAttribute:
+        isEnabled: false                   # Update VM attributes
+        notes: ""
+        appendToExistingValue: false
+    scripts:
+      periodicityType: BackupSessions      # Run scripts every N sessions
+      runScriptEvery: 1
+      dayOfWeek: []
+      preCommand:
+        isEnabled: false
+        command: ""
+      postCommand:
+        isEnabled: false
+        command: ""
+
+applicationProcessing:                     # Application-aware processing (Cloud Director)
+  appAwareProcessing:
+    isEnabled: true                        # Enable application-aware processing
+    appSettings:
+      - vmObject:
+          platform: CloudDirector
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        vss: requireSuccess                # VSS behaviour (truncate logs on success)
+        transactionLogs: process           # Process | copy | doNotProcess SQL/Oracle logs
+        usePersistentGuestAgent: false     # Install persistent guest agent inside guest
+        exclusions:
+          exclusionPolicy: disabled        # disabled | excludeOnly | includeOnly
+          itemsList: []                    # Paths to exclude/include when policy enabled
+        oracle:
+          archiveLogs: deleteExpiredGBs    # Manage Oracle archive logs
+          backupLogs: true
+          backupMinsCount: 30
+          keepDaysCount: 7
+          deleteGBsCount: 1024
+          deleteHoursCount: 0
+          useGuestCredentials: true
+          credentialsId: ""
+          retainLogBackups: untilBackupDeleted # untilBackupDeleted | deleteImmediately
+          logShippingServers:
+            autoSelection: true
+            shippingServerIds: []
+        sql:
+          logsProcessing: backup           # backup | truncate | doNotProcess
+          backupMinsCount: 15
+          keepDaysCount: 7
+          retainLogBackups: untilBackupDeleted
+          logShippingServers:
+            autoSelection: true
+            shippingServerIds: []
+        scripts:
+          scriptProcessingMode: disableExec # disableExec | runOnPrimaryOnly | runOnReplicaToo
+          windowsScripts:
+            preFreezeScript: ""
+            postThawScript: ""
+          linuxScripts:
+            preFreezeScript: ""
+            postThawScript: ""
+  guestCredentials:
+    windowsCredsId: ""                   # Global Windows guest credentials
+    linuxCredsId: ""                     # Global Linux guest credentials
+    credentialsPerMachine: []             # Optional per-machine credential overrides
+  guestFSIndexing:
+    isEnabled: true                       # Enable file indexing
+    indexingSettings:
+      - vmObject:
+          platform: CloudDirector
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        WindowsIndexing:
+          guestFSIndexingMode: indexAllExcept
+          indexingList: ["%windir%", "%ProgramFiles%"]
+        LinuxIndexing:
+          guestFSIndexingMode: indexOnly
+          indexingList: ["/home", "/srv"]
+  guestInteractionProxies:
+    autoSelectEnabled: true               # Auto-select guest interaction proxies
+    proxyIds: []                          # Provide IDs when auto selection disabled
+
+schedule:
+  runAutomatically: true                  # Execute the job on schedule
+  daily:
+    isEnabled: true
+    dailyKind: SelectedDays
+    days: [monday, tuesday, wednesday, thursday, friday]
+    localTime: "22:30"
+  retry:
+    isEnabled: true
+    retryCount: 3
+    awaitMinutes: 15
+  backupWindow:
+    isEnabled: false
+    backupWindow:
+      days: []                            # Configure allowed time windows when enabled
+  afterThisJob:
+    isEnabled: false
+    jobName: ""                           # Run after another job completes when enabled

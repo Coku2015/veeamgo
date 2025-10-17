@@ -135,7 +135,7 @@ veeamgo rescan repository --all --wait
 veeamgo rescan server --id abcd-1234 --wait
 ```
 
-For a full catalogue of commands, flags, and examples consult the [User Guide](docs/Userguide.md).
+For a full catalogue of commands, flags, and examples consult the [User Guide](docs/user-guide.md).
 
 ## JSON Output
 
@@ -150,8 +150,8 @@ Supply `--output json` to view the exact API payload (including pagination block
 
 ## Documentation
 
-- [User Guide](docs/Userguide.md) – comprehensive CLI reference.
-- [docs/Stage 3B Plan.md](docs/Stage%203B%20Plan.md) – ongoing UI adjustments plan.
+- [User Guide](docs/user-guide.md) – comprehensive CLI reference.
+- [Stage 3B UI Adjustments (archived)](docs/archived-stage-3b-ui-adjustments.md) – summary of the UI work delivered in Stage 3B.
 - Additional project notes and requirements live under the `docs/` directory.
 
 ## License

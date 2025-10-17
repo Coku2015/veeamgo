@@ -1,0 +1,21 @@
+# Backup copy job (minimal)
+type: BackupCopy
+name: "My Backup Copy"
+description: "Copy job for offsite retention"
+
+mode: Immediate                  # Immediate | Periodic
+sourceObjects:
+  includes:
+    jobs:
+      - id: ""                  # Source job ID (UUID)
+        name: ""                # Optional display name for readability
+
+target:
+  backupRepositoryId: ""         # Target repository for copy increments
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 14
+
+schedule:
+  type: Immediate
+  scheduleMode: Continuous       # Continuous | BackupWindow

@@ -1,0 +1,13 @@
+# Microsoft Entra ID backup copy job (minimal)
+type: EntraIDTenantBackupCopy
+name: "My Entra ID Backup Copy"
+description: "Copy job for Entra ID tenant backups"
+
+primaryJobId: ""
+backupRepositoryId: ""
+retentionPolicy:
+  type: RestorePoints
+  quantity: 30
+
+schedule:
+  type: Continuous

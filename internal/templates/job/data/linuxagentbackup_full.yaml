@@ -1,0 +1,116 @@
+# Linux agent backup job (full)
+type: LinuxAgentBackup # Job type (EJobType)
+name: "My Linux Agent Backup" # Job name
+description: "Server-level Linux agent backup" # Job description
+agentType: Server # Agent type (Workstation | Server | FailoverCluster)
+backupMode: Volumes # Backup mode (EntireComputer | Volumes | FileLevel)
+useSnapshotlessFileLevelBackup: false # Create crash-consistent file-level backups without snapshots
+isHighPriority: false # Prioritise job in scheduler
+
+computers: # Protected Linux computers
+  - platform: Agent # Inventory platform (Agent-managed)
+    type: LinuxComputer # Inventory object type
+    id: "" # Computer ID (UUID)
+    name: "" # Computer display name
+    protectionGroupId: "" # Protection group containing computer
+
+volumes: # Volume scope (used when backupMode == Volumes)
+  volumeObject:
+    - type: Device # Device | MountPoint | LVM | BTRFS
+      path: "/dev/sda" # Source device path
+    - type: MountPoint
+      path: "/var" # Additional mount point to protect
+
+files: # File-level includes for Linux agent jobs
+  customFiles:
+    - "/etc" # Additional directories to include
+    - "/srv/data"
+  advancedSettings:
+    includeMasks: [] # File masks to include
+    excludeMasks: [] # File masks to exclude
+    excludeHiddenFiles: false # Exclude hidden files (if supported)
+
+storage: # Backup storage settings
+  backupRepositoryId: "" # Target backup repository ID
+  retentionPolicy:
+    type: RestorePoints # RestorePoints | Days
+    quantity: 30 # Number of restore points/days to keep
+  gfsPolicy:
+    isEnabled: false # Enable GFS retention (unsupported for Linux agent)
+  sourceBackupId: "" # Map job to existing backup when required
+
+schedule: # Scheduling options
+  runAutomatically: true # Enable scheduler
+  daily:
+    isEnabled: true
+    dailyKind: Everyday # Everyday | WeekDays | SelectedDays
+    localTime: "22:00"
+  retry:
+    isEnabled: true
+    retryCount: 3
+    awaitMinutes: 20
+  backupWindow:
+    isEnabled: false
+    backupWindow:
+      days: [] # Allowed hours per day
+  afterThisJob:
+    isEnabled: false
+    jobName: "" # Chain execution after another job
+
+guestProcessing: # Guest processing configuration
+  appAwareProcessing:
+    isEnabled: true # Enable application-aware processing
+    appSettings:
+      - machineObject:
+          platform: Agent
+          type: LinuxComputer
+          id: ""
+          name: ""
+          protectionGroupId: ""
+        vss: requireSuccess # VSS behaviour (requireSuccess | ignoreFailures | disabled)
+        oracle: # Oracle archived log handling
+          archiveLogs: deleteExpiredGBs # deleteExpiredGBs | deleteExpiredHours | keepAll
+          backupLogs: true
+          backupMinsCount: 30
+          keepDaysCount: 7
+          deleteGBsCount: 512
+          deleteHoursCount: 0
+          useGuestCredentials: true
+          credentialsId: ""
+          retainLogBackups: untilBackupDeleted
+        mySql: # MySQL processing settings
+          usePasswordFile: false
+          credentialsId: ""
+          passwordFilePath: "" # Path to MySQL password file when enabled
+        postgreSql: # PostgreSQL processing settings
+          useGuestCredentials: true
+          credentialsId: ""
+          userConnectionType: LocalSystem # LocalSystem | SpecifiedUser
+          backupLogs: false
+          backupMinsCount: 30
+          retainLogBackups: untilBackupDeleted
+          keepDaysCount: 7
+          tempArchiveLogsPath: "" # Temporary WAL staging location
+        scripts:
+          isExecutionEnabled: false # Enable script execution
+          jobScripts:
+            preJobScript: "" # Pre-job script path
+            postJobScript: "" # Post-job script path
+          snapshotScripts:
+            preFreezeScript: "" # Pre-freeze script path
+            postThawScript: "" # Post-thaw script path
+  guestFSIndexing:
+    isEnabled: false # Enable guest file system indexing
+    indexingSettings: [] # Per-machine indexing configuration
+  guestCredentials:
+    useProtectionGroupCredentials: true # Use protection group credentials
+    credentialsId: "" # Override credentials when required
+    credentialsPerMachine:
+      - default: false # Use job defaults when true
+        machineObject:
+          platform: Agent
+          type: LinuxComputer
+          id: ""
+          name: ""
+          protectionGroupId: ""
+        credentialsId: "" # Machine-specific credentials

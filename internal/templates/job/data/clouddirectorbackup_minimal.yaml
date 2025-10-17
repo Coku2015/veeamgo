@@ -1,0 +1,28 @@
+# VMware Cloud Director backup job (minimal)
+type: CloudDirectorBackup
+name: "My Cloud Director Backup"
+description: "Nightly backup for Cloud Director workloads"
+
+virtualMachines:
+  includes:
+    - platform: CloudDirector      # Required: Cloud Director inventory platform
+      type: VirtualMachine         # Required: inventory object type (VirtualMachine, vApp, etc.)
+      name: ""
+      objectId: ""
+      hostName: ""               # Cloud Director server managing the object
+
+storage:
+  backupRepositoryId: ""
+  backupProxies:
+    autoSelectEnabled: true        # Set false and provide proxyIds for dedicated proxies
+    proxyIds: []
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 14
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "22:00"

@@ -1,0 +1,124 @@
+# Windows agent backup job (full)
+type: WindowsAgentBackup # Job type (EJobType)
+name: "My Windows Agent Backup" # Backup job name
+description: "Server-level Windows agent backup" # Job description
+agentType: Server # Agent type (Workstation | Server | FailoverCluster)
+backupMode: Volumes # Backup scope mode (EntireComputer | Volumes | FileLevel)
+includeUsbDrives: false # Include periodically connected USB drives
+isHighPriority: false # Prioritise job in the scheduler
+
+computers: # Protected computers pulled from protection groups
+  - platform: Agent # Inventory platform (Agent-managed)
+    type: WindowsComputer # Object type
+    id: "" # Computer ID (UUID)
+    name: "" # Computer display name
+    protectionGroupId: "" # Protection group containing the computer
+
+volumes: # Volume-level selection (used when backupMode == Volumes)
+  volumesBackupMode: selectedVolumes # selectedVolumes | allVolumesExcept
+  volumeObject:
+    - type: OS # OS volume
+    - type: Custom # Additional custom volume
+      path: "D:" # Drive letter or mount point
+
+files: # File-level include/exclude configuration
+  backupPersonalFiles: false # Backup built-in personal folders
+  includes: # Personal folders to include
+    desktop: false
+    documents: false
+    pictures: false
+    video: false
+    music: false
+    downloads: false
+    favorites: false
+    appData: false
+    other: false
+  excludes:
+    roamingProfiles: false # Exclude roaming profiles
+  customFiles:
+    - "C:\\Data" # Additional folders to include
+  advancedSettings:
+    includeMasks: [] # File masks to include
+    excludeMasks: [] # File masks to exclude
+    excludeOneDrive: true # Exclude Microsoft OneDrive folder
+
+storage: # Backup storage settings
+  backupRepositoryId: "" # Target backup repository ID
+  retentionPolicy:
+    type: RestorePoints # RestorePoints | Days
+    quantity: 30 # Number of restore points or days to retain
+  gfsPolicy:
+    isEnabled: true # Enable GFS retention
+    weekly:
+      isEnabled: true
+      desiredTime: sunday # Weekly retention day
+      keepForNumberOfWeeks: 4
+    monthly:
+      isEnabled: false
+      desiredTime: First # Monthly retention
+      keepForNumberOfMonths: 6
+    yearly:
+      isEnabled: false
+      desiredTime: January # Yearly retention month
+      keepForNumberOfYears: 3
+  sourceBackupId: "" # Map job to existing backup if required
+
+schedule: # Job scheduling configuration
+  runAutomatically: true # Enable scheduled execution
+  daily:
+    isEnabled: true
+    dailyKind: Everyday # Everyday | WeekDays | SelectedDays
+    localTime: "22:00" # Local start time
+  retry:
+    isEnabled: true
+    retryCount: 3 # Number of retries when job fails
+    awaitMinutes: 20 # Minutes between retries
+  backupWindow:
+    isEnabled: false # Enable backup window restriction
+    backupWindow:
+      days: [] # Allowed hours per day when window is enabled
+  afterThisJob:
+    isEnabled: false # Chain execution after another job
+    jobName: "" # Job name to chain after
+
+guestProcessing: # Application-aware processing options
+  appAwareProcessing:
+    isEnabled: true # Enable application-aware processing
+    appSettings:
+      - machineObject:
+          platform: Agent
+          type: WindowsComputer
+          id: "" # Computer ID
+          name: "" # Computer name
+          protectionGroupId: "" # Protection group ID
+        isProcessingEnabled: true # Enable processing for this machine
+        transactionLogs: process # process | copyOnly log handling
+        sql: # Microsoft SQL log handling
+          logsProcessing: backup # backup | truncate | neverTruncate
+          backupMinsCount: 15 # Log backup interval (minutes)
+          keepDaysCount: 7 # Days to keep log backups
+          retainLogBackups: untilBackupDeleted # Log retention strategy
+          useGuestCredentials: true # Use job-level credentials
+          credentialsId: "" # Override credentials (optional)
+        oracle: # Oracle archived log handling
+          archiveLogs: deleteExpiredGBs # deleteExpiredGBs | deleteExpiredHours | keepAll
+          backupLogs: false # Backup Oracle archived logs
+          backupMinsCount: 30 # Archive log backup interval
+          keepDaysCount: 7 # Days to keep archive logs
+          deleteGBsCount: 512 # Archive log size threshold in GB
+          deleteHoursCount: 0 # Archive log age threshold in hours
+          useGuestCredentials: true # Use job-level credentials
+          credentialsId: "" # Override credentials (optional)
+          retainLogBackups: untilBackupDeleted # Log retention strategy
+        sharePoint: # SharePoint processing settings
+          useGuestCredentials: true
+          credentialsId: ""
+        scripts: # Application script settings
+          scriptProcessingMode: disableExec # disableExec | ignoreExecFailures | requireSuccess
+          snapshotScripts:
+            preFreezeScript: "" # Pre-freeze script path
+            postThawScript: "" # Post-thaw script path
+  guestFSIndexing:
+    isEnabled: false # Enable guest file indexing for agents
+    indexingSettings: [] # Machine-specific indexing options
+

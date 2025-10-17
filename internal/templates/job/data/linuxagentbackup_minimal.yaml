@@ -1,0 +1,27 @@
+# Linux agent backup job (minimal)
+type: LinuxAgentBackup
+name: "My Linux Agent Backup"
+description: "Nightly backup for Linux servers"
+
+agentType: Server                # Workstation | Server | FailoverCluster
+backupMode: EntireComputer       # EntireComputer | Volumes | FileLevel
+
+computers:
+  - platform: Agent
+    type: LinuxComputer
+    id: ""                      # Protected computer ID (UUID)
+    name: ""
+    protectionGroupId: ""       # Protection group containing this computer
+
+storage:
+  backupRepositoryId: ""
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 14
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "22:00"

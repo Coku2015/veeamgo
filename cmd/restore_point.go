@@ -46,8 +46,8 @@ func restorePointGetCmd() *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
 
-			if strings.TrimSpace(opts.jobName) == "" {
-				return fmt.Errorf("--name is required")
+			if strings.TrimSpace(opts.jobName) == "" && strings.TrimSpace(opts.backupName) == "" {
+				return fmt.Errorf("provide --backup or --name")
 			}
 
 			httpClient, _, err := newAPIClient(ctx)
@@ -55,42 +55,16 @@ func restorePointGetCmd() *cobra.Command {
 				return err
 			}
 
-			job, err := httpClient.JobStateByName(ctx, opts.jobName)
+			backup, job, err := resolveBackup(ctx, httpClient, opts.jobName, opts.backupName)
 			if err != nil {
-				return fmt.Errorf("resolve job %q: %w", opts.jobName, err)
+				return err
 			}
 
-			var backup *client.Backup
-			if opts.backupName != "" {
-				backup, err = httpClient.BackupByName(ctx, opts.backupName)
-				if err != nil {
-					return err
-				}
-				if backup.JobID != job.ID {
-					return fmt.Errorf("backup %q does not belong to job %q", backup.Name, job.Name)
-				}
-			} else {
-				backups, err := httpClient.Backups(ctx, client.BackupsFilter{
-					JobID:    job.ID,
-					MaxItems: 2,
-				})
-				if err != nil {
-					return err
-				}
-				if len(backups) == 0 {
-					return fmt.Errorf("no backups found for job %q", job.Name)
-				}
-				if len(backups) > 1 {
-					names := make([]string, 0, len(backups))
-					for _, b := range backups {
-						names = append(names, b.Name)
-						if len(names) == 5 {
-							break
-						}
-					}
-					return fmt.Errorf("multiple backups found for job %q; specify --backup to disambiguate (found: %s)", job.Name, strings.Join(names, ", "))
-				}
-				backup = &backups[0]
+			jobLabel := firstNonEmpty(opts.jobName, "(deleted job)")
+			if job != nil && strings.TrimSpace(job.Name) != "" {
+				jobLabel = job.Name
+			} else if jobLabel == "(deleted job)" && !isZeroUUID(backup.JobID) {
+				jobLabel = fmt.Sprintf("(job %s)", backup.JobID)
 			}
 
 			filter := client.RestorePointsFilter{
@@ -137,12 +111,12 @@ func restorePointGetCmd() *cobra.Command {
 			rows := make([]restorePointRow, 0, len(result.RestorePoints))
 			for _, rp := range result.RestorePoints {
 				rows = append(rows, restorePointRow{
-					Name:      rp.Name,
-					Type:      rp.Type,
-					Platform:  rp.PlatformName,
-					CreatedAt: formatTimestampValue(rp.CreationTime),
-					JobName:   job.Name,
-					Malware:   rp.MalwareStatus,
+					ObjectName: rp.Name,
+					Type:       rp.Type,
+					Platform:   rp.PlatformName,
+					CreatedAt:  formatTimestampValue(rp.CreationTime),
+					JobName:    jobLabel,
+					Malware:    rp.MalwareStatus,
 				})
 			}
 
@@ -150,11 +124,9 @@ func restorePointGetCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&opts.jobName, "name", "", "Backup job name (required)")
-	cmd.Flags().StringVar(&opts.jobName, "job", "", "Deprecated: use --name to specify the backup job name")
-	cmd.Flags().StringVar(&opts.backupName, "backup", "", "Backup name (optional if job has a single backup)")
+	cmd.Flags().StringVar(&opts.jobName, "name", "", "Backup job name (optional)")
+	cmd.Flags().StringVar(&opts.backupName, "backup", "", "Backup name")
 	cmd.Flags().StringVar(&opts.restorePointName, "restorepoint", "", "Filter by restore point name (supports * wildcards)")
-	cmd.Flags().StringVar(&opts.restorePointName, "restorepoint-name", "", "Filter by restore point name (supports * wildcards)")
 	cmd.Flags().StringVar(&opts.objectID, "object", "", "Filter by backup object ID")
 	cmd.Flags().StringVar(&opts.platformName, "platform", "", "Filter by platform name (e.g. VMware)")
 	cmd.Flags().StringVar(&opts.platformID, "platform-id", "", "Filter by platform ID")
@@ -165,18 +137,14 @@ func restorePointGetCmd() *cobra.Command {
 	cmd.Flags().BoolVar(&opts.desc, "desc", false, "Sort in descending order")
 	cmd.Flags().IntVar(&opts.limit, "limit", 0, "Maximum number of restore points to return")
 
-	if jobFlag := cmd.Flags().Lookup("job"); jobFlag != nil {
-		jobFlag.Hidden = true
-	}
-
 	return cmd
 }
 
 type restorePointRow struct {
-	Name      string `json:"Name"`
-	Type      string `json:"Type"`
-	Platform  string `json:"Platform"`
-	CreatedAt string `json:"Created At"`
-	JobName   string `json:"Job Name"`
-	Malware   string `json:"Malware Status"`
+	ObjectName string `json:"Object Name"`
+	Type       string `json:"Type"`
+	Platform   string `json:"Platform"`
+	CreatedAt  string `json:"Created At"`
+	JobName    string `json:"Job Name"`
+	Malware    string `json:"Malware Status"`
 }

@@ -90,3 +90,70 @@ func TestRestorePointByNameSuggestions(t *testing.T) {
 		t.Fatalf("expected suggestion error, got %v", err)
 	}
 }
+
+func TestRestorePointsDeduplicatesEntries(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		now := time.Date(2025, 10, 14, 22, 1, 53, 0, time.UTC)
+		points := []RestorePoint{
+			{ID: "restore-1", Name: "ubuntu", Type: "Full", CreationTime: now},
+			{ID: "restore-1", Name: "ubuntu-copy", Type: "Full", CreationTime: now.Add(time.Minute)},
+			{SessionID: "session-1", Name: "vm-no-id", Type: "Incremental", CreationTime: now.Add(2 * time.Minute)},
+			{SessionID: "session-1", Name: "vm-no-id-duplicate", Type: "Incremental", CreationTime: now.Add(3 * time.Minute)},
+			{Name: "vm-fallback", Type: "Full", CreationTime: now.Add(4 * time.Minute)},
+			{Name: "vm-fallback", Type: "Full", CreationTime: now.Add(4 * time.Minute)},
+			{ID: "restore-unique", Name: "unique", Type: "Full", CreationTime: now.Add(5 * time.Minute)},
+		}
+
+		var raw []json.RawMessage
+		for _, rp := range points {
+			payload, _ := json.Marshal(rp)
+			raw = append(raw, payload)
+		}
+
+		resp := restorePointsResponse{
+			Data:       raw,
+			Pagination: paginationResult{Total: len(raw), Count: len(raw)},
+		}
+
+		payload, _ := json.Marshal(resp)
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(payload)),
+		}, nil
+	})
+
+	result, err := client.RestorePoints(context.Background(), RestorePointsFilter{})
+	if err != nil {
+		t.Fatalf("RestorePoints returned error: %v", err)
+	}
+
+	if got, want := len(result.RestorePoints), 4; got != want {
+		t.Fatalf("expected %d restore points after deduplication, got %d", want, got)
+	}
+
+	expectedOrder := []string{"restore-1", "session-1", "", "restore-unique"}
+	for idx, expected := range expectedOrder {
+		if idx >= len(result.RestorePoints) {
+			break
+		}
+		rp := result.RestorePoints[idx]
+		switch expected {
+		case "":
+			if strings.TrimSpace(rp.ID) != "" || strings.TrimSpace(rp.SessionID) != "" {
+				t.Fatalf("expected fallback keyed restore point at index %d, got id=%q session=%q", idx, rp.ID, rp.SessionID)
+			}
+			if rp.Name != "vm-fallback" {
+				t.Fatalf("unexpected fallback restore point name at index %d: %s", idx, rp.Name)
+			}
+		case "session-1":
+			if rp.SessionID != expected {
+				t.Fatalf("expected session %q at index %d, got %q", expected, idx, rp.SessionID)
+			}
+		default:
+			if rp.ID != expected {
+				t.Fatalf("expected id %q at index %d, got %q", expected, idx, rp.ID)
+			}
+		}
+	}
+}

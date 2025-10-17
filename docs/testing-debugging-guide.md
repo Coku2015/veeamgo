@@ -27,17 +27,32 @@ Provide a repeatable playbook for validating each development stage of VeeamGo, 
 ### Stage 2 — Infrastructure
 - **Focus**: managed servers, repositories, inventory rescans.
 - **Manual Checklist**
-  ```bash
-  veeamgo server get managed
-  veeamgo server describe managed <server-id>
-  veeamgo server rescan --all --async
-  veeamgo repository get --output json
-  veeamgo repository rescan <repo-id> --wait
+```bash
+veeamgo get managedserver
+veeamgo describe managedserver --id <server-id>
+veeamgo server rescan --all --async
+veeamgo repository get --output json
+veeamgo repository rescan <repo-id> --wait
+  veeamgo get sobr --limit 5
+  veeamgo describe sobr --name "<sobr-name>"
+  veeamgo get wanaccelerator --limit 5
+  veeamgo describe wanaccelerator --name "<wan-name>"
+  veeamgo get generaloption
   veeamgo inventory servers --limit 5
+  # Lab-only smoke: requires an available target host/credential
+  veeamgo add managedserver vsphere --name vc01.lab.local --username svc-vbr --password ****** --wait --yes
+  # Lab-only smoke (deployment kit): certificate-based onboarding skips credentials
+  # veeamgo add managedserver windows --name winrepo-cert.lab.local --connect-mode Certificate --wait --yes
+  # Lab-only smoke (Linux single-use): supply fingerprint and ephemeral credentials
+  # veeamgo add managedserver linux --name repo01.lab.local --ssh-fingerprint "ssh-rsa 3072 AAAA..." --single-use-username repo --single-use-password ****** --connect-mode SingleUse --wait --yes
   ```
 - **Expected Outcomes**
   - Rescan commands log task progress and exit status.
   - Inventory queries fetch hierarchical paths and annotate health issues.
+  - Scale-out repository commands highlight placement policy, capacity/archive tier settings, and extent health at a glance.
+  - WAN accelerator commands surface cache sizing, traffic ports, and bandwidth mode for each accelerator.
+  - `get generaloption` prints yes/no toggles for notifications and SIEM integrations in a describe-style table.
+  - Managed server provisioning prints the session ID, auto-generates descriptions when omitted, and reports the server ID when run with `--wait`. Certificate-based onboarding (`--connect-mode Certificate`) assumes the deployment kit is already installed and rejects credential flags. Linux SingleUse mode requires fingerprint plus the `--single-use-*` credentials and succeeds without storing a permanent credential.
 
 ### Stage 3 — Jobs & Tasks
 - **Focus**: job listing, describing, state aggregation, and lifecycle mutations.
@@ -45,23 +60,26 @@ Provide a repeatable playbook for validating each development stage of VeeamGo, 
 ```bash
 veeamgo job get --output table
 veeamgo job get --output json --name smoke
-veeamgo job describe "<job-name>"
+  veeamgo job describe "<job-name>"
   veeamgo job start <job-id> --yes
-  veeamgo session list --limit 5
-  veeamgo session describe <session-id>
-  veeamgo session logs <session-id> --status Warning
-  veeamgo task get --job <job-id>
-  veeamgo task describe <task-id>
-  veeamgo task logs <task-id>
+  veeamgo get session --limit 5
+  veeamgo describe session --id "<Session ID>"
+  veeamgo get session logs --id "<Session ID>" --status Warning
+  veeamgo get task --session-id "<Session ID>"
+  veeamgo describe task --id "<Task ID>"
+  veeamgo get task logs --id "<Task ID>"
+  veeamgo get malwaredetectionevent --limit 5
+  veeamgo get yararule
   veeamgo job disable <job-id> --yes && veeamgo job enable <job-id> --yes
   ```
 - **Expected Outcomes**
   - Lists support pagination and filtering flags.
   - Mutating commands emit task session IDs and block until task resolves (unless `--async`).
   - Exit codes signal success (0), partial failure (3), not found (4), validation (5).
+  - Malware detection events surface severity, engine, detection timestamps; YARA rules list uploaded rule files.
 - **Debug Tips**
   - Use `--trace` to print request/response bodies for problematic endpoints.
-  - Capture task logs via `veeamgo task logs <id> --status Error > task.log`.
+  - Capture task logs via `veeamgo get task logs --id <id> --status Error > task.log`.
 
 ### Stage 4 — Backups & Restore Points
 - **Focus**: backup inventory, file/object enumeration, restore point metadata.
@@ -137,7 +155,7 @@ veeamgo job describe "<job-name>"
 - **Auth Fails**: check clock skew (`veeamgo server get time`), verify TLS trust, ensure token cache not stale (`veeamgo session clear --all`).
 - **API 429/503**: CLI should back off; if persistent, enable `--debug` to inspect `Retry-After`, adjust concurrency.
 - **Slow Reads**: use `--limit` to constrain result size, check network latency metrics printed in debug mode.
-- **Restore Errors**: confirm resource pool/datastore names, validate user permissions, review task logs via `veeamgo task describe`.
+- **Restore Errors**: confirm resource pool/datastore names, validate user permissions, review task logs via `veeamgo describe task --id <Task ID>`.
 
 ## 6. Sample Automation Script
 ```bash

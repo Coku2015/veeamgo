@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -186,4 +187,86 @@ func TestKMSServersFilterEncoding(t *testing.T) {
 	assertQueryEquals(t, captured, "orderColumn", "name")
 	assertQueryEquals(t, captured, "orderAsc", "true")
 	assertQueryEquals(t, captured, "limit", "2")
+}
+
+func TestCreateCredentials(t *testing.T) {
+	var payload map[string]any
+
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		if req.Method != http.MethodPost {
+			t.Fatalf("expected POST, got %s", req.Method)
+		}
+		if req.URL.Path != "/api/v1/credentials" {
+			t.Fatalf("unexpected path %s", req.URL.Path)
+		}
+
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			t.Fatalf("read request body: %v", err)
+		}
+		if err := json.Unmarshal(body, &payload); err != nil {
+			t.Fatalf("decode request body: %v", err)
+		}
+
+		resp := Credential{
+			ID:           "cred-123",
+			Username:     "svc-account",
+			Description:  "Service account",
+			Type:         "Standard",
+			CreationTime: time.Date(2025, 10, 17, 10, 0, 0, 0, time.UTC),
+		}
+		bytesResp, _ := json.Marshal(resp)
+
+		return &http.Response{
+			StatusCode: http.StatusCreated,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(bytesResp)),
+		}, nil
+	})
+
+	spec := map[string]any{
+		"username":    "svc-account",
+		"password":    "P@ssw0rd!",
+		"description": "Service account",
+		"type":        "Standard",
+	}
+
+	created, err := client.CreateCredentials(context.Background(), spec)
+	if err != nil {
+		t.Fatalf("CreateCredentials returned error: %v", err)
+	}
+	if created == nil {
+		t.Fatalf("expected credential result")
+	}
+	if created.ID != "cred-123" {
+		t.Fatalf("unexpected credential ID %s", created.ID)
+	}
+
+	if payload == nil {
+		t.Fatalf("expected request payload to be captured")
+	}
+	if got := payload["username"]; got != "svc-account" {
+		t.Fatalf("unexpected username value %v", got)
+	}
+	if got := payload["password"]; got != "P@ssw0rd!" {
+		t.Fatalf("unexpected password value %v", got)
+	}
+	if got := payload["type"]; got != "Standard" {
+		t.Fatalf("unexpected type value %v", got)
+	}
+}
+
+func TestCreateCredentialsNilSpec(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		t.Fatalf("request should not be sent")
+		return nil, nil
+	})
+
+	created, err := client.CreateCredentials(context.Background(), nil)
+	if err == nil {
+		t.Fatalf("expected error for nil spec")
+	}
+	if created != nil {
+		t.Fatalf("expected nil credential result")
+	}
 }

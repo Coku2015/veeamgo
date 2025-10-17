@@ -1,0 +1,216 @@
+# VMware vSphere replica job (full)
+type: VSphereReplica # Job type (EJobType)
+name: "My vSphere Replica" # Replica job name
+description: "Hot standby replica configuration" # Job description
+isHighPriority: false # If true, scheduler prioritises this job
+
+virtualMachines: # Source VM selection for replication
+  includes:
+    - platform: VSphere # Inventory platform of the source object
+      type: VirtualMachine # Inventory object type
+      name: "" # Display name of the VM or container
+      objectId: "" # Inventory object ID
+      hostName: "" # Managing host or vCenter
+      urn: "" # Optional URN when available
+  excludes:
+    vms: [] # Additional VMs to exclude from replication
+    disks:
+      - vmObject:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        disksToProcess: SelectedDisks # AllDisks | SystemOnly | SelectedDisks
+        disks: [] # Disk IDs to include/exclude when using SelectedDisks
+        removeFromVMConfiguration: false # Remove selected disks from replica VM configuration
+  sourceRepositories: [] # Optional filter restricting source repositories
+
+destination: # Target location for replicas
+  host:
+    platform: VSphere
+    type: Host
+    name: ""
+    objectId: ""
+    hostName: ""
+  resourcePool:
+    platform: VSphere
+    type: ResourcePool
+    name: ""
+    objectId: ""
+    hostName: ""
+  folder:
+    platform: VSphere
+    type: Folder
+    name: ""
+    objectId: ""
+    hostName: ""
+  datastore:
+    platform: VSphere
+    type: Datastore
+    name: ""
+    objectId: ""
+    hostName: ""
+  mappingRules: # Datastore/network mapping rules per VM
+    - sourceNetwork:
+        platform: VSphere
+        type: Network
+        name: ""
+        objectId: ""
+        hostName: ""
+      targetNetwork:
+        platform: VSphere
+        type: Network
+        name: ""
+        objectId: ""
+        hostName: ""
+
+jobSettings: # Replica job specific settings
+  metadataRepositoryId: "" # Repository that stores replica metadata
+  replicaNameSuffix: "_replica" # Suffix appended to replica VM names
+  restorePointsToKeep: 14 # Maximum replica restore points (1-28)
+  advancedSettings:
+    traffic: # Replica data transfer settings
+      compressionLevel: Optimal # WAN compression level
+      storageOptimization: LocalTarget # Block size optimisation
+      excludeDeletedFileBlocks: true # Skip deleted blocks
+      excludeSwapFileBlocks: true # Skip swap blocks
+    integration: # Storage integration settings
+      isEnabled: false # Use storage snapshots when available
+      failoverToStandardBackup: true # Fallback to standard mode on failure
+      processedVmsLimitEnabled: false # Limit VMs processed per snapshot
+      processedVmsCount: 4 # Number of VMs per snapshot when limit is enabled
+    scripts: # Job-level scripts
+      periodicityType: BackupSessions # Script frequency (BackupSessions | Weekly)
+      runScriptEvery: 1 # Run script every N sessions
+      dayOfWeek: [] # Days when scripts run (weekly periodicity)
+      preCommand:
+        isEnabled: false # Enable pre-job script
+        command: "" # Script path
+      postCommand:
+        isEnabled: false # Enable post-job script
+        command: ""
+    notifications: # Notification settings
+      sendSNMPNotifications: false # Enable SNMP traps
+      emailNotifications:
+        isEnabled: false # Enable email notifications
+        notificationType: OnFailure # OnSuccess | OnFailure | OnWarning
+        recipients: [] # Email recipients
+        customNotificationSettings: {} # Additional email configuration
+    vSphere:
+      changedBlockTracking:
+        isEnabled: true # Use CBT for replicas
+        enableCBTautomatically: true # Enable CBT on source VMs automatically
+        resetCBTonActiveFull: false # Reset CBT during active full backups
+      enableVMWareToolsQuiescence: false # Use VMware Tools quiescence
+
+reIp: # Re-IP rules for DR site networks
+  rules:
+    - originalIPAddress: "" # CIDR of source network
+      targetIPAddress: "" # CIDR of DR network
+      subnetMask: "" # Optional subnet mask
+      defaultGateway: "" # Optional new gateway
+      dnsSuffix: "" # Optional DNS suffix
+
+seeding: # Replica seeding and mapping options
+  initialSeeding:
+    isEnabled: false # Seed replicas from existing backups
+    repositoryId: "" # Repository containing seed backup
+  replicaMapping:
+    isEnabled: false # Map to existing DR VMs
+    mappingRules:
+      - originalVM:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        replicaVM:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+
+network: # Additional network mapping rules (vApp network support)
+  mappingRules:
+    - sourceNetwork:
+        platform: VSphere
+        type: Network
+        name: ""
+        objectId: ""
+        hostName: ""
+      targetNetwork:
+        platform: VSphere
+        type: Network
+        name: ""
+        objectId: ""
+        hostName: ""
+
+guestProcessing: # Guest processing configuration
+  appAwareProcessing:
+    isEnabled: true # Enable application-aware processing
+    appSettings:
+      - vmObject:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        vss: requireSuccess # VSS processing behaviour
+        transactionLogs: process # Process | copyOnly transaction logs
+        usePersistentGuestAgent: false # Install persistent guest agent
+        exclusions:
+          exclusionPolicy: disabled # disabled | excludeOnly | includeOnly
+          itemsList: [] # Paths to exclude/include
+        oracle:
+          archiveLogs: deleteExpiredGBs # deleteExpiredGBs | deleteExpiredHours | keepAll
+          backupLogs: true # Backup Oracle archived logs
+          backupMinsCount: 30 # Archive log backup frequency (minutes)
+          keepDaysCount: 7 # Days to keep archived logs
+          deleteGBsCount: 1024 # Threshold for archived logs in GB
+          deleteHoursCount: 0 # Threshold for archived logs in hours
+          useGuestCredentials: true # Use default guest credentials
+          credentialsId: "" # Override credentials
+          retainLogBackups: untilBackupDeleted # Retain log backups strategy
+          logShippingServers:
+            autoSelection: true # Auto-select log shipping servers
+            shippingServerIds: [] # Custom log shipping servers
+        sql:
+          logsProcessing: backup # backup | truncate | neverTruncate
+          backupMinsCount: 15 # Log backup interval (minutes)
+          keepDaysCount: 7 # Days to keep log backups
+          retainLogBackups: untilBackupDeleted # Retention strategy
+          logShippingServers:
+            autoSelection: true
+            shippingServerIds: []
+        scripts:
+          scriptProcessingMode: disableExec # disableExec | ignoreExecFailures | requireSuccess
+          windowsScripts:
+            preFreezeScript: "" # Windows pre-freeze script
+            postThawScript: "" # Windows post-thaw script
+          linuxScripts:
+            preFreezeScript: "" # Linux pre-freeze script
+            postThawScript: "" # Linux post-thaw script
+  guestCredentials:
+    windowsCredsId: "" # Default Windows credentials ID
+    linuxCredsId: "" # Default Linux credentials ID
+    credentialsPerMachine: [] # VM-specific credential overrides
+  guestInteractionProxies:
+    autoSelectEnabled: true # Auto-select guest interaction proxy
+    proxyIds: [] # Custom proxies when auto selection disabled
+
+schedule: # Replica job schedule
+  runAutomatically: true # Enable job scheduling
+  daily:
+    isEnabled: true
+    dailyKind: Everyday # Everyday | WeekDays | SelectedDays
+    localTime: "20:00" # Scheduled start time
+  retry:
+    isEnabled: true
+    retryCount: 3 # Number of retries on failure
+    awaitMinutes: 15 # Delay between retries
+  backupWindow:
+    isEnabled: false # Limit processing window
+    backupWindow:
+      days: [] # Allowed hours for processing

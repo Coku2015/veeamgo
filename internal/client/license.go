@@ -791,6 +791,15 @@ func (c *Client) ConfigBackup(ctx context.Context) (*ConfigBackup, error) {
 	return result, nil
 }
 
+// StartConfigBackup triggers an on-demand configuration backup.
+func (c *Client) StartConfigBackup(ctx context.Context) (*Session, error) {
+	var sess Session
+	if err := c.postJSON(ctx, "/api/v1/configBackup/backup", nil, nil, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
 func extractMap(payload map[string]any, key string) (map[string]any, bool) {
 	if value, ok := payload[key]; ok {
 		if mapped, ok := value.(map[string]any); ok {

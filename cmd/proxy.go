@@ -117,7 +117,7 @@ func proxyDescribeCmd() *cobra.Command {
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {
-				return fmt.Errorf("specify --name <proxy>")
+				return requireFlag("--name", "provide the proxy name")
 			}
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
@@ -180,7 +180,6 @@ func proxyDescribeCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&name, "name", "", "Proxy name to describe")
 	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter by proxy type when resolving name")
-	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }
 

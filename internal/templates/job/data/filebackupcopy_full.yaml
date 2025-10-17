@@ -1,0 +1,39 @@
+# File backup copy job (full)
+type: FileBackupCopy # Job type (EJobType)
+name: "My File Backup Copy" # Job name
+description: "Managed copy of NAS/agent backups" # Job description
+
+primaryJobId: "" # Source NAS/agent backup job ID (UUID)
+backupRepositoryId: "" # Target repository ID for copy jobs
+useCustomRetention: true # Enable custom retention policy below
+retentionPolicy:
+  type: Months # Retention type for file backups (Months | Weeks)
+  quantity: 12 # Number of months or weeks to keep copies
+useCustomEncryption: true # Enable custom encryption settings
+encryption:
+  isEnabled: true # Encrypt backup copy data
+  encryptionType: ByPassword # Encryption method (ByPassword | ByKms)
+  encryptionPasswordId: "" # Password ID stored in credentials vault
+  encryptionPasswordUniqueId: "" # Unique password identifier (optional)
+  kmsServerId: "" # KMS server ID when using KMS (optional)
+
+schedule:
+  type: Custom # Custom | Continuous copy mode
+  customWindow: # Time window when copy jobs may run
+    isEnabled: true
+    backupWindow:
+      days:
+        - day: monday # Day of week
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1" # 24 comma-separated flags per hour (1 = allowed)
+        - day: tuesday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: wednesday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: thursday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: friday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: saturday
+          hours: "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+        - day: sunday
+          hours: "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"

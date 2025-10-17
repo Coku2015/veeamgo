@@ -1,0 +1,57 @@
+# Microsoft Entra ID audit log backup job (full)
+type: EntraIDAuditLogBackup        # Job type (EJobType)
+name: "My Entra Audit Log Backup"  # Human-friendly job name
+description: "Comprehensive audit log retention policy"  # Job description shown in UI
+isHighPriority: false              # Run with high scheduler priority when true
+
+tenant:
+  tenantId: ""                     # Microsoft Entra tenant ID (GUID registered in VBR)
+
+storage:
+  backupRepositoryId: ""           # Target backup repository that stores audit log data
+  retentionPolicy:
+    type: Months                   # Months | RestorePoints retention mode
+    quantity: 6                    # Number of months/restore points to keep
+  advancedSettings:
+    storageData:
+      compressionLevel: Optimal    # None | DedupeFriendly | Optimal | High | Extreme
+      encryption:
+        isEnabled: false           # Enable backup file encryption
+        passwordId: ""             # Password record ID when encryption is enabled
+    backupHealth:
+      isEnabled: false             # Enable periodic backup health checks
+      weekly:
+        isEnabled: false
+        days: [friday]             # Run health check on these days when enabled
+        localTime: "23:00"
+    notifications:
+      sendSNMPNotifications: false # Emit SNMP traps for job status changes
+      emailNotifications:
+        isEnabled: false           # Send email notifications
+        notificationType: OnFailure # OnSuccess | OnFailure | OnWarning | UseGlobalNotificationSettings
+        recipients: []             # Email addresses for notifications
+    scripts:
+      periodicityType: BackupSessions # Run scripts every N backup sessions
+      runScriptEvery: 1             # Execute scripts every Nth session
+      dayOfWeek: []                 # Required when periodicityType is Weekly
+      preCommand:
+        isEnabled: false
+        command: ""                # Path to a pre-job script
+      postCommand:
+        isEnabled: false
+        command: ""                # Path to a post-job script
+
+schedule:
+  runAutomatically: true           # Run according to the schedule (false for manual only)
+  daily:
+    isEnabled: true
+    dailyKind: Everyday            # Everyday | Weekdays | Weekends
+    localTime: "22:00"             # Time to start the daily run (server local time)
+  retry:
+    isEnabled: true                # Retry failed sessions automatically
+    retryCount: 3                  # Number of retries
+    awaitMinutes: 10               # Minutes between retries
+  backupWindow:
+    isEnabled: false               # Restrict active backup window
+    backupWindow:
+      days: []                     # List of allowed windows (see other templates for structure)

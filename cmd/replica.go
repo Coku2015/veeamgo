@@ -107,11 +107,11 @@ func replicaGetCmd() *cobra.Command {
 			rows := make([]replicaPointRow, 0, len(result.ReplicaPoints))
 			for _, point := range result.ReplicaPoints {
 				rows = append(rows, replicaPointRow{
-					Name:     point.Name,
-					JobName:  job.Name,
+					VMName:   point.Name,
+					State:    point.State,
 					Platform: point.PlatformName,
 					Created:  formatTimestampValue(point.CreationTime),
-					State:    point.State,
+					JobName:  job.Name,
 					Malware:  point.MalwareStatus,
 				})
 			}
@@ -121,10 +121,8 @@ func replicaGetCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&opts.jobName, "name", "", "Replication job name (required)")
-	cmd.Flags().StringVar(&opts.jobName, "job", "", "Deprecated: use --name to specify the replication job name")
 	cmd.Flags().StringVar(&opts.replicaName, "replica", "", "Replica name (optional if job has a single replica)")
 	cmd.Flags().StringVar(&opts.replicaPointName, "replica-point", "", "Filter by replica restore point name (supports * wildcards)")
-	cmd.Flags().StringVar(&opts.replicaPointName, "replica-point-name", "", "Filter by replica restore point name (supports * wildcards)")
 	cmd.Flags().StringVar(&opts.platformName, "platform", "", "Filter by platform name (e.g. VMware)")
 	cmd.Flags().StringVar(&opts.platformID, "platform-id", "", "Filter by platform ID")
 	cmd.Flags().StringVar(&opts.malwareStatus, "malware", "", "Filter by malware status")
@@ -134,9 +132,6 @@ func replicaGetCmd() *cobra.Command {
 	cmd.Flags().BoolVar(&opts.desc, "desc", false, "Sort in descending order")
 	cmd.Flags().IntVar(&opts.limit, "limit", 0, "Maximum number of restore points to return")
 
-	if jobFlag := cmd.Flags().Lookup("job"); jobFlag != nil {
-		jobFlag.Hidden = true
-	}
 	_ = cmd.MarkFlagRequired("name")
 
 	return cmd
@@ -219,10 +214,10 @@ func resolveReplicaByName(ctx context.Context, httpClient *client.Client, name, 
 }
 
 type replicaPointRow struct {
-	Name     string `json:"Name"`
-	JobName  string `json:"Job Name"`
+	VMName   string `json:"VM Name"`
+	State    string `json:"State"`
 	Platform string `json:"Platform"`
 	Created  string `json:"Created"`
-	State    string `json:"State"`
+	JobName  string `json:"Job Name"`
 	Malware  string `json:"Malware Status"`
 }

@@ -90,7 +90,7 @@ func repositoryDescribeCmd() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {
-				return fmt.Errorf("specify --name <repository>")
+				return requireFlag("--name", "provide the repository name")
 			}
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
@@ -135,7 +135,6 @@ func repositoryDescribeCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&name, "name", "", "Repository name to describe")
-	_ = cmd.MarkFlagRequired("name")
 
 	return cmd
 }

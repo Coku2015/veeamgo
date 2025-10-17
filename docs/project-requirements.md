@@ -41,7 +41,7 @@
 - Early milestones must include:
   1. `login`, `logout`, `session get`, `session tokens`
   2. `job get`, `job describe`
-  3. `session get`, `task get`, `task describe`
+  3. `veeamgo get session`, `veeamgo get task`, `veeamgo describe task --id`
 - Mutating verbs (`start`, `stop`, `create`, `delete`, etc.) require confirmation prompts or `--yes` bypass and must surface task session tracking.
 
 ## 5. Non-Functional Requirements

@@ -146,3 +146,138 @@ func TestJobStateByNameErrors(t *testing.T) {
 		t.Fatalf("expected suggestion error, got %v", err)
 	}
 }
+
+func TestEnableJob(t *testing.T) {
+	var captured *http.Request
+	client := testClient(t, func(req *http.Request) (*http.Response, error) {
+		captured = req
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body:       io.NopCloser(bytes.NewReader([]byte(`{"status":"Success"}`))),
+		}, nil
+	})
+
+	if err := client.EnableJob(context.Background(), "job-123"); err != nil {
+		t.Fatalf("EnableJob returned error: %v", err)
+	}
+	if captured == nil {
+		t.Fatalf("request not captured")
+	}
+	if captured.Method != http.MethodPost {
+		t.Fatalf("expected POST, got %s", captured.Method)
+	}
+	if captured.URL.Path != "/api/v1/jobs/job-123/enable" {
+		t.Fatalf("unexpected path %s", captured.URL.Path)
+	}
+
+	if err := client.EnableJob(context.Background(), "   "); err == nil {
+		t.Fatalf("expected validation error for blank id")
+	}
+}
+
+func TestDisableJob(t *testing.T) {
+	var captured *http.Request
+	client := testClient(t, func(req *http.Request) (*http.Response, error) {
+		captured = req
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body:       io.NopCloser(bytes.NewReader([]byte(`{"status":"Success"}`))),
+		}, nil
+	})
+
+	if err := client.DisableJob(context.Background(), "job-456"); err != nil {
+		t.Fatalf("DisableJob returned error: %v", err)
+	}
+	if captured == nil {
+		t.Fatalf("request not captured")
+	}
+	if captured.Method != http.MethodPost {
+		t.Fatalf("expected POST, got %s", captured.Method)
+	}
+	if captured.URL.Path != "/api/v1/jobs/job-456/disable" {
+		t.Fatalf("unexpected path %s", captured.URL.Path)
+	}
+
+	if err := client.DisableJob(context.Background(), ""); err == nil {
+		t.Fatalf("expected validation error for blank id")
+	}
+}
+
+func TestCreateJob(t *testing.T) {
+	var captured *http.Request
+	client := testClient(t, func(req *http.Request) (*http.Response, error) {
+		captured = req
+		return &http.Response{
+			StatusCode: http.StatusCreated,
+			Header:     make(http.Header),
+			Body:       io.NopCloser(bytes.NewReader([]byte(`{"id":"job-1","name":"Created"}`))),
+		}, nil
+	})
+
+	payload := map[string]any{"name": "Created", "type": "VSphereBackup"}
+	resp, err := client.CreateJob(context.Background(), payload)
+	if err != nil {
+		t.Fatalf("CreateJob returned error: %v", err)
+	}
+	if resp["id"].(string) != "job-1" {
+		t.Fatalf("unexpected response: %#v", resp)
+	}
+	if captured == nil {
+		t.Fatalf("request not captured")
+	}
+	if captured.Method != http.MethodPost {
+		t.Fatalf("expected POST, got %s", captured.Method)
+	}
+	if captured.URL.Path != "/api/v1/jobs" {
+		t.Fatalf("unexpected path %s", captured.URL.Path)
+	}
+	body, _ := io.ReadAll(captured.Body)
+	if !strings.Contains(string(body), "Created") {
+		t.Fatalf("request body missing payload: %s", string(body))
+	}
+	if _, err := client.CreateJob(context.Background(), nil); err == nil {
+		t.Fatalf("expected error for nil spec")
+	}
+}
+
+func TestUpdateJob(t *testing.T) {
+	var captured *http.Request
+	client := testClient(t, func(req *http.Request) (*http.Response, error) {
+		captured = req
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body:       io.NopCloser(bytes.NewReader([]byte(`{"id":"job-2","name":"Updated"}`))),
+		}, nil
+	})
+
+	payload := map[string]any{"id": "job-2", "name": "Updated"}
+	resp, err := client.UpdateJob(context.Background(), "job-2", payload)
+	if err != nil {
+		t.Fatalf("UpdateJob returned error: %v", err)
+	}
+	if resp["name"].(string) != "Updated" {
+		t.Fatalf("unexpected response: %#v", resp)
+	}
+	if captured == nil {
+		t.Fatalf("request not captured")
+	}
+	if captured.Method != http.MethodPut {
+		t.Fatalf("expected PUT, got %s", captured.Method)
+	}
+	if captured.URL.Path != "/api/v1/jobs/job-2" {
+		t.Fatalf("unexpected path %s", captured.URL.Path)
+	}
+	body, _ := io.ReadAll(captured.Body)
+	if !strings.Contains(string(body), "Updated") {
+		t.Fatalf("request body missing payload: %s", string(body))
+	}
+	if _, err := client.UpdateJob(context.Background(), "", payload); err == nil {
+		t.Fatalf("expected error for blank id")
+	}
+	if _, err := client.UpdateJob(context.Background(), "job-2", nil); err == nil {
+		t.Fatalf("expected error for nil spec")
+	}
+}

@@ -58,6 +58,8 @@ func (c *Client) RestorePoints(ctx context.Context, filter RestorePointsFilter) 
 	skip := 0
 	remaining := filter.MaxItems
 
+	seen := make(map[string]struct{})
+
 	for {
 		limit := defaultPageSize
 		if remaining > 0 && remaining < limit {
@@ -109,6 +111,18 @@ func (c *Client) RestorePoints(ctx context.Context, filter RestorePointsFilter) 
 			if err != nil {
 				return nil, fmt.Errorf("decode restore point payload: %w", err)
 			}
+			key := strings.TrimSpace(rp.ID)
+			if key == "" {
+				key = strings.TrimSpace(rp.SessionID)
+			}
+			if key == "" {
+				key = fmt.Sprintf("%s|%s|%s", strings.TrimSpace(rp.Name), strings.TrimSpace(rp.Type), rp.CreationTime.UTC().Format(time.RFC3339Nano))
+			}
+			normalized := strings.ToLower(key)
+			if _, exists := seen[normalized]; exists {
+				continue
+			}
+			seen[normalized] = struct{}{}
 			results = append(results, rp)
 			rawItems = append(rawItems, raw)
 			if filter.MaxItems > 0 && len(results) >= filter.MaxItems {

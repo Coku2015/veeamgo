@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -16,6 +17,71 @@ func configurationBackupCmd() *cobra.Command {
 	}
 	root.AddCommand(newConfigurationBackupDescribeCmd(cmdDescribeUse, false, nil))
 	return root
+}
+
+func configBackupStartCmd() *cobra.Command {
+	var (
+		assumeYes bool
+		wait      bool
+	)
+
+	cmd := &cobra.Command{
+		Use:   "configurationbackup",
+		Short: "Start an on-demand configuration backup",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if !assumeYes {
+				confirmed, err := promptForConfirmation(cmd, "Start configuration backup")
+				if err != nil {
+					return err
+				}
+				if !confirmed {
+					fmt.Fprintln(cmd.OutOrStdout(), "Cancelled start request.")
+					return nil
+				}
+			}
+
+			timeout := 2 * time.Minute
+			if wait {
+				timeout = 30 * time.Minute
+			}
+
+			ctx, cancel := context.WithTimeout(cmd.Context(), timeout)
+			defer cancel()
+
+			httpClient, _, err := newAPIClient(ctx)
+			if err != nil {
+				return err
+			}
+
+			session, err := httpClient.StartConfigBackup(ctx)
+			if err != nil {
+				return err
+			}
+
+			message := "Started configuration backup."
+			if session != nil {
+				message = fmt.Sprintf("Started configuration backup.%s", formatSessionTail(session))
+			}
+
+			if wait && session != nil {
+				waitCtx, waitCancel := context.WithTimeout(ctx, timeout)
+				defer waitCancel()
+
+				finalSession, err := httpClient.WaitForSession(waitCtx, session.ID, 5*time.Second)
+				if err != nil {
+					return err
+				}
+				session = finalSession
+				message = fmt.Sprintf("Configuration backup finished.%s", formatSessionTail(session))
+			}
+
+			return printSessionMessage(cmd, session, message)
+		},
+	}
+
+	cmd.Flags().BoolVar(&assumeYes, "yes", false, "Confirm without prompting (required to execute)")
+	cmd.Flags().BoolVar(&wait, "wait", false, "Wait for the backup session to finish")
+	return cmd
 }
 
 func newConfigurationBackupDescribeCmd(use string, hidden bool, aliases []string) *cobra.Command {

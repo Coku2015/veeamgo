@@ -276,3 +276,230 @@ func (c *Client) JobStateByName(ctx context.Context, name string) (*JobState, er
 		return nil, fmt.Errorf("multiple jobs named %q found (ids: %s)", clean, strings.Join(ids, ", "))
 	}
 }
+
+// EnableJob enables a job identified by its ID.
+func (c *Client) EnableJob(ctx context.Context, id string) error {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return fmt.Errorf("job id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s/enable", clean)
+	return c.postJSON(ctx, path, nil, nil, nil)
+}
+
+// DisableJob disables a job identified by its ID.
+func (c *Client) DisableJob(ctx context.Context, id string) error {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return fmt.Errorf("job id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s/disable", clean)
+	return c.postJSON(ctx, path, nil, nil, nil)
+}
+
+// StartJob starts a job identified by its ID.
+func (c *Client) StartJob(ctx context.Context, id string, options JobStartOptions) (*Session, error) {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("job id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s/start", clean)
+	payload := map[string]any{
+		"performActiveFull": options.PerformActiveFull,
+	}
+	if options.StartChainedJobs {
+		payload["startChainedJobs"] = true
+	}
+	if options.SyncRestorePoints != "" {
+		payload["syncRestorePoints"] = options.SyncRestorePoints
+	}
+	var sess Session
+	if err := c.postJSON(ctx, path, nil, payload, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
+// StopJob stops a job identified by its ID.
+func (c *Client) StopJob(ctx context.Context, id string, options JobStopOptions) (*Session, error) {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("job id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s/stop", clean)
+	payload := map[string]any{
+		"gracefulStop": options.GracefulStop,
+	}
+	if options.CancelChainedJobs {
+		payload["cancelChainedJobs"] = true
+	}
+	var sess Session
+	if err := c.postJSON(ctx, path, nil, payload, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
+// RetryJob retries a job identified by its ID.
+func (c *Client) RetryJob(ctx context.Context, id string, options JobRetryOptions) (*Session, error) {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("job id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s/retry", clean)
+	payload := map[string]any{}
+	if options.StartChainedJobs {
+		payload["startChainedJobs"] = true
+	}
+	var sess Session
+	if err := c.postJSON(ctx, path, nil, payload, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
+// StartQuickBackupVSphere triggers a quick backup for a vSphere object.
+func (c *Client) StartQuickBackupVSphere(ctx context.Context, spec QuickBackupRequest) (*Session, error) {
+	if err := spec.validate(); err != nil {
+		return nil, err
+	}
+	payload := spec.toPayload()
+	var sess Session
+	if err := c.postJSON(ctx, "/api/v1/jobs/quickBackup/vSphere", nil, payload, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
+// JobStartOptions represents optional toggles for starting a job.
+type JobStartOptions struct {
+	PerformActiveFull bool
+	StartChainedJobs  bool
+	SyncRestorePoints string
+}
+
+// JobStopOptions represents toggles for stopping a job.
+type JobStopOptions struct {
+	GracefulStop      bool
+	CancelChainedJobs bool
+}
+
+// JobRetryOptions represents toggles for retrying a job.
+type JobRetryOptions struct {
+	StartChainedJobs bool
+}
+
+// CreateJob provisions a new job using the provided specification.
+func (c *Client) CreateJob(ctx context.Context, spec map[string]any) (map[string]any, error) {
+	if spec == nil {
+		return nil, fmt.Errorf("job specification cannot be nil")
+	}
+	payload := shallowCopy(spec)
+	var result map[string]any
+	if err := c.postJSON(ctx, "/api/v1/jobs", nil, payload, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// UpdateJob updates an existing job identified by its ID.
+func (c *Client) UpdateJob(ctx context.Context, id string, spec map[string]any) (map[string]any, error) {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("job id cannot be empty")
+	}
+	if spec == nil {
+		return nil, fmt.Errorf("job specification cannot be nil")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s", clean)
+	payload := shallowCopy(spec)
+	var result map[string]any
+	if err := c.putJSON(ctx, path, nil, payload, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// QuickBackupRequest represents the payload accepted by the vSphere quick backup endpoint.
+type QuickBackupRequest struct {
+	Platform string
+	Type     string
+	HostName string
+	Name     string
+	ObjectID string
+	URN      string
+	Size     string
+}
+
+func (q QuickBackupRequest) validate() error {
+	if strings.TrimSpace(q.Platform) == "" {
+		return fmt.Errorf("platform is required")
+	}
+	if !strings.EqualFold(strings.TrimSpace(q.Platform), "VSphere") {
+		return fmt.Errorf("platform %q is not supported for quick backup", q.Platform)
+	}
+	if strings.TrimSpace(q.Type) == "" {
+		return fmt.Errorf("type is required")
+	}
+	if strings.TrimSpace(q.HostName) == "" {
+		return fmt.Errorf("hostName is required")
+	}
+	if strings.TrimSpace(q.Name) == "" {
+		return fmt.Errorf("name is required")
+	}
+	return nil
+}
+
+func (q QuickBackupRequest) toPayload() map[string]any {
+	payload := map[string]any{
+		"platform": "VSphere",
+		"type":     q.Type,
+		"hostName": q.HostName,
+		"name":     q.Name,
+	}
+	if strings.TrimSpace(q.ObjectID) != "" {
+		payload["objectId"] = q.ObjectID
+	}
+	if strings.TrimSpace(q.URN) != "" {
+		payload["urn"] = q.URN
+	}
+	if strings.TrimSpace(q.Size) != "" {
+		payload["size"] = q.Size
+	}
+	return payload
+}
+
+// CloneJob clones a job identified by its ID.
+func (c *Client) CloneJob(ctx context.Context, id string) (map[string]any, error) {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("job id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s/clone", clean)
+	var result map[string]any
+	if err := c.postJSON(ctx, path, nil, nil, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// DeleteJob deletes a job identified by its ID.
+func (c *Client) DeleteJob(ctx context.Context, id string) error {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return fmt.Errorf("job id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/jobs/%s", clean)
+	return c.delete(ctx, path, nil)
+}
+
+func shallowCopy(src map[string]any) map[string]any {
+	if src == nil {
+		return map[string]any{}
+	}
+	dest := make(map[string]any, len(src))
+	for key, value := range src {
+		dest[key] = value
+	}
+	return dest
+}

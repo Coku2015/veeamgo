@@ -1,0 +1,244 @@
+# VMware vSphere backup job (full)
+type: VSphereBackup # Backup job type (EJobType)
+name: "My VMware Backup" # Name of the job
+description: "Comprehensive backup policy for production VMs" # Description of the job
+isHighPriority: false # If true, scheduler prioritises this job
+
+virtualMachines: # Included/excluded VMs or containers
+  includes:
+    - platform: VSphere # Inventory platform
+      type: VirtualMachine # Inventory object type
+      name: "" # Display name of the object
+      objectId: "" # Inventory object ID
+      hostName: "" # Managing host or vCenter
+      urn: "" # Optional URN when available
+  excludes:
+    templates:
+      isEnabled: false # Exclude VM templates from processing
+      excludeFromIncremental: false # Exclude templates from incremental runs
+    vms: [] # Additional VM exclusions
+    disks:
+      - vmObject:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        disksToProcess: SelectedDisks # AllDisks | SystemOnly | SelectedDisks
+        disks: [] # Specific disk IDs when SelectedDisks is used
+        removeFromVMConfiguration: false # Remove disks from replica config
+
+storage: # Backup storage configuration
+  backupRepositoryId: "" # Target backup repository ID
+  backupProxies:
+    autoSelectEnabled: false # Auto select proxies
+    proxyIds:
+      - "" # Explicit proxy IDs if auto selection disabled
+  retentionPolicy:
+    type: RestorePoints # RestorePoints | Days
+    quantity: 30 # Number of restore points or days to keep
+  gfsPolicy:
+    isEnabled: true # Enable GFS retention
+    weekly:
+      isEnabled: true
+      desiredTime: saturday # Weekly synthetic day
+      keepForNumberOfWeeks: 4
+    monthly:
+      isEnabled: true
+      desiredTime: First # First | Second | Third | Fourth | Last
+      keepForNumberOfMonths: 12
+    yearly:
+      isEnabled: false
+      desiredTime: January # Month to keep yearly
+      keepForNumberOfYears: 3
+  advancedSettings:
+    backupModeType: Incremental # Incremental | ReverseIncremental
+    storageData:
+      compressionLevel: Optimal # Compression level for backup data
+      storageOptimization: LocalTarget # Block size optimisation
+      inlineDataDedupEnabled: true # Enable per-job dedupe
+      excludeDeletedFileBlocks: true # Exclude deleted blocks
+      excludeSwapFileBlocks: true # Exclude swap file blocks
+    synthenticFulls:
+      isEnabled: true # Enable synthetic fulls
+      weekly:
+        isEnabled: true
+        days: [saturday]
+        localTime: "22:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First # Position in month
+        dayOfWeek: saturday
+        localTime: "22:00"
+        months: [January, April, July, October]
+    activeFulls:
+      isEnabled: false # Enable active full backups
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "00:00"
+        months: []
+    backupHealth:
+      isEnabled: false # Enable health check
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "00:00"
+        months: []
+    fullBackupMaintenance:
+      RemoveData:
+        isEnabled: false # Keep deleted VM data
+        afterDays: 30 # Days to retain deleted VM data when enabled
+      defragmentAndCompact:
+        isEnabled: false # Compact VBK files
+        weekly:
+          isEnabled: false
+          days: []
+          localTime: "00:00"
+        monthly:
+          isEnabled: false
+          dayNumberInMonth: First
+          dayOfWeek: saturday
+          localTime: "00:00"
+          months: []
+    notifications:
+      sendSNMPNotifications: false # Enable SNMP traps
+      emailNotifications:
+        isEnabled: false # Enable email notifications
+        notificationType: OnFailure # OnSuccess | OnFailure | OnWarning
+        recipients: [] # Email recipients
+        customNotificationSettings: {} # Additional email options
+      vmAttribute:
+        isEnabled: false # Set VM attribute
+        notes: "" # Attribute text
+        appendToExistingValue: false # Append to existing attribute
+    scripts:
+      periodicityType: BackupSessions # Script invocation frequency
+      runScriptEvery: 1 # Run script every N sessions
+      dayOfWeek: [] # Days to run scripts when periodicity is Weekly
+      preCommand:
+        isEnabled: false # Enable pre-job script
+        command: "" # Script path
+      postCommand:
+        isEnabled: false # Enable post-job script
+        command: ""
+    vSphere:
+      changedBlockTracking:
+        isEnabled: true # Use CBT
+        enableCBTautomatically: true # Enable CBT on VMs automatically
+        resetCBTonActiveFull: false # Reset CBT on active full
+      enableVMWareToolsQuiescence: false # Use VMware Tools quiescence
+
+guestProcessing: # Guest processing configuration
+  appAwareProcessing:
+    isEnabled: true # Enable application-aware processing
+    appSettings:
+      - vmObject:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        vss: requireSuccess # VSS processing behaviour
+        transactionLogs: process # Process or copy transaction logs
+        usePersistentGuestAgent: false # Install persistent guest agent
+        exclusions:
+          exclusionPolicy: disabled # disable | excludeOnly | includeOnly
+          itemsList: [] # Paths to exclude/include
+        oracle:
+          archiveLogs: deleteExpiredGBs # Manage Oracle archive logs
+          backupLogs: true # Backup archive logs
+          backupMinsCount: 30 # Archive log frequency in minutes
+          keepDaysCount: 7 # Days to retain archive logs
+          deleteGBsCount: 1024 # GB threshold for archived logs
+          deleteHoursCount: 0 # Hours threshold when using deleteExpiredHours
+          useGuestCredentials: true # Use guest processing credentials
+          credentialsId: "" # Override credentials ID
+          retainLogBackups: untilBackupDeleted # Retention behaviour
+          logShippingServers:
+            autoSelection: true # Auto-select log shipping servers
+            shippingServerIds: [] # Explicit log shipping servers
+        sql:
+          logsProcessing: backup # Backup | truncate | neverTruncate
+          backupMinsCount: 15 # Log backup interval (minutes)
+          keepDaysCount: 7 # Days to keep logs
+          retainLogBackups: untilBackupDeleted # Retention behaviour
+          logShippingServers:
+            autoSelection: true
+            shippingServerIds: []
+        scripts:
+          scriptProcessingMode: disableExec # disableExec | ignoreExecFailures | requireSuccess
+          windowsScripts:
+            preFreezeScript: "" # Pre-freeze script for Windows VMs
+            postThawScript: "" # Post-thaw script for Windows VMs
+          linuxScripts:
+            preFreezeScript: "" # Pre-freeze script for Linux VMs
+            postThawScript: "" # Post-thaw script for Linux VMs
+  guestCredentials:
+    windowsCredsId: "" # Default Windows credentials ID
+    linuxCredsId: "" # Default Linux credentials ID
+    credentialsPerMachine:
+      - vmObject:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        windowsCredsId: "" # Machine-specific Windows credentials
+        linuxCredsId: "" # Machine-specific Linux credentials
+  guestFSIndexing:
+    isEnabled: true # Enable guest file indexing
+    indexingSettings:
+      - vmObject:
+          platform: VSphere
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        WindowsIndexing:
+          guestFSIndexingMode: indexAllExcept # Indexing mode for Windows
+          indexingList: ["%windir%", "%ProgramFiles%"] # Paths to include/exclude
+        LinuxIndexing:
+          guestFSIndexingMode: indexOnly # Indexing mode for Linux
+          indexingList: ["/home", "/srv"]
+  guestInteractionProxies:
+    autoSelectEnabled: true # Auto select guest interaction proxies
+    proxyIds: [] # Explicit proxies if auto disabled
+
+schedule: # Job schedule settings
+  runAutomatically: true # Enable scheduling
+  daily:
+    isEnabled: true
+    dailyKind: SelectedDays # Everyday | WeekDays | SelectedDays
+    days: [monday, tuesday, wednesday, thursday, friday]
+    localTime: "21:30"
+  monthly:
+    isEnabled: false
+    dayNumberInMonth: First
+    dayOfWeek: saturday
+    localTime: "21:30"
+    months: [January, April, July, October]
+  periodically:
+    isEnabled: false
+    periodMinutes: 60 # Interval between runs when periodic
+  retry:
+    isEnabled: true
+    retryCount: 3 # Number of retries
+    awaitMinutes: 10 # Minutes between retries
+  backupWindow:
+    isEnabled: false
+    backupWindow:
+      days: [] # Allowed hours per day
+  afterThisJob:
+    isEnabled: false
+    jobName: "" # Chain job name

@@ -1,0 +1,36 @@
+# Microsoft Entra ID backup job (full)
+type: EntraIDTenantBackup
+name: "My Entra ID Backup"
+description: "Tenant-wide backup with extended retention"
+
+storage:
+  tenantId: ""
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 60
+  sourceBackupId: ""
+  advancedSettings:
+    encryption:
+      isEnabled: false
+      passwordId: ""
+    notifications:
+      sendSNMPNotifications: false
+      emailNotifications:
+        isEnabled: false
+        notificationType: OnFailure
+        recipients: []
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "23:00"
+  retry:
+    isEnabled: true
+    retryCount: 3
+    awaitMinutes: 30
+  backupWindow:
+    isEnabled: false
+    backupWindow:
+      days: []

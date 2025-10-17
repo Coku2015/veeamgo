@@ -45,72 +45,8 @@ func init() {
 
 	rootCmd.AddCommand(loginCmd())
 	rootCmd.AddCommand(logoutCmd())
+	rootCmd.AddCommand(jobCmd())
 
-	// Legacy resource-first commands retained as hidden aliases for one release.
-	if legacy := sessionCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := serverCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := repositoryCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := inventoryCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := backupCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := restorePointCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := replicaCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := jobCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := licenseCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := optionsCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := configurationBackupCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := trafficRuleCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := exclusionVMCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := exclusionLegacyCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := proxyCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
-	if legacy := securityCmd(); legacy != nil {
-		legacy.Hidden = true
-		rootCmd.AddCommand(legacy)
-	}
 }
 
 func ensureConfigPath(path string) (string, error) {

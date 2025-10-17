@@ -1,0 +1,27 @@
+# Windows agent backup job (minimal)
+type: WindowsAgentBackup
+name: "My Windows Agent Backup"
+description: "Nightly backup for Windows servers"
+
+agentType: Server                # Workstation | Server | FailoverCluster
+backupMode: EntireComputer       # EntireComputer | Volumes | FileLevel
+
+computers:
+  - platform: Agent
+    type: WindowsComputer
+    id: ""                      # Protected computer ID (UUID)
+    name: ""
+    protectionGroupId: ""       # Protection group containing this computer
+
+storage:
+  backupRepositoryId: ""
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 14
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "22:00"

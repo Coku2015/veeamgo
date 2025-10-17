@@ -88,6 +88,20 @@ func (c *Client) ManagedServer(ctx context.Context, id string) (*ManagedServer, 
 	return &payload, nil
 }
 
+// CreateManagedServer provisions a new managed server and returns the resulting session.
+func (c *Client) CreateManagedServer(ctx context.Context, spec map[string]any) (*Session, error) {
+	if spec == nil {
+		return nil, fmt.Errorf("managed server specification cannot be nil")
+	}
+
+	payload := shallowCopy(spec)
+	var sess Session
+	if err := c.postJSON(ctx, "/api/v1/backupInfrastructure/managedServers", nil, payload, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
 func (c *Client) RescanAllManagedServers(ctx context.Context) (*Session, error) {
 	var sess Session
 	if err := c.postJSON(ctx, "/api/v1/backupInfrastructure/managedServers/rescan", nil, nil, &sess); err != nil {

@@ -304,6 +304,64 @@ func TestLicenseSummaryDecode(t *testing.T) {
 	}
 }
 
+func TestGeneralOptionsDecode(t *testing.T) {
+	respPayload := map[string]any{
+		"notificationEnabled": true,
+		"notifications": map[string]any{
+			"storageSpaceThresholdEnabled":   true,
+			"datastoreSpaceThresholdEnabled": false,
+			"skipVMSpaceThresholdEnabled":    true,
+			"notifyOnSupportExpiration":      true,
+			"notifyOnUpdates":                false,
+		},
+		"siemIntegration": map[string]any{
+			"SNMPEventsEnabled":   true,
+			"SyslogEventsEnabled": false,
+		},
+	}
+	body, err := json.Marshal(respPayload)
+	if err != nil {
+		t.Fatalf("marshal payload: %v", err)
+	}
+
+	var path string
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		path = req.URL.Path
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(body)),
+		}, nil
+	})
+
+	opts, err := client.GeneralOptions(context.Background())
+	if err != nil {
+		t.Fatalf("GeneralOptions returned error: %v", err)
+	}
+	if path != "/api/v1/generalOptions" {
+		t.Fatalf("unexpected path %q", path)
+	}
+
+	if !opts.NotificationEnabled {
+		t.Fatalf("notification flag not decoded: %+v", opts)
+	}
+	if !opts.StorageSpaceThresholdEnabled || opts.DatastoreSpaceThresholdEnabled {
+		t.Fatalf("storage/datastore thresholds unexpected: %+v", opts)
+	}
+	if !opts.SkipVMSpaceThresholdEnabled {
+		t.Fatalf("skip VM threshold not decoded: %+v", opts)
+	}
+	if !opts.NotifyOnSupportExpiration || opts.NotifyOnUpdates {
+		t.Fatalf("notification toggles unexpected: %+v", opts)
+	}
+	if !opts.SIEMSNMPEnabled || opts.SIEMSyslogEnabled {
+		t.Fatalf("siem flags unexpected: %+v", opts)
+	}
+	if opts.Raw == nil || len(opts.Raw) == 0 {
+		t.Fatalf("raw payload missing")
+	}
+}
+
 func TestConfigBackupDecode(t *testing.T) {
 	respPayload := map[string]any{
 		"isEnabled":           true,

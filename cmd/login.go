@@ -2,9 +2,11 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"net"
+	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,6 +27,7 @@ func loginCmd() *cobra.Command {
 		flagScope      string
 		flagSetDefault bool
 		flagSavePass   bool
+		flagPort       int
 	)
 
 	cmd := &cobra.Command{
@@ -51,14 +54,14 @@ func loginCmd() *cobra.Command {
 				flagServer = existing.ServerURL
 			}
 			if flagServer == "" {
-				return errors.New("server URL is required (use --server)")
+				return requireFlag("--server", "provide the VBR server host name or URL")
 			}
 
 			if flagUsername == "" && existing != nil {
 				flagUsername = existing.Username
 			}
 			if flagUsername == "" {
-				return errors.New("username is required (use --username)")
+				return requireFlag("--username", "supply the account used for REST authentication")
 			}
 
 			if flagPassword == "" {
@@ -73,8 +76,13 @@ func loginCmd() *cobra.Command {
 				flagInsecure = existing.Insecure
 			}
 
+			serverURL, err := normalizeServerURL(flagServer, flagPort, cmd.Flags().Changed("port"))
+			if err != nil {
+				return err
+			}
+
 			sess, err := client.Authenticate(ctx, client.Credentials{
-				BaseURL:  flagServer,
+				BaseURL:  serverURL,
 				Username: flagUsername,
 				Password: flagPassword,
 				Insecure: flagInsecure,
@@ -101,7 +109,7 @@ func loginCmd() *cobra.Command {
 			}
 
 			cfg.SetProfile(profileName, config.Profile{
-				ServerURL: flagServer,
+				ServerURL: serverURL,
 				Username:  flagUsername,
 				Password:  passwordToPersist,
 				Insecure:  flagInsecure,
@@ -114,18 +122,19 @@ func loginCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Logged in to %s as %s using profile %q\n", flagServer, flagUsername, profileName)
+			fmt.Fprintf(cmd.OutOrStdout(), "Logged in to %s as %s using profile %q\n", serverURL, flagUsername, profileName)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&flagServer, "server", "", "Server base URL (e.g. https://vbr:9419)")
+	cmd.Flags().StringVar(&flagServer, "server", "", "Server host name or base URL (e.g. vbr.example.com)")
 	cmd.Flags().StringVar(&flagUsername, "username", "", "Username for authentication")
 	cmd.Flags().StringVar(&flagPassword, "password", "", "Password (omit to prompt securely)")
 	cmd.Flags().BoolVar(&flagInsecure, "insecure", false, "Skip TLS certificate verification")
 	cmd.Flags().StringVar(&flagScope, "scope", "", "Optional OAuth scopes")
 	cmd.Flags().BoolVar(&flagSetDefault, "set-default", false, "Set this profile as the default after login")
 	cmd.Flags().BoolVar(&flagSavePass, "save-password", false, "Persist the password in the config file for automatic authentication")
+	cmd.Flags().IntVar(&flagPort, "port", 9419, "Server REST API port (default 9419 when host is provided)")
 
 	return cmd
 }
@@ -139,4 +148,51 @@ func promptPassword(prompt string) (string, error) {
 		return "", fmt.Errorf("read password: %w", err)
 	}
 	return strings.TrimSpace(string(passwordBytes)), nil
+}
+
+func normalizeServerURL(input string, port int, portOverridden bool) (string, error) {
+	trimmed := strings.TrimSpace(input)
+	if trimmed == "" {
+		return "", fmt.Errorf("server cannot be empty")
+	}
+
+	address := trimmed
+	fromHostOnly := !strings.Contains(trimmed, "://")
+	if fromHostOnly {
+		address = "https://" + trimmed
+	}
+
+	u, err := url.Parse(address)
+	if err != nil {
+		return "", fmt.Errorf("parse server address: %w", err)
+	}
+
+	if u.Scheme == "" {
+		u.Scheme = "https"
+	}
+
+	host := u.Hostname()
+	if host == "" {
+		return "", fmt.Errorf("server host is empty")
+	}
+
+	finalPort := u.Port()
+	if portOverridden {
+		if port <= 0 {
+			return "", fmt.Errorf("port must be positive")
+		}
+		finalPort = strconv.Itoa(port)
+	} else if fromHostOnly {
+		if port <= 0 {
+			port = 9419
+		}
+		finalPort = strconv.Itoa(port)
+	}
+
+	hostPort := host
+	if finalPort != "" {
+		hostPort = net.JoinHostPort(host, finalPort)
+	}
+
+	return (&url.URL{Scheme: u.Scheme, Host: hostPort}).String(), nil
 }

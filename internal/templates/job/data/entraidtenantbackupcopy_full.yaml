@@ -1,0 +1,39 @@
+# Microsoft Entra ID backup copy job (full)
+type: EntraIDTenantBackupCopy # Job type (EJobType)
+name: "My Entra ID Backup Copy" # Job name
+description: "Secondary copy of Entra tenant backups" # Job description
+
+primaryJobId: "" # Source Entra ID backup job ID
+backupRepositoryId: "" # Target repository ID for backup copies
+useCustomRetention: true # Enable custom retention settings
+retentionPolicy:
+  type: Months # Retain copies by Months or Weeks
+  quantity: 12 # Number of months to retain copies
+useCustomEncryption: true # Enable custom encryption settings
+encryption:
+  isEnabled: true # Encrypt copy data
+  encryptionType: ByPassword # ByPassword | ByKms
+  encryptionPasswordId: "" # Password ID stored in credentials vault
+  encryptionPasswordUniqueId: "" # Optional unique identifier for password
+  kmsServerId: "" # KMS server ID when using KMS
+
+schedule:
+  type: Custom # Custom (window-based) | Continuous
+  customWindow:
+    isEnabled: true # Enable backup window restrictions
+    backupWindow:
+      days:
+        - day: monday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: tuesday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: wednesday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: thursday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: friday
+          hours: "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1"
+        - day: saturday
+          hours: "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+        - day: sunday
+          hours: "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"

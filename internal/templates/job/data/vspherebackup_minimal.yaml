@@ -1,0 +1,28 @@
+# VMware vSphere backup job (minimal)
+type: VSphereBackup
+name: "My VMware Backup"
+description: "Nightly backup for production workloads"
+
+virtualMachines:
+  includes:
+    - platform: VSphere        # Required: VSphere inventory platform
+      type: VirtualMachine     # Required: inventory object type (VirtualMachine, ResourcePool, Folder, etc.)
+      name: ""                 # Display name of the VM or container
+      objectId: ""             # Inventory object ID (e.g. 'vm-123')
+      hostName: ""             # Host or vCenter managing this object
+
+storage:
+  backupRepositoryId: ""       # Target repository ID (UUID)
+  backupProxies:
+    autoSelectEnabled: true    # Set to false to control which proxies run the job
+    proxyIds: []               # Provide explicit proxy UUIDs when autoSelectEnabled is false
+  retentionPolicy:
+    type: RestorePoints        # RestorePoints | Days
+    quantity: 14               # Number of restore points or days to keep
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday       # Everyday | WeekDays | SelectedDays
+    localTime: "22:00"        # HH:MM, server local time

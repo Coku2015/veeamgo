@@ -1,0 +1,85 @@
+package client
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"net/http"
+	"testing"
+	"time"
+)
+
+func TestCreateManagedServer(t *testing.T) {
+	var payload map[string]any
+
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		if req.Method != http.MethodPost {
+			t.Fatalf("expected POST, got %s", req.Method)
+		}
+		if req.URL.Path != "/api/v1/backupInfrastructure/managedServers" {
+			t.Fatalf("unexpected path %s", req.URL.Path)
+		}
+
+		if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+			t.Fatalf("decode request body: %v", err)
+		}
+
+		resp := Session{
+			ID:           "session-789",
+			Name:         "Add Managed Server",
+			SessionType:  "Infrastructure",
+			State:        "InProgress",
+			CreationTime: time.Date(2025, 10, 17, 11, 30, 0, 0, time.UTC),
+		}
+		bytesResp, _ := json.Marshal(resp)
+
+		return &http.Response{
+			StatusCode: http.StatusCreated,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(bytesResp)),
+		}, nil
+	})
+
+	spec := map[string]any{
+		"name":          "vc01.example.com",
+		"description":   "VMware vCenter",
+		"type":          "ViHost",
+		"credentialsId": "cred-123",
+	}
+
+	session, err := client.CreateManagedServer(context.Background(), spec)
+	if err != nil {
+		t.Fatalf("CreateManagedServer returned error: %v", err)
+	}
+	if session == nil {
+		t.Fatalf("expected session result")
+	}
+	if session.ID != "session-789" {
+		t.Fatalf("unexpected session ID %s", session.ID)
+	}
+
+	if payload == nil {
+		t.Fatalf("expected request payload to be captured")
+	}
+	if got := payload["type"]; got != "ViHost" {
+		t.Fatalf("unexpected payload type %v", got)
+	}
+	if got := payload["credentialsId"]; got != "cred-123" {
+		t.Fatalf("unexpected credentialsId %v", got)
+	}
+}
+
+func TestCreateManagedServerNilSpec(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		t.Fatalf("request should not be executed")
+		return nil, nil
+	})
+
+	session, err := client.CreateManagedServer(context.Background(), nil)
+	if err == nil {
+		t.Fatalf("expected error for nil spec")
+	}
+	if session != nil {
+		t.Fatalf("expected nil session result")
+	}
+}

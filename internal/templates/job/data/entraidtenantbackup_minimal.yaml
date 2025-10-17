@@ -1,0 +1,17 @@
+# Microsoft Entra ID backup job (minimal)
+type: EntraIDTenantBackup
+name: "My Entra ID Backup"
+description: "Daily backup for Entra ID tenant"
+
+storage:
+  tenantId: ""                  # Tenant ID registered in Veeam Backup & Replication
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 30
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "22:00"

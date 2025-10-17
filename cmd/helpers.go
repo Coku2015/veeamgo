@@ -1,17 +1,22 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/spf13/cobra"
 	"github.com/veeamgo/veeamgo/internal/client"
 	"github.com/veeamgo/veeamgo/internal/config"
 	"github.com/veeamgo/veeamgo/internal/session"
@@ -55,12 +60,35 @@ func ensureServerTimeLocation(ctx context.Context, httpClient *client.Client) {
 		return
 	}
 
-	offsetSeconds := serverTime.UtcOffsetMinutes * 60
 	zoneName := firstNonEmpty(serverTime.TimeZone, serverTime.TimeZoneDisplayName, serverTime.TimeZoneID)
 	if zoneName == "" {
 		zoneName = "VBR"
 	}
-	updateServerTimeLocation(time.FixedZone(zoneName, offsetSeconds))
+
+	_, offset := serverTime.Time.Zone()
+	if offset == 0 && serverTime.UtcOffsetMinutes != 0 {
+		offset = serverTime.UtcOffsetMinutes * 60
+	}
+	if offset == 0 {
+		if parsed, ok := parseOffsetHint(serverTime.TimeZone); ok {
+			offset = parsed
+		} else if parsed, ok := parseOffsetHint(serverTime.TimeZoneDisplayName); ok {
+			offset = parsed
+		} else if parsed, ok := parseOffsetHint(serverTime.TimeZoneID); ok {
+			offset = parsed
+		}
+	}
+	if offset == 0 {
+		_, inferred := serverTime.Time.Zone()
+		offset = inferred
+	}
+
+	if offset == 0 {
+		updateServerTimeLocation(serverTime.Time.Location())
+		return
+	}
+
+	updateServerTimeLocation(time.FixedZone(zoneName, offset))
 }
 
 func formatTimeForDisplay(value time.Time) string {
@@ -82,6 +110,32 @@ func formatOffset(offsetSeconds int) string {
 	hours := offsetSeconds / 3600
 	minutes := (offsetSeconds % 3600) / 60
 	return fmt.Sprintf("%s%02d:%02d", sign, hours, minutes)
+}
+
+var offsetPattern = regexp.MustCompile(`([+-]\d{2}):?(\d{2})`)
+
+func parseOffsetHint(value string) (int, bool) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return 0, false
+	}
+	matches := offsetPattern.FindStringSubmatch(value)
+	if len(matches) != 3 {
+		return 0, false
+	}
+	sign := 1
+	if strings.HasPrefix(matches[1], "-") {
+		sign = -1
+	}
+	hours, err := strconv.Atoi(strings.TrimPrefix(strings.TrimPrefix(matches[1], "+"), "-"))
+	if err != nil {
+		return 0, false
+	}
+	minutes, err := strconv.Atoi(matches[2])
+	if err != nil {
+		return 0, false
+	}
+	return sign * (hours*3600 + minutes*60), true
 }
 
 func loadConfigAndProfile() (string, *config.Config, string, *config.Profile, error) {
@@ -147,6 +201,16 @@ func newAPIClient(ctx context.Context) (*client.Client, string, error) {
 	}
 	ensureServerTimeLocation(ctx, httpClient)
 	return httpClient, profileName, nil
+}
+
+func promptForInput(cmd *cobra.Command, prompt string) (string, error) {
+	reader := bufio.NewReader(cmd.InOrStdin())
+	fmt.Fprintf(cmd.OutOrStdout(), "%s", prompt)
+	value, err := reader.ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", fmt.Errorf("read input: %w", err)
+	}
+	return strings.TrimSpace(value), nil
 }
 
 func ensureFreshSession(ctx context.Context, profile *config.Profile, sess *session.Session, manager *session.Manager, profileName string) (*session.Session, error) {
@@ -309,4 +373,15 @@ func formatBytes(bytesValue int64) string {
 		idx++
 	}
 	return fmt.Sprintf("%.2f %s", value, units[idx])
+}
+
+func requireFlag(flag, hint string) error {
+	flag = strings.TrimSpace(flag)
+	if flag != "" && !strings.HasPrefix(flag, "--") {
+		flag = "--" + flag
+	}
+	if hint = strings.TrimSpace(hint); hint == "" {
+		return fmt.Errorf("flag %s is required", flag)
+	}
+	return fmt.Errorf("flag %s is required (%s)", flag, hint)
 }

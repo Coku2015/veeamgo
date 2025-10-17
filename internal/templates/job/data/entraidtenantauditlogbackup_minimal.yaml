@@ -1,0 +1,20 @@
+# Microsoft Entra ID audit log backup job (minimal)
+type: EntraIDAuditLogBackup
+name: "My Entra Audit Log Backup"
+description: "Daily backup for Entra audit logs"
+
+tenant:
+  tenantId: ""
+
+storage:
+  backupRepositoryId: ""
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 30
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "22:00"

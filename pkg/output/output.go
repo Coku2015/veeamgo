@@ -65,9 +65,37 @@ func printTable(data any) error {
 	return nil
 }
 
+func inferColumnsFromType(t reflect.Type) []string {
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		return nil
+	}
+
+	sample := reflect.New(t).Elem().Interface()
+	recs := toRecords(sample)
+	if len(recs) == 0 {
+		return nil
+	}
+	cols := make([]string, 0, len(recs))
+	for _, rec := range recs {
+		cols = append(cols, rec.key)
+	}
+	return cols
+}
+
 func printSliceTable(val reflect.Value) error {
 	if val.Len() == 0 {
-		fmt.Fprintln(os.Stdout, "No records found.")
+		if columns := inferColumnsFromType(val.Type().Elem()); len(columns) > 0 {
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			fmt.Fprintf(w, "%s\n", strings.Join(columns, "\t"))
+			if err := w.Flush(); err != nil {
+				return fmt.Errorf("flush table: %w", err)
+			}
+		} else {
+			fmt.Fprintln(os.Stdout, "No records found.")
+		}
 		return nil
 	}
 

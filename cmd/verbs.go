@@ -10,6 +10,16 @@ func init() {
 	rootCmd.AddCommand(getVerbCmd())
 	rootCmd.AddCommand(describeVerbCmd())
 	rootCmd.AddCommand(rescanVerbCmd())
+	rootCmd.AddCommand(templateVerbCmd())
+	rootCmd.AddCommand(addVerbCmd())
+	rootCmd.AddCommand(editVerbCmd())
+	rootCmd.AddCommand(enableVerbCmd())
+	rootCmd.AddCommand(disableVerbCmd())
+	rootCmd.AddCommand(cloneVerbCmd())
+	rootCmd.AddCommand(deleteVerbCmd())
+	rootCmd.AddCommand(startVerbCmd())
+	rootCmd.AddCommand(stopVerbCmd())
+	rootCmd.AddCommand(retryVerbCmd())
 }
 
 func getVerbCmd() *cobra.Command {
@@ -19,17 +29,25 @@ func getVerbCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(wrapForVerb(serverGetCmd, cmdServerUse))
+	cmd.AddCommand(wrapForVerb(managedServerGetCmd, cmdManagedServerUse))
 	cmd.AddCommand(wrapForVerb(repositoryGetCmd, cmdRepositoryUse))
+	cmd.AddCommand(wrapForVerb(scaleOutRepositoryGetCmd, cmdScaleOutRepositoryUse))
+	cmd.AddCommand(wrapForVerb(wanAcceleratorGetCmd, cmdWanAcceleratorUse))
+	cmd.AddCommand(wrapForVerb(generalOptionGetCmd, cmdGeneralOptionUse))
 	cmd.AddCommand(wrapForVerb(jobGetCmd, cmdJobUse))
 	cmd.AddCommand(wrapForVerb(restorePointGetCmd, cmdRestorePointUse))
 	cmd.AddCommand(wrapForVerb(replicaGetCmd, cmdReplicaUse))
 	cmd.AddCommand(wrapForVerb(proxyListCmd, "proxy"))
 	cmd.AddCommand(wrapForVerb(func() *cobra.Command { return newTrafficRuleGetCmd(cmdGetUse, false, nil) }, "trafficrule"))
 	cmd.AddCommand(wrapForVerb(func() *cobra.Command { return newExclusionVMGetCmd(cmdGetUse, nil, false) }, "exclusionvm"))
+	cmd.AddCommand(wrapForVerb(inventoryGetRootCmd, cmdInventoryUse))
 	cmd.AddCommand(sessionGetVerbCmd())
+	cmd.AddCommand(taskGetVerbCmd())
 	cmd.AddCommand(backupGetVerbCmd())
 	cmd.AddCommand(objectsInBackupCmd())
 	cmd.AddCommand(securityGetVerbCmd())
+	cmd.AddCommand(wrapForVerb(malwareDetectionEventGetCmd, cmdMalwareDetectionEventUse))
+	cmd.AddCommand(wrapForVerb(yaraRuleGetCmd, cmdYaraRuleUse))
 	cmd.AddCommand(licenseVerbCmd())
 
 	return cmd
@@ -41,13 +59,17 @@ func describeVerbCmd() *cobra.Command {
 		Short: "Describe resources",
 	}
 
-	cmd.AddCommand(wrapForVerb(serverDescribeCmd, cmdServerUse))
+	cmd.AddCommand(wrapForVerb(managedServerDescribeCmd, cmdManagedServerUse))
 	cmd.AddCommand(wrapForVerb(repositoryDescribeCmd, cmdRepositoryUse))
+	cmd.AddCommand(wrapForVerb(scaleOutRepositoryDescribeCmd, cmdScaleOutRepositoryUse))
+	cmd.AddCommand(wrapForVerb(wanAcceleratorDescribeCmd, cmdWanAcceleratorUse))
 	cmd.AddCommand(wrapForVerb(jobDescribeCmd, cmdJobUse))
 	cmd.AddCommand(wrapForVerb(proxyDescribeCmd, "proxy"))
 	cmd.AddCommand(wrapForVerb(func() *cobra.Command { return newConfigurationBackupDescribeCmd(cmdDescribeUse, false, nil) }, "configurationbackup"))
 	cmd.AddCommand(wrapForVerb(func() *cobra.Command { return newExclusionVMDescribeCmd(cmdDescribeUse, []string{"show"}, false) }, "exclusionvm"))
+	cmd.AddCommand(wrapForVerb(inventoryDescribeRootCmd, cmdInventoryUse))
 	cmd.AddCommand(sessionDescribeVerbCmd())
+	cmd.AddCommand(taskDescribeVerbCmd())
 	cmd.AddCommand(securityDescribeVerbCmd())
 
 	return cmd
@@ -62,6 +84,34 @@ func rescanVerbCmd() *cobra.Command {
 	cmd.AddCommand(wrapForVerb(repositoryRescanCmd, cmdRepositoryUse))
 	cmd.AddCommand(wrapForVerb(serverRescanCmd, cmdServerUse))
 
+	return cmd
+}
+
+func templateVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdTemplateUse,
+		Short: "Generate starter templates",
+	}
+	cmd.AddCommand(templateJobCmd())
+	return cmd
+}
+
+func addVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdAddUse,
+		Short: "Create resources",
+	}
+	cmd.AddCommand(wrapForVerb(managedServerAddCmd, cmdManagedServerUse))
+	cmd.AddCommand(jobAddVerbCmd())
+	return cmd
+}
+
+func editVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdEditUse,
+		Short: "Edit resources",
+	}
+	cmd.AddCommand(jobEditVerbCmd())
 	return cmd
 }
 
@@ -92,7 +142,7 @@ func sessionGetVerbCmd() *cobra.Command {
 	list.Use = "session"
 
 	logs := sessionLogsCmd()
-	logs.Use = "logs <session-id>"
+	logs.Use = "logs"
 
 	list.AddCommand(logs)
 	return list
@@ -100,12 +150,25 @@ func sessionGetVerbCmd() *cobra.Command {
 
 func sessionDescribeVerbCmd() *cobra.Command {
 	describe := sessionDescribeCmd()
-	describe.Use = "session <session-id>"
+	describe.Use = "session"
 
-	current := sessionCurrentCmd()
-	current.Use = "current"
+	return describe
+}
 
-	describe.AddCommand(current)
+func taskGetVerbCmd() *cobra.Command {
+	list := taskListCmd()
+	list.Use = "task"
+
+	logs := taskLogsCmd()
+	logs.Use = "logs"
+	list.AddCommand(logs)
+
+	return list
+}
+
+func taskDescribeVerbCmd() *cobra.Command {
+	describe := taskDescribeCmd()
+	describe.Use = "task"
 	return describe
 }
 
@@ -115,37 +178,82 @@ func backupGetVerbCmd() *cobra.Command {
 		Short: "Backup inspection helpers",
 	}
 
+	root.AddCommand(backupListCmd())
 	root.AddCommand(backupFilesCmd())
 	root.AddCommand(backupObjectsCmd())
 	return root
 }
 
 func securityGetVerbCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "security",
-		Short: "Security analyzer configuration and results",
-	}
-
-	analyzer := &cobra.Command{
-		Use:   "analyzer",
-		Short: "Security & Compliance Analyzer insights",
-	}
-	analyzer.AddCommand(securityAnalyzerSendResultsCmd())
-	root.AddCommand(analyzer)
-	return root
+	return securityAnalyzerGetCmd()
 }
 
 func securityDescribeVerbCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "security",
-		Short: "Security analyzer configuration and results",
-	}
+	return securityAnalyzerDescribeCmd()
+}
 
-	analyzer := &cobra.Command{
-		Use:   "analyzer",
-		Short: "Security & Compliance Analyzer insights",
+func enableVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdEnableUse,
+		Short: "Enable resources",
 	}
-	analyzer.AddCommand(securityAnalyzerScheduleCmd())
-	root.AddCommand(analyzer)
-	return root
+	cmd.AddCommand(jobEnableCmd())
+	return cmd
+}
+
+func disableVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdDisableUse,
+		Short: "Disable resources",
+	}
+	cmd.AddCommand(jobDisableCmd())
+	return cmd
+}
+
+func cloneVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdCloneUse,
+		Short: "Clone resources",
+	}
+	cmd.AddCommand(jobCloneCmd())
+	return cmd
+}
+
+func deleteVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdDeleteUse,
+		Short: "Delete resources",
+	}
+	cmd.AddCommand(jobDeleteCmd())
+	return cmd
+}
+
+func startVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdStartUse,
+		Short: "Start resources",
+	}
+	cmd.AddCommand(jobStartCmd())
+	cmd.AddCommand(jobQuickBackupCmd())
+	cmd.AddCommand(securityAnalyzerStartCmd())
+	cmd.AddCommand(configBackupStartCmd())
+	return cmd
+}
+
+func stopVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdStopUse,
+		Short: "Stop resources",
+	}
+	cmd.AddCommand(jobStopCmd())
+	return cmd
+}
+
+func retryVerbCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   cmdRetryUse,
+		Short: "Retry resources",
+	}
+	cmd.AddCommand(jobRetryCmd())
+	return cmd
 }

@@ -188,12 +188,16 @@ type taskSessionsResponse struct {
 }
 
 type TaskSessionSummary struct {
-	ID           string     `json:"id"`
-	Type         string     `json:"type"`
-	SessionID    string     `json:"sessionId"`
-	SessionType  string     `json:"sessionType"`
-	CreationTime APITime    `json:"creationTime"`
-	EndTime      *APITime   `json:"endTime,omitempty"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Type         string         `json:"type"`
+	SessionID    string         `json:"sessionId"`
+	SessionType  string         `json:"sessionType"`
+	State        string         `json:"state"`
+	Result       *SessionResult `json:"result,omitempty"`
+	Progress     *ProgressInfo  `json:"progress,omitempty"`
+	CreationTime APITime        `json:"creationTime"`
+	EndTime      *APITime       `json:"endTime,omitempty"`
 }
 
 type TaskSessionDetail struct {

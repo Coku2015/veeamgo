@@ -21,7 +21,7 @@ Stage 1 (Foundations), Stage 2 (Infrastructure Management), and Stage 3A (Read-o
   - Security analyzer schedule/send-results reporting and licensing surfaces (`get license`, `get license sockets|instances|capacity`) deliver audit-ready summaries with friendlier table headers.
 - **Stage 3B UX Polish**
   - Verb-first command wrappers (`veeamgo get|describe <resource>`) anchor the CLI around consistent automation-friendly verbs.
-  - `restorepoint`/`replica` commands now require explicit job context, output job-aware tables, and remove redundant ID-heavy columns; legacy `backup get|describe`, `restore mount`, `task`, `credential`, and malware/security event commands were retired.
+  - `restorepoint`/`replica` commands now require explicit job context, output job-aware tables, and remove redundant ID-heavy columns; legacy `backup get|describe`, `restore mount`, and `task`/`credential` commands remain retired while malware detection visibility returns via `veeamgo get malwaredetectionevent` and `veeamgo get yararule`.
   - Repository, license, and job listings focus on operator-ready columns, with dedicated job-type flags mapping directly to each `EJobType` enumerated in the OpenAPI specification.
 - **Release Tooling**
   - `dist/` holds binaries for macOS (amd64, arm64), Linux (amd64, arm64), Windows (amd64).
@@ -29,7 +29,7 @@ Stage 1 (Foundations), Stage 2 (Infrastructure Management), and Stage 3A (Read-o
 
 ## Verification & QA
 - Manual validation run against `vbrsav13.backupnext.home` using `.env.test` coverage for every Stage 1–3A command, plus the updated smoke harness that chains table/JSON views.
-- Default table renders now align with `docs/UI design.md`; JSON output mirrors the raw service payloads.
+- Default table renders now align with `docs/ui-design-reference.md`; JSON output mirrors the raw service payloads.
 - `go test ./...` (with local caches) passes; new unit tests cover output fallbacks.
 
 ## Known Gaps / Open Work

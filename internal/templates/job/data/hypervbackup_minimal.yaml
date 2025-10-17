@@ -1,0 +1,28 @@
+# Microsoft Hyper-V backup job (minimal)
+type: HyperVBackup
+name: "My Hyper-V Backup"
+description: "Nightly backup for Hyper-V workloads"
+
+virtualMachines:
+  includes:
+    - platform: HyperV           # Required: Hyper-V inventory platform
+      type: VirtualMachine       # Required: inventory object type (VirtualMachine, Cluster, Folder, etc.)
+      name: ""
+      objectId: ""
+      hostName: ""             # Hyper-V host or cluster managing the object
+
+storage:
+  backupRepositoryId: ""
+  backupProxies:
+    autoSelectEnabled: true      # Set false and specify proxyIds when using dedicated off-host proxies
+    proxyIds: []
+  retentionPolicy:
+    type: RestorePoints
+    quantity: 14
+
+schedule:
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "22:00"

@@ -1,0 +1,238 @@
+# Microsoft Hyper-V backup job (full)
+type: HyperVBackup # Job type (EJobType)
+name: "My Hyper-V Backup" # Job name
+description: "Comprehensive Hyper-V protection policy" # Job description
+isHighPriority: false # Prioritise job in scheduler
+
+virtualMachines: # Included/excluded Hyper-V VMs
+  includes:
+    - platform: HyperV # Inventory platform
+      type: VirtualMachine # Object type (VirtualMachine | Cluster | etc.)
+      name: "" # VM or container name
+      objectId: "" # Inventory object ID
+      hostName: "" # Hyper-V host name
+  excludes:
+    vms: [] # Additional VMs to exclude
+    disks:
+      - vmObject:
+          platform: HyperV
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        disksToProcess: SelectedDisks # AllDisks | SystemOnly | SelectedDisks
+        disks: [] # Disk IDs when selecting specific disks
+        removeFromVMConfiguration: false # Remove disks from VM configuration during backup
+
+storage: # Backup storage configuration
+  backupRepositoryId: "" # Target repository ID
+  backupProxies:
+    proxyType: offHost # onHost | offHost
+    offHostSettings:
+      autoSelectEnabled: false # Auto select off-host proxies
+      proxyIds:
+        - "" # Off-host proxy IDs when auto selection disabled
+      failoverToOnHostBackup: true # Fallback to on-host mode on failure
+  retentionPolicy:
+    type: RestorePoints # RestorePoints | Days
+    quantity: 30 # Number of restore points/days to keep
+  gfsPolicy:
+    isEnabled: true # Enable GFS retention
+    weekly:
+      isEnabled: true
+      desiredTime: sunday
+      keepForNumberOfWeeks: 4
+    monthly:
+      isEnabled: false
+      desiredTime: First
+      keepForNumberOfMonths: 6
+    yearly:
+      isEnabled: false
+      desiredTime: January
+      keepForNumberOfYears: 3
+  advancedSettings:
+    backupModeType: Incremental # Incremental | ReverseIncremental
+    storageData:
+      compressionLevel: Optimal # Data compression
+      storageOptimization: LocalTarget # Block size optimisation
+      inlineDataDedupEnabled: true # Inline dedupe
+      excludeDeletedFileBlocks: true # Skip deleted blocks
+      excludeSwapFileBlocks: true # Skip swap blocks
+    synthenticFulls:
+      isEnabled: true
+      weekly:
+        isEnabled: true
+        days: [saturday]
+        localTime: "22:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "22:00"
+        months: []
+    activeFulls:
+      isEnabled: false
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "00:00"
+        months: []
+    backupHealth:
+      isEnabled: false
+      weekly:
+        isEnabled: false
+        days: []
+        localTime: "00:00"
+      monthly:
+        isEnabled: false
+        dayNumberInMonth: First
+        dayOfWeek: saturday
+        localTime: "00:00"
+        months: []
+    fullBackupMaintenance:
+      RemoveData:
+        isEnabled: false
+        afterDays: 30
+      defragmentAndCompact:
+        isEnabled: false
+        weekly:
+          isEnabled: false
+          days: []
+          localTime: "00:00"
+        monthly:
+          isEnabled: false
+          dayNumberInMonth: First
+          dayOfWeek: saturday
+          localTime: "00:00"
+          months: []
+    notifications:
+      sendSNMPNotifications: false # Enable SNMP traps
+      emailNotifications:
+        isEnabled: false # Enable email alerts
+        notificationType: OnFailure # OnSuccess | OnFailure | OnWarning
+        recipients: []
+        customNotificationSettings: {}
+    scripts:
+      periodicityType: BackupSessions # Script frequency
+      runScriptEvery: 1
+      dayOfWeek: []
+      preCommand:
+        isEnabled: false
+        command: ""
+      postCommand:
+        isEnabled: false
+        command: ""
+    hyperV:
+      changedBlockTracking: true # Enable CBT for Hyper-V
+      volumeSnapshots: true # Process multiple VMs per snapshot
+      guestQuiescence:
+        isEnabled: false # Use Hyper-V guest quiescence
+        crashConsistentBackup: true # Create crash-consistent backups
+
+guestProcessing: # Guest processing settings
+  appAwareProcessing:
+    isEnabled: true
+    appSettings:
+      - vmObject:
+          platform: HyperV
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        vss: requireSuccess # VSS behaviour
+        transactionLogs: process # process | copyOnly
+        usePersistentGuestAgent: false # Install persistent guest agent
+        exclusions:
+          exclusionPolicy: disabled # disabled | excludeOnly | includeOnly
+          itemsList: []
+        oracle:
+          archiveLogs: deleteExpiredGBs
+          backupLogs: true
+          backupMinsCount: 30
+          keepDaysCount: 7
+          deleteGBsCount: 1024
+          deleteHoursCount: 0
+          useGuestCredentials: true
+          credentialsId: ""
+          retainLogBackups: untilBackupDeleted
+          logShippingServers:
+            autoSelection: true
+            shippingServerIds: []
+        sql:
+          logsProcessing: backup
+          backupMinsCount: 15
+          keepDaysCount: 7
+          retainLogBackups: untilBackupDeleted
+          logShippingServers:
+            autoSelection: true
+            shippingServerIds: []
+        scripts:
+          scriptProcessingMode: disableExec # disableExec | ignoreExecFailures | requireSuccess
+          windowsScripts:
+            preFreezeScript: ""
+            postThawScript: ""
+          linuxScripts:
+            preFreezeScript: ""
+            postThawScript: ""
+  guestCredentials:
+    windowsCredsId: "" # Default Windows credentials
+    linuxCredsId: "" # Default Linux credentials
+    credentialsPerMachine:
+      - vmObject:
+          platform: HyperV
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        windowsCredsId: "" # Machine-specific Windows credentials
+        linuxCredsId: "" # Machine-specific Linux credentials
+  guestFSIndexing:
+    isEnabled: true # Enable file system indexing
+    indexingSettings:
+      - vmObject:
+          platform: HyperV
+          type: VirtualMachine
+          name: ""
+          objectId: ""
+          hostName: ""
+        WindowsIndexing:
+          guestFSIndexingMode: indexAllExcept # disable | indexAll | indexAllExcept | indexOnly
+          indexingList: ["%windir%", "%ProgramFiles%"]
+        LinuxIndexing:
+          guestFSIndexingMode: indexOnly
+          indexingList: ["/home", "/srv"]
+  guestInteractionProxies:
+    autoSelectEnabled: true # Auto select guest interaction proxy
+    proxyIds: [] # Explicit proxy IDs when auto selection is disabled
+
+schedule: # Scheduling options
+  runAutomatically: true
+  daily:
+    isEnabled: true
+    dailyKind: Everyday
+    localTime: "21:30"
+  monthly:
+    isEnabled: false
+    dayNumberInMonth: First
+    dayOfWeek: saturday
+    localTime: "21:30"
+    months: []
+  periodically:
+    isEnabled: false
+    periodMinutes: 60
+  retry:
+    isEnabled: true
+    retryCount: 3
+    awaitMinutes: 15
+  backupWindow:
+    isEnabled: false
+    backupWindow:
+      days: []
+  afterThisJob:
+    isEnabled: false
+    jobName: ""
