@@ -1,8 +1,0 @@
-default_profile: default
-profiles:
-  default:
-    server_url: https://vbr.example.com:9419
-    username: demo-admin
-    # Passwords can be plain text (first run will encrypt in-place) or pre-encrypted as ENC:<base64>
-    password: "SuperSecretPassword!"
-    insecure: true

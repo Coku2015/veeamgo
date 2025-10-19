@@ -10,15 +10,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func configurationBackupCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "configurationbackup",
-		Short: "Configuration backup policies",
-	}
-	root.AddCommand(newConfigurationBackupDescribeCmd(cmdDescribeUse, false, nil))
-	return root
-}
-
 func configBackupStartCmd() *cobra.Command {
 	var (
 		assumeYes bool
@@ -35,7 +26,7 @@ func configBackupStartCmd() *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintln(cmd.OutOrStdout(), "Cancelled start request.")
+					_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Cancelled start request.")
 					return nil
 				}
 			}
