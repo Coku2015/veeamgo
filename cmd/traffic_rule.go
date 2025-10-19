@@ -10,15 +10,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func trafficRuleCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "trafficrule",
-		Short: "Traffic throttling and preferred network rules",
-	}
-	root.AddCommand(newTrafficRuleGetCmd(cmdGetUse, false, nil))
-	return root
-}
-
 func newTrafficRuleGetCmd(use string, hidden bool, aliases []string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     use,

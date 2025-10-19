@@ -16,6 +16,7 @@ import (
 	"github.com/veeamgo/veeamgo/internal/client"
 	"github.com/veeamgo/veeamgo/internal/config"
 	"github.com/veeamgo/veeamgo/internal/session"
+	"github.com/veeamgo/veeamgo/pkg/apiversion"
 )
 
 func loginCmd() *cobra.Command {
@@ -108,12 +109,42 @@ func loginCmd() *cobra.Command {
 				passwordToPersist = flagPassword
 			}
 
-			cfg.SetProfile(profileName, config.Profile{
+			profileToPersist := config.Profile{
 				ServerURL: serverURL,
 				Username:  flagUsername,
 				Password:  passwordToPersist,
 				Insecure:  flagInsecure,
-			})
+			}
+			if existing != nil && strings.TrimSpace(existing.APIVersion) != "" {
+				profileToPersist.APIVersion = apiversion.Normalize(existing.APIVersion)
+			}
+
+			profileForNegotiation := profileToPersist
+			profileForNegotiation.Password = ""
+
+			httpClient, err := client.New(&profileForNegotiation, sess)
+			if err != nil {
+				return err
+			}
+
+			overrideValue, overrideProvided := cliAPIVersionOverride()
+			if overrideProvided {
+				if err := httpClient.SetAPIVersion(overrideValue, true); err != nil {
+					return err
+				}
+			}
+
+			negotiation, err := httpClient.NegotiateAPIVersion(ctx)
+			if err != nil {
+				return err
+			}
+			maybeWarnNewerServer(profileName, negotiation)
+
+			if overrideProvided && strings.TrimSpace(opts.apiVersion) != "" {
+				profileToPersist.APIVersion = apiversion.Normalize(overrideValue)
+			}
+
+			cfg.SetProfile(profileName, profileToPersist)
 			if flagSetDefault || cfg.DefaultProfile == "" {
 				cfg.DefaultProfile = profileName
 			}
@@ -122,7 +153,7 @@ func loginCmd() *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Logged in to %s as %s using profile %q\n", serverURL, flagUsername, profileName)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Logged in to %s as %s using profile %q (API %s)\n", serverURL, flagUsername, profileName, httpClient.APIVersion())
 			return nil
 		},
 	}

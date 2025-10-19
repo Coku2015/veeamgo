@@ -15,10 +15,11 @@ func TestSaveAndLoad(t *testing.T) {
 		DefaultProfile: "default",
 	}
 	cfg.SetProfile("default", Profile{
-		ServerURL: "https://example",
-		Username:  "admin",
-		Password:  "secret",
-		Insecure:  true,
+		ServerURL:  "https://example",
+		Username:   "admin",
+		Password:   "secret",
+		Insecure:   true,
+		APIVersion: "1.2-rev1",
 	})
 
 	if err := Save(path, cfg); err != nil {
@@ -69,5 +70,8 @@ func TestSaveAndLoad(t *testing.T) {
 	}
 	if !profile.Insecure {
 		t.Fatalf("expected insecure flag to be true")
+	}
+	if profile.APIVersion != "1.2-rev1" {
+		t.Fatalf("unexpected api version: %s", profile.APIVersion)
 	}
 }

@@ -42,10 +42,10 @@ func (t *APITime) UnmarshalJSON(data []byte) error {
 }
 
 func (t APITime) MarshalJSON() ([]byte, error) {
-	if t.Time.IsZero() {
+	if t.IsZero() {
 		return []byte("null"), nil
 	}
-	return json.Marshal(t.Time.Format(time.RFC3339Nano))
+	return json.Marshal(t.Format(time.RFC3339Nano))
 }
 
 // Ptr returns a pointer to a copy of the time.Time value or nil when zero.
@@ -53,7 +53,7 @@ func (t *APITime) Ptr() *time.Time {
 	if t == nil {
 		return nil
 	}
-	if t.Time.IsZero() {
+	if t.IsZero() {
 		return nil
 	}
 	clone := t.Time

@@ -14,6 +14,7 @@ type rootOptions struct {
 	configPath   string
 	profile      string
 	outputFormat string
+	apiVersion   string
 }
 
 var (
@@ -39,6 +40,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&opts.configPath, "config", "", "Path to configuration file")
 	rootCmd.PersistentFlags().StringVar(&opts.profile, "profile", "", "Profile name to use")
 	rootCmd.PersistentFlags().StringVar(&opts.outputFormat, "output", opts.outputFormat, "Output format (table|json)")
+	rootCmd.PersistentFlags().StringVar(&opts.apiVersion, "api-version", "", "Override API version used for REST calls (for example 1.2-rev1)")
 
 	rootCmd.SilenceUsage = true
 	rootCmd.SilenceErrors = true

@@ -249,7 +249,7 @@ func newJobAddCommand(use string) *cobra.Command {
 			summary := jobBlueprintSummary(payload)
 
 			if opts.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "Dry run – resolved blueprint for %s:\n", summary)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Dry run – resolved blueprint for %s:\n", summary)
 				return renderBlueprint(cmd, payload)
 			}
 
@@ -259,7 +259,7 @@ func newJobAddCommand(use string) *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintf(cmd.OutOrStdout(), "Cancelled creating %s.\n", summary)
+					_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled creating %s.\n", summary)
 					return nil
 				}
 			}
@@ -284,11 +284,11 @@ func newJobAddCommand(use string) *cobra.Command {
 
 			switch {
 			case target != "" && jobType != "":
-				fmt.Fprintf(cmd.OutOrStdout(), "Created job %q (%s).\n", target, jobType)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created job %q (%s).\n", target, jobType)
 			case target != "":
-				fmt.Fprintf(cmd.OutOrStdout(), "Created job %q.\n", target)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created job %q.\n", target)
 			default:
-				fmt.Fprintf(cmd.OutOrStdout(), "Created job successfully.\n")
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created job successfully.\n")
 			}
 
 			return nil
@@ -374,7 +374,7 @@ func newJobEditCommand(use string) *cobra.Command {
 				if err := writeBlueprintFile(path, template.Spec); err != nil {
 					return fmt.Errorf("write blueprint template: %w", err)
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "Wrote job blueprint to %s.\n", path)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Wrote job blueprint to %s.\n", path)
 				return nil
 			}
 
@@ -391,7 +391,7 @@ func newJobEditCommand(use string) *cobra.Command {
 					return err
 				}
 				if !changed {
-					fmt.Fprintln(cmd.OutOrStdout(), "No changes detected; nothing to do.")
+					_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No changes detected; nothing to do.")
 					return nil
 				}
 				blueprint = edited
@@ -429,7 +429,7 @@ func newJobEditCommand(use string) *cobra.Command {
 			summary := jobBlueprintSummary(payload)
 
 			if opts.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "Dry run – updated blueprint for %s:\n", summary)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Dry run – updated blueprint for %s:\n", summary)
 				return renderBlueprint(cmd, payload)
 			}
 
@@ -443,7 +443,7 @@ func newJobEditCommand(use string) *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintf(cmd.OutOrStdout(), "Cancelled updating %s.\n", target)
+					_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled updating %s.\n", target)
 					return nil
 				}
 			}
@@ -463,11 +463,11 @@ func newJobEditCommand(use string) *cobra.Command {
 
 			switch {
 			case target != "" && jobType != "":
-				fmt.Fprintf(cmd.OutOrStdout(), "Updated job %q (%s).\n", target, jobType)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated job %q (%s).\n", target, jobType)
 			case target != "":
-				fmt.Fprintf(cmd.OutOrStdout(), "Updated job %q.\n", target)
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated job %q.\n", target)
 			default:
-				fmt.Fprintf(cmd.OutOrStdout(), "Updated job successfully.\n")
+				_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Updated job successfully.\n")
 			}
 
 			return nil
@@ -841,7 +841,7 @@ func runJobToggle(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes b
 			stateLabel = "disabled"
 		}
 		target := jobTargetLabel(jobName, jobID)
-		fmt.Fprintf(cmd.OutOrStdout(), "Job %q is already %s.\n", target, stateLabel)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Job %q is already %s.\n", target, stateLabel)
 		return nil
 	}
 
@@ -852,7 +852,7 @@ func runJobToggle(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes b
 			return err
 		}
 		if !confirmed {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled %s job %q.\n", action, target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled %s job %q.\n", action, target)
 			return nil
 		}
 	}
@@ -862,9 +862,9 @@ func runJobToggle(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes b
 	}
 
 	if target == jobID {
-		fmt.Fprintf(cmd.OutOrStdout(), "%s job %s.\n", actionPast, target)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s job %s.\n", actionPast, target)
 	} else {
-		fmt.Fprintf(cmd.OutOrStdout(), "%s job %q (%s).\n", actionPast, target, jobID)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s job %q (%s).\n", actionPast, target, jobID)
 	}
 	return nil
 }
@@ -921,7 +921,7 @@ func runJobStart(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes, p
 			return err
 		}
 		if !confirmed {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled starting job %q.\n", target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled starting job %q.\n", target)
 			return nil
 		}
 	}
@@ -971,7 +971,7 @@ func runJobStop(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes, gr
 	target := jobTargetLabel(jobName, jobID)
 
 	if !jobStateIndicatesActive(state) {
-		fmt.Fprintf(cmd.OutOrStdout(), "Job %q is not currently running.\n", target)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Job %q is not currently running.\n", target)
 		return nil
 	}
 
@@ -981,7 +981,7 @@ func runJobStop(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes, gr
 			return err
 		}
 		if !confirmed {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled stopping job %q.\n", target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled stopping job %q.\n", target)
 			return nil
 		}
 	}
@@ -1048,7 +1048,7 @@ func runJobRetry(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes, s
 			return err
 		}
 		if !confirmed {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled retrying job %q.\n", target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled retrying job %q.\n", target)
 			return nil
 		}
 	}
@@ -1097,12 +1097,12 @@ func runJobQuickBackup(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assume
 	)
 
 	if jobNameTrimmed == "" && jobIDTrimmed == "" {
-		jobID, jobName, state, config, chosen, cancelled, err = autoResolveQuickBackupJob(ctx, cmd, httpClient, vmNameTrimmed, assumeYes)
+		jobID, jobName, _, _, chosen, cancelled, err = autoResolveQuickBackupJob(ctx, cmd, httpClient, vmNameTrimmed, assumeYes)
 		if err != nil {
 			return err
 		}
 		if cancelled {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled quick backup for %q.\n", vmNameTrimmed)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled quick backup for %q.\n", vmNameTrimmed)
 			return nil
 		}
 	} else {
@@ -1139,7 +1139,7 @@ func runJobQuickBackup(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assume
 			return err
 		}
 		if cancelled {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled quick backup for %q via job %q.\n", vmNameTrimmed, target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled quick backup for %q via job %q.\n", vmNameTrimmed, target)
 			return nil
 		}
 	}
@@ -1152,7 +1152,7 @@ func runJobQuickBackup(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assume
 			return err
 		}
 		if !confirmed {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled quick backup for %q via job %q.\n", chosen.Request.Name, target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled quick backup for %q via job %q.\n", chosen.Request.Name, target)
 			return nil
 		}
 	}
@@ -1246,7 +1246,7 @@ func runJobClone(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes bo
 			return err
 		}
 		if !confirmed {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled cloning job %q.\n", target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled cloning job %q.\n", target)
 			return nil
 		}
 	}
@@ -1263,13 +1263,13 @@ func runJobClone(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes bo
 
 	switch {
 	case newID != "" && newType != "":
-		fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q (%s) [%s].\n", target, jobID, newTarget, newID, newType)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q (%s) [%s].\n", target, jobID, newTarget, newID, newType)
 	case newID != "":
-		fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q (%s).\n", target, jobID, newTarget, newID)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q (%s).\n", target, jobID, newTarget, newID)
 	case newType != "":
-		fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q [%s].\n", target, jobID, newTarget, newType)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q [%s].\n", target, jobID, newTarget, newType)
 	default:
-		fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q.\n", target, jobID, newTarget)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cloned job %q (%s) to %q.\n", target, jobID, newTarget)
 	}
 	return nil
 }
@@ -1317,7 +1317,7 @@ func runJobDelete(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes b
 			return err
 		}
 		if !confirmed {
-			fmt.Fprintf(cmd.OutOrStdout(), "Cancelled deleting job %q.\n", target)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled deleting job %q.\n", target)
 			return nil
 		}
 	}
@@ -1326,7 +1326,7 @@ func runJobDelete(cmd *cobra.Command, jobNameFlag, jobIDFlag string, assumeYes b
 		return fmt.Errorf("delete job %q (%s): %w", target, jobID, err)
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Deleted job %q (%s).\n", target, jobID)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Deleted job %q (%s).\n", target, jobID)
 	return nil
 }
 
@@ -1408,7 +1408,7 @@ func jobTargetLabel(jobName, jobID string) string {
 func promptForConfirmation(cmd *cobra.Command, question string) (bool, error) {
 	reader := bufio.NewReader(cmd.InOrStdin())
 	for {
-		fmt.Fprintf(cmd.OutOrStdout(), "%s [y/N]: ", question)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s [y/N]: ", question)
 		input, err := reader.ReadString('\n')
 		if err != nil && !errors.Is(err, io.EOF) {
 			return false, fmt.Errorf("read confirmation: %w", err)
@@ -1425,7 +1425,7 @@ func promptForConfirmation(cmd *cobra.Command, question string) (bool, error) {
 		case "n", "no":
 			return false, nil
 		default:
-			fmt.Fprintln(cmd.OutOrStdout(), "Please respond with y or n.")
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Please respond with y or n.")
 			if errors.Is(err, io.EOF) {
 				return false, nil
 			}
@@ -1522,7 +1522,7 @@ func parseOverridePairs(pairs []string) (map[string]string, error) {
 
 func renderBlueprint(cmd *cobra.Command, payload map[string]any) error {
 	if payload == nil {
-		fmt.Fprintln(cmd.OutOrStdout(), "No blueprint data.")
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No blueprint data.")
 		return nil
 	}
 	format := outputFormat()
@@ -1534,7 +1534,7 @@ func renderBlueprint(cmd *cobra.Command, payload map[string]any) error {
 		return fmt.Errorf("encode blueprint: %w", err)
 	}
 	text := strings.TrimRight(string(data), "\n")
-	fmt.Fprintln(cmd.OutOrStdout(), text)
+	_, _ = fmt.Fprintln(cmd.OutOrStdout(), text)
 	return nil
 }
 
@@ -1577,7 +1577,7 @@ func editBlueprintInteractively(cmd *cobra.Command, original *jobconfig.Blueprin
 
 	initialContent := append(append([]byte{}, data...), '\n')
 	if _, err := tempFile.Write(initialContent); err != nil {
-		tempFile.Close()
+		_ = tempFile.Close()
 		return nil, false, fmt.Errorf("write temporary blueprint: %w", err)
 	}
 	if err := tempFile.Close(); err != nil {
@@ -2279,13 +2279,13 @@ func resolveCandidateFromMatch(cmd *cobra.Command, jobName, vmName string, match
 func promptForQuickBackupSelection(cmd *cobra.Command, jobName, vmName string, candidates []quickBackupCandidate) (quickBackupCandidate, bool, error) {
 	reader := bufio.NewReader(cmd.InOrStdin())
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Multiple virtual machines named %q are configured in job %q:\n", vmName, jobName)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Multiple virtual machines named %q are configured in job %q:\n", vmName, jobName)
 	for i, cand := range candidates {
-		fmt.Fprintf(cmd.OutOrStdout(), "  %d) %s\n", i+1, quickBackupCandidateSummary(cand))
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "  %d) %s\n", i+1, quickBackupCandidateSummary(cand))
 	}
 
 	for {
-		fmt.Fprintf(cmd.OutOrStdout(), "Select a virtual machine [1-%d] or press Enter to cancel: ", len(candidates))
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Select a virtual machine [1-%d] or press Enter to cancel: ", len(candidates))
 		input, err := reader.ReadString('\n')
 		if err != nil && !errors.Is(err, io.EOF) {
 			return quickBackupCandidate{}, false, fmt.Errorf("read selection: %w", err)
@@ -2296,7 +2296,7 @@ func promptForQuickBackupSelection(cmd *cobra.Command, jobName, vmName string, c
 		}
 		index, err := strconv.Atoi(choice)
 		if err != nil || index < 1 || index > len(candidates) {
-			fmt.Fprintln(cmd.OutOrStdout(), "Please enter a number from the list or press Enter to cancel.")
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Please enter a number from the list or press Enter to cancel.")
 			if errors.Is(err, io.EOF) {
 				return quickBackupCandidate{}, true, nil
 			}
@@ -2347,17 +2347,17 @@ func quickBackupCandidateSummary(c quickBackupCandidate) string {
 func promptForQuickBackupJob(cmd *cobra.Command, vmName string, options []quickBackupJobOption) (quickBackupJobOption, bool, error) {
 	reader := bufio.NewReader(cmd.InOrStdin())
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Virtual machine %q is included in multiple jobs:\n", vmName)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Virtual machine %q is included in multiple jobs:\n", vmName)
 	for i, opt := range options {
 		summary := "no additional metadata"
 		if len(opt.Match.candidates) > 0 {
 			summary = quickBackupCandidateSummary(opt.Match.candidates[0])
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "  %d) %s (%s)\n", i+1, opt.JobName, summary)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "  %d) %s (%s)\n", i+1, opt.JobName, summary)
 	}
 
 	for {
-		fmt.Fprintf(cmd.OutOrStdout(), "Select a job [1-%d] or press Enter to cancel: ", len(options))
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Select a job [1-%d] or press Enter to cancel: ", len(options))
 		input, err := reader.ReadString('\n')
 		if err != nil && !errors.Is(err, io.EOF) {
 			return quickBackupJobOption{}, false, fmt.Errorf("read selection: %w", err)
@@ -2368,7 +2368,7 @@ func promptForQuickBackupJob(cmd *cobra.Command, vmName string, options []quickB
 		}
 		idx, err := strconv.Atoi(choice)
 		if err != nil || idx < 1 || idx > len(options) {
-			fmt.Fprintln(cmd.OutOrStdout(), "Please enter a number from the list or press Enter to cancel.")
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Please enter a number from the list or press Enter to cancel.")
 			if errors.Is(err, io.EOF) {
 				return quickBackupJobOption{}, true, nil
 			}
@@ -2652,6 +2652,6 @@ func printSessionMessage(cmd *cobra.Command, session *client.Session, message st
 		}
 		return output.Print(format, map[string]any{"message": message})
 	}
-	fmt.Fprintln(cmd.OutOrStdout(), message)
+	_, _ = fmt.Fprintln(cmd.OutOrStdout(), message)
 	return nil
 }

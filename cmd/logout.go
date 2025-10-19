@@ -40,19 +40,19 @@ func logoutCmd() *cobra.Command {
 						return err
 					}
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), "Cleared all cached sessions.")
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Cleared all cached sessions.")
 				return nil
 			}
 
 			profileName := activeProfile(cfg.DefaultProfile)
 			if err := manager.Delete(profileName); err != nil {
 				if errors.Is(err, session.ErrNotFound) {
-					fmt.Fprintf(cmd.OutOrStdout(), "No cached session for profile %q\n", profileName)
+					_, _ = fmt.Fprintf(cmd.OutOrStdout(), "No cached session for profile %q\n", profileName)
 					return nil
 				}
 				return err
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Cleared session for profile %q\n", profileName)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cleared session for profile %q\n", profileName)
 			return nil
 		},
 	}

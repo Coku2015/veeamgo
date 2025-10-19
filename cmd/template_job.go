@@ -52,7 +52,7 @@ func templateJobCmd() *cobra.Command {
 			}
 
 			if strings.TrimSpace(opts.writePath) == "" {
-				fmt.Fprintln(cmd.OutOrStdout(), string(payload))
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), string(payload))
 				return nil
 			}
 
@@ -63,7 +63,7 @@ func templateJobCmd() *cobra.Command {
 			if err := os.WriteFile(resolved, ensureTrailingNewline(payload), 0o600); err != nil {
 				return fmt.Errorf("write template: %w", err)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Wrote template to %s\n", resolved)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Wrote template to %s\n", resolved)
 			return nil
 		},
 	}
@@ -80,7 +80,7 @@ func templateJobCmd() *cobra.Command {
 func renderTemplateList(cmd *cobra.Command) error {
 	infos := jobtemplates.List()
 	if len(infos) == 0 {
-		fmt.Fprintln(cmd.OutOrStdout(), "No templates available.")
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No templates available.")
 		return nil
 	}
 

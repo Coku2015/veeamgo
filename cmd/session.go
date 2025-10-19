@@ -12,17 +12,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func sessionCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "session",
-		Short: "Session management and diagnostics",
-	}
-	root.AddCommand(sessionListCmd())
-	root.AddCommand(sessionDescribeCmd())
-	root.AddCommand(sessionLogsCmd())
-	return root
-}
-
 type sessionListOptions struct {
 	name          string
 	jobID         string

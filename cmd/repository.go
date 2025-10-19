@@ -13,17 +13,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func repositoryCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   cmdRepositoryUse,
-		Short: "Repository inventory and maintenance",
-	}
-	root.AddCommand(repositoryGetCmd())
-	root.AddCommand(repositoryDescribeCmd())
-	root.AddCommand(repositoryRescanCmd())
-	return root
-}
-
 func repositoryGetCmd() *cobra.Command {
 	var (
 		typeFilters []string
@@ -43,11 +32,26 @@ func repositoryGetCmd() *cobra.Command {
 				return err
 			}
 
-			states, err := httpClient.RepositoryStates(ctx, client.RepositoryStatesFilter{
+			var normalizedTypes []string
+			if len(typeFilters) > 0 {
+				normalizedTypes = make([]string, 0, len(typeFilters))
+				for _, t := range typeFilters {
+					normalized, err := normalizeLocalRepositoryType(t)
+					if err != nil {
+						return err
+					}
+					normalizedTypes = append(normalizedTypes, normalized)
+				}
+			}
+			filter := client.RepositoryStatesFilter{
 				Name:     nameFilter,
-				Types:    typeFilters,
 				MaxItems: limit,
-			})
+			}
+			if len(normalizedTypes) > 0 {
+				filter.Types = normalizedTypes
+			}
+
+			states, err := httpClient.RepositoryStates(ctx, filter)
 			if err != nil {
 				return err
 			}
@@ -105,6 +109,9 @@ func repositoryDescribeCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if !isLocalRepositoryType(state.Type) {
+				return fmt.Errorf("repository %q is an object storage repository; use veeamgo describe objectrepository", name)
+			}
 
 			config, err := httpClient.Repository(ctx, state.ID)
 			if err != nil {
@@ -141,20 +148,21 @@ func repositoryDescribeCmd() *cobra.Command {
 
 func repositoryRescanCmd() *cobra.Command {
 	var (
-		ids  []string
-		all  bool
-		wait bool
+		ids   []string
+		names []string
+		all   bool
+		wait  bool
 	)
 
 	cmd := &cobra.Command{
 		Use:   cmdRescanUse,
 		Short: "Rescan one or more repositories",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if all && len(ids) > 0 {
-				return fmt.Errorf("use either --all or --id, not both")
+			if all && (len(ids) > 0 || len(names) > 0) {
+				return fmt.Errorf("use either --all or one of --id/--name")
 			}
-			if !all && len(ids) == 0 {
-				return fmt.Errorf("provide at least one --id or use --all")
+			if !all && len(ids) == 0 && len(names) == 0 {
+				return fmt.Errorf("provide at least one --id, --name, or use --all")
 			}
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), 5*time.Minute)
@@ -165,21 +173,26 @@ func repositoryRescanCmd() *cobra.Command {
 				return err
 			}
 
+			seen := make(map[string]struct{})
 			targetIDs := make([]string, 0)
 			if all {
-				states, err := httpClient.RepositoryStates(ctx, client.RepositoryStatesFilter{})
+				states, err := httpClient.RepositoryStates(ctx, client.RepositoryStatesFilter{Types: localRepositoryTypes()})
 				if err != nil {
 					return err
 				}
 				if len(states) == 0 {
 					return fmt.Errorf("no repositories found")
 				}
-				targetIDs = make([]string, 0, len(states))
 				for _, st := range states {
-					targetIDs = append(targetIDs, st.ID)
+					if !isLocalRepositoryType(st.Type) {
+						continue
+					}
+					if _, ok := seen[st.ID]; !ok {
+						seen[st.ID] = struct{}{}
+						targetIDs = append(targetIDs, st.ID)
+					}
 				}
 			} else {
-				seen := make(map[string]struct{})
 				for _, candidate := range ids {
 					clean := strings.TrimSpace(candidate)
 					if clean == "" {
@@ -188,8 +201,37 @@ func repositoryRescanCmd() *cobra.Command {
 					if _, ok := seen[clean]; ok {
 						continue
 					}
+					states, err := httpClient.RepositoryStates(ctx, client.RepositoryStatesFilter{ID: clean, MaxItems: 1})
+					if err != nil {
+						return err
+					}
+					if len(states) == 0 {
+						return fmt.Errorf("repository with id %q not found", clean)
+					}
+					if !isLocalRepositoryType(states[0].Type) {
+						return fmt.Errorf("repository with id %q is an object storage repository; use veeamgo rescan objectrepository", clean)
+					}
 					seen[clean] = struct{}{}
 					targetIDs = append(targetIDs, clean)
+				}
+
+				for _, candidate := range names {
+					clean := strings.TrimSpace(candidate)
+					if clean == "" {
+						continue
+					}
+					state, err := httpClient.RepositoryStateByName(ctx, clean)
+					if err != nil {
+						return err
+					}
+					if !isLocalRepositoryType(state.Type) {
+						return fmt.Errorf("repository %q is an object storage repository; use veeamgo rescan objectrepository", clean)
+					}
+					if _, ok := seen[state.ID]; ok {
+						continue
+					}
+					seen[state.ID] = struct{}{}
+					targetIDs = append(targetIDs, state.ID)
 				}
 			}
 
@@ -219,8 +261,113 @@ func repositoryRescanCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringSliceVar(&ids, "id", nil, "Repository ID to rescan (can be repeated)")
+	cmd.Flags().StringSliceVar(&names, "name", nil, "Repository name to rescan (can be repeated)")
 	cmd.Flags().BoolVar(&all, "all", false, "Rescan every repository")
 	cmd.Flags().BoolVar(&wait, "wait", false, "Wait for the rescan session to finish")
+
+	return cmd
+}
+
+func repositoryDeleteCmd() *cobra.Command {
+	var (
+		repoName      string
+		repoID        string
+		deleteBackups bool
+		yes           bool
+	)
+
+	cmd := &cobra.Command{
+		Use:   cmdDeleteUse,
+		Short: "Delete a backup repository",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			nameTrim := strings.TrimSpace(repoName)
+			idTrim := strings.TrimSpace(repoID)
+			if nameTrim == "" && idTrim == "" {
+				return fmt.Errorf("provide --name or --id")
+			}
+			if nameTrim != "" && idTrim != "" {
+				return fmt.Errorf("provide either --name or --id, not both")
+			}
+
+			ctx, cancel := context.WithTimeout(cmd.Context(), 5*time.Minute)
+			defer cancel()
+
+			httpClient, _, err := newAPIClient(ctx)
+			if err != nil {
+				return err
+			}
+
+			var state *client.RepositoryState
+			if idTrim != "" {
+				states, err := httpClient.RepositoryStates(ctx, client.RepositoryStatesFilter{ID: idTrim, MaxItems: 1})
+				if err != nil {
+					return err
+				}
+				if len(states) == 0 {
+					return fmt.Errorf("repository with id %q not found", idTrim)
+				}
+				state = &states[0]
+			} else {
+				var err error
+				state, err = httpClient.RepositoryStateByName(ctx, nameTrim)
+				if err != nil {
+					return err
+				}
+				idTrim = state.ID
+			}
+			if !isLocalRepositoryType(state.Type) {
+				return fmt.Errorf("repository %q is an object storage repository; use veeamgo delete objectrepository", state.Name)
+			}
+
+			label := repositoryTypeDisplay(state.Type)
+			if label == "" {
+				label = "Repository"
+			}
+
+			repoDisplay := state.Name
+			if repoDisplay == "" {
+				repoDisplay = idTrim
+			}
+
+			var hostSuffix string
+			if state.HostName != "" {
+				hostSuffix = fmt.Sprintf(" on host %q", state.HostName)
+			}
+
+			if !yes {
+				prompt := fmt.Sprintf("Permanently delete %s %q%s", label, repoDisplay, hostSuffix)
+				if deleteBackups {
+					prompt += " (including backup files)"
+				}
+				confirmed, err := promptForConfirmation(cmd, prompt)
+				if err != nil {
+					return err
+				}
+				if !confirmed {
+					_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Cancelled deleting %s %q.\n", label, repoDisplay)
+					return nil
+				}
+			}
+
+			if err := httpClient.DeleteRepository(ctx, idTrim, deleteBackups); err != nil {
+				return fmt.Errorf("delete repository %q (%s): %w", repoDisplay, idTrim, err)
+			}
+
+			message := fmt.Sprintf("Deleted %s %q (%s)", label, repoDisplay, idTrim)
+			if deleteBackups {
+				message += " and removed backup files"
+			}
+			message += "."
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), message)
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVar(&repoName, "name", "", "Repository name to delete (optional)")
+	cmd.Flags().StringVar(&repoID, "id", "", "Repository ID to delete (optional)")
+	cmd.Flags().BoolVar(&deleteBackups, "delete-backups", false, "Also remove backup files stored in the repository")
+	cmd.Flags().BoolVar(&yes, "yes", false, "Confirm without prompting (required to execute)")
 
 	return cmd
 }

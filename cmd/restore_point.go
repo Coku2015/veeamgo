@@ -12,15 +12,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func restorePointCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   cmdRestorePointUse,
-		Short: "Restore point inventory",
-	}
-	root.AddCommand(restorePointGetCmd())
-	return root
-}
-
 type restorePointGetOptions struct {
 	jobName          string
 	backupName       string

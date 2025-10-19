@@ -11,18 +11,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func licenseCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "license",
-		Short: "License usage and allocations",
-	}
-	root.AddCommand(licenseLegacyGetCmd())
-	root.AddCommand(licenseSocketsCmd())
-	root.AddCommand(licenseInstancesCmd())
-	root.AddCommand(licenseCapacityCmd())
-	return root
-}
-
 func licenseSummaryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "summary",
@@ -75,13 +63,6 @@ func licenseVerbCmd() *cobra.Command {
 	cmd.AddCommand(licenseInstancesCmd())
 	cmd.AddCommand(licenseCapacityCmd())
 
-	return cmd
-}
-
-func licenseLegacyGetCmd() *cobra.Command {
-	cmd := licenseSummaryCmd()
-	cmd.Use = cmdGetUse
-	cmd.Aliases = append(cmd.Aliases, "summary")
 	return cmd
 }
 
@@ -318,7 +299,7 @@ type licenseCapacityRow struct {
 }
 
 func formatAPITime(value *client.APITime) string {
-	if value == nil || value.Time.IsZero() {
+	if value == nil || value.IsZero() {
 		return ""
 	}
 	return formatTimeForDisplay(value.Time)

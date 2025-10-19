@@ -178,7 +178,7 @@ func (c *Client) ReplicaPoints(ctx context.Context, filter ReplicaPointsFilter) 
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize

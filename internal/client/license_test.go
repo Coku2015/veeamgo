@@ -72,7 +72,7 @@ func TestLicenseSocketsFilterEncoding(t *testing.T) {
 	if result == nil || len(result.Workloads) != 1 {
 		t.Fatalf("expected workload in result: %+v", result)
 	}
-	if result.Raw == nil || len(result.Raw) == 0 {
+	if len(result.Raw) == 0 {
 		t.Fatalf("expected raw payload")
 	}
 }
@@ -357,7 +357,7 @@ func TestGeneralOptionsDecode(t *testing.T) {
 	if !opts.SIEMSNMPEnabled || opts.SIEMSyslogEnabled {
 		t.Fatalf("siem flags unexpected: %+v", opts)
 	}
-	if opts.Raw == nil || len(opts.Raw) == 0 {
+	if len(opts.Raw) == 0 {
 		t.Fatalf("raw payload missing")
 	}
 }
@@ -400,7 +400,7 @@ func TestConfigBackupDecode(t *testing.T) {
 	if cfg.LastSessionID != "session-1" {
 		t.Fatalf("last session id missing: %+v", cfg)
 	}
-	if cfg.LastRunTime == nil || !cfg.LastRunTime.Time.Equal(time.Date(2025, 2, 1, 10, 0, 0, 0, time.UTC)) {
+	if cfg.LastRunTime == nil || !cfg.LastRunTime.Equal(time.Date(2025, 2, 1, 10, 0, 0, 0, time.UTC)) {
 		t.Fatalf("last run time missing: %+v", cfg.LastRunTime)
 	}
 }

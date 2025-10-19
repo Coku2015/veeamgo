@@ -10,11 +10,11 @@ const (
 	cmdGeneralOptionUse         = "generaloption"
 	cmdJobUse                   = "job"
 	cmdInventoryUse             = "inventory"
-	cmdBackupUse                = "backup"
 	cmdRestorePointUse          = "restorepoint"
-	cmdRestoreUse               = "restore"
 	cmdReplicaUse               = "replica"
 	cmdManagedServerUse         = "managedserver"
+	cmdObjectRepositoryUse      = "objectrepository"
+	cmdProxyUse                 = "proxy"
 
 	cmdGetUse      = "get"
 	cmdListUse     = "list"
@@ -31,6 +31,6 @@ const (
 	cmdEditUse     = "edit"
 	cmdTemplateUse = "template"
 
-	cmdInfoUse    = "info"
-	cmdTimeUse    = "time"
+	cmdInfoUse = "info"
+	cmdTimeUse = "time"
 )

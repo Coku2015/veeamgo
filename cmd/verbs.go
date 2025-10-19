@@ -31,6 +31,7 @@ func getVerbCmd() *cobra.Command {
 	cmd.AddCommand(wrapForVerb(serverGetCmd, cmdServerUse))
 	cmd.AddCommand(wrapForVerb(managedServerGetCmd, cmdManagedServerUse))
 	cmd.AddCommand(wrapForVerb(repositoryGetCmd, cmdRepositoryUse))
+	cmd.AddCommand(wrapForVerb(objectRepositoryGetCmd, cmdObjectRepositoryUse))
 	cmd.AddCommand(wrapForVerb(scaleOutRepositoryGetCmd, cmdScaleOutRepositoryUse))
 	cmd.AddCommand(wrapForVerb(wanAcceleratorGetCmd, cmdWanAcceleratorUse))
 	cmd.AddCommand(wrapForVerb(generalOptionGetCmd, cmdGeneralOptionUse))
@@ -41,6 +42,7 @@ func getVerbCmd() *cobra.Command {
 	cmd.AddCommand(wrapForVerb(func() *cobra.Command { return newTrafficRuleGetCmd(cmdGetUse, false, nil) }, "trafficrule"))
 	cmd.AddCommand(wrapForVerb(func() *cobra.Command { return newExclusionVMGetCmd(cmdGetUse, nil, false) }, "exclusionvm"))
 	cmd.AddCommand(wrapForVerb(inventoryGetRootCmd, cmdInventoryUse))
+	cmd.AddCommand(fingerprintGetCmd())
 	cmd.AddCommand(sessionGetVerbCmd())
 	cmd.AddCommand(taskGetVerbCmd())
 	cmd.AddCommand(backupGetVerbCmd())
@@ -61,6 +63,7 @@ func describeVerbCmd() *cobra.Command {
 
 	cmd.AddCommand(wrapForVerb(managedServerDescribeCmd, cmdManagedServerUse))
 	cmd.AddCommand(wrapForVerb(repositoryDescribeCmd, cmdRepositoryUse))
+	cmd.AddCommand(wrapForVerb(objectRepositoryDescribeCmd, cmdObjectRepositoryUse))
 	cmd.AddCommand(wrapForVerb(scaleOutRepositoryDescribeCmd, cmdScaleOutRepositoryUse))
 	cmd.AddCommand(wrapForVerb(wanAcceleratorDescribeCmd, cmdWanAcceleratorUse))
 	cmd.AddCommand(wrapForVerb(jobDescribeCmd, cmdJobUse))
@@ -82,6 +85,7 @@ func rescanVerbCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(wrapForVerb(repositoryRescanCmd, cmdRepositoryUse))
+	cmd.AddCommand(wrapForVerb(objectRepositoryRescanCmd, cmdObjectRepositoryUse))
 	cmd.AddCommand(wrapForVerb(serverRescanCmd, cmdServerUse))
 
 	return cmd
@@ -102,7 +106,10 @@ func addVerbCmd() *cobra.Command {
 		Short: "Create resources",
 	}
 	cmd.AddCommand(wrapForVerb(managedServerAddCmd, cmdManagedServerUse))
+	cmd.AddCommand(wrapForVerb(proxyAddCmd, cmdProxyUse))
+	cmd.AddCommand(wrapForVerb(repositoryAddCmd, cmdRepositoryUse))
 	cmd.AddCommand(jobAddVerbCmd())
+	cmd.AddCommand(wrapForVerb(objectRepositoryAddCmd, cmdObjectRepositoryUse))
 	return cmd
 }
 
@@ -112,6 +119,9 @@ func editVerbCmd() *cobra.Command {
 		Short: "Edit resources",
 	}
 	cmd.AddCommand(jobEditVerbCmd())
+	cmd.AddCommand(proxyEditCmd())
+	cmd.AddCommand(wrapForVerb(repositoryEditCmd, cmdRepositoryUse))
+	cmd.AddCommand(wrapForVerb(objectRepositoryEditCmd, cmdObjectRepositoryUse))
 	return cmd
 }
 
@@ -198,6 +208,7 @@ func enableVerbCmd() *cobra.Command {
 		Short: "Enable resources",
 	}
 	cmd.AddCommand(jobEnableCmd())
+	cmd.AddCommand(proxyEnableCmd())
 	return cmd
 }
 
@@ -207,6 +218,7 @@ func disableVerbCmd() *cobra.Command {
 		Short: "Disable resources",
 	}
 	cmd.AddCommand(jobDisableCmd())
+	cmd.AddCommand(proxyDisableCmd())
 	return cmd
 }
 
@@ -225,6 +237,9 @@ func deleteVerbCmd() *cobra.Command {
 		Short: "Delete resources",
 	}
 	cmd.AddCommand(jobDeleteCmd())
+	cmd.AddCommand(proxyDeleteCmd())
+	cmd.AddCommand(wrapForVerb(repositoryDeleteCmd, cmdRepositoryUse))
+	cmd.AddCommand(wrapForVerb(objectRepositoryDeleteCmd, cmdObjectRepositoryUse))
 	return cmd
 }
 

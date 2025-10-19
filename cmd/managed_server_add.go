@@ -72,7 +72,7 @@ func managedServerAddVsphereCmd() *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintln(cmd.OutOrStdout(), "Cancelled.")
+					_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Cancelled.")
 					return nil
 				}
 			}
@@ -106,7 +106,7 @@ func managedServerAddVsphereCmd() *cobra.Command {
 			session, err := httpClient.CreateManagedServer(ctx, payload)
 			if err != nil {
 				if created {
-					fmt.Fprintf(cmd.ErrOrStderr(), "Managed server creation failed; credentials %s were created and remain available.\n", credentialsID)
+					_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Managed server creation failed; credentials %s were created and remain available.\n", credentialsID)
 				}
 				return fmt.Errorf("create managed server: %w", err)
 			}
@@ -199,7 +199,7 @@ func managedServerAddWindowsCmd() *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintln(cmd.OutOrStdout(), "Cancelled.")
+					_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Cancelled.")
 					return nil
 				}
 			}
@@ -241,7 +241,7 @@ func managedServerAddWindowsCmd() *cobra.Command {
 			session, err := httpClient.CreateManagedServer(ctx, payload)
 			if err != nil {
 				if created && credentialsID != "" {
-					fmt.Fprintf(cmd.ErrOrStderr(), "Managed server creation failed; credentials %s were created and remain available.\n", credentialsID)
+					_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Managed server creation failed; credentials %s were created and remain available.\n", credentialsID)
 				}
 				return fmt.Errorf("create managed server: %w", err)
 			}
@@ -340,7 +340,7 @@ func (opts *managedServerCredentialsOptions) resolve(ctx context.Context, cmd *c
 		return "", false, fmt.Errorf("create credentials: %w", err)
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Created credentials %q (%s).\n", created.Description, created.ID)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Created credentials %q (%s).\n", created.Description, created.ID)
 	return created.ID, true, nil
 }
 
@@ -367,7 +367,7 @@ func printManagedServerSession(cmd *cobra.Command, session *client.Session, serv
 	}
 
 	if session == nil {
-		fmt.Fprintf(cmd.OutOrStdout(), "%s %q provisioning completed.\n", label, serverName)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s %q provisioning completed.\n", label, serverName)
 		return
 	}
 
@@ -379,15 +379,15 @@ func printManagedServerSession(cmd *cobra.Command, session *client.Session, serv
 		if result == "" {
 			result = session.State
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "%s %q provisioning finished with result %s (session %s).\n", label, serverName, result, session.ID)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s %q provisioning finished with result %s (session %s).\n", label, serverName, result, session.ID)
 		if session.ResourceID != "" {
-			fmt.Fprintf(cmd.OutOrStdout(), "Managed server ID: %s\n", session.ResourceID)
+			_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Managed server ID: %s\n", session.ResourceID)
 		}
 		return
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "Started provisioning %s %q (session %s).\n", label, serverName, session.ID)
-	fmt.Fprintf(cmd.OutOrStdout(), "Use veeamgo get session logs --id %s to track progress.\n", session.ID)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Started provisioning %s %q (session %s).\n", label, serverName, session.ID)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Use veeamgo get session logs --id %s to track progress.\n", session.ID)
 }
 
 func managedServerAddLinuxCmd() *cobra.Command {
@@ -450,7 +450,7 @@ func managedServerAddLinuxCmd() *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintln(cmd.OutOrStdout(), "Cancelled.")
+					_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Cancelled.")
 					return nil
 				}
 			}
@@ -487,7 +487,7 @@ func managedServerAddLinuxCmd() *cobra.Command {
 						if strings.Contains(lower, "handshake") || strings.Contains(lower, "pairing") || strings.Contains(lower, "credential") {
 							handshakeRequired = true
 						} else {
-							fmt.Fprintf(cmd.OutOrStderr(), "Fingerprint auto-fetch unavailable: %v\n", err)
+							_, _ = fmt.Fprintf(cmd.OutOrStderr(), "Fingerprint auto-fetch unavailable: %v\n", err)
 						}
 					} else {
 						fingerprint := strings.TrimSpace(cert.Fingerprint)
@@ -501,7 +501,7 @@ func managedServerAddLinuxCmd() *cobra.Command {
 									return fmt.Errorf("fingerprint rejected; aborting managed server creation")
 								}
 							}
-							fmt.Fprintf(cmd.OutOrStdout(), "Accepted SSH fingerprint %q for %s.\n", fingerprint, opts.name)
+							_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Accepted SSH fingerprint %q for %s.\n", fingerprint, opts.name)
 							opts.sshFingerprint = fingerprint
 						}
 					}
@@ -539,7 +539,7 @@ func managedServerAddLinuxCmd() *cobra.Command {
 								return fmt.Errorf("fingerprint rejected; aborting managed server creation")
 							}
 						}
-						fmt.Fprintf(cmd.OutOrStdout(), "Accepted SSH fingerprint %q for %s.\n", fingerprint, opts.name)
+						_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Accepted SSH fingerprint %q for %s.\n", fingerprint, opts.name)
 						opts.sshFingerprint = fingerprint
 					} else {
 						return requireFlag("--ssh-fingerprint", "provide the SSH fingerprint obtained from the server")
@@ -569,13 +569,13 @@ func managedServerAddLinuxCmd() *cobra.Command {
 					handshakeCancel()
 					if err == nil {
 						if fingerprint := strings.TrimSpace(cert.Fingerprint); fingerprint != "" {
-							fmt.Fprintf(cmd.OutOrStdout(), "Accepted SSH fingerprint %q for %s via handshake.\n", fingerprint, opts.name)
+							_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Accepted SSH fingerprint %q for %s via handshake.\n", fingerprint, opts.name)
 							opts.sshFingerprint = fingerprint
 						}
 					}
 					if opts.sshFingerprint == "" {
 						if err != nil {
-							fmt.Fprintf(cmd.OutOrStderr(), "Unable to retrieve fingerprint with handshake code: %v\n", err)
+							_, _ = fmt.Fprintf(cmd.OutOrStderr(), "Unable to retrieve fingerprint with handshake code: %v\n", err)
 						}
 						if opts.yes {
 							return requireFlag("--ssh-fingerprint", "provide the SSH fingerprint obtained from the server")
@@ -648,7 +648,7 @@ func managedServerAddLinuxCmd() *cobra.Command {
 			session, err := httpClient.CreateManagedServer(ctx, payload)
 			if err != nil {
 				if created && credentialsID != "" {
-					fmt.Fprintf(cmd.ErrOrStderr(), "Managed server creation failed; credentials %s were created and remain available.\n", credentialsID)
+					_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Managed server creation failed; credentials %s were created and remain available.\n", credentialsID)
 				}
 				return fmt.Errorf("create managed server: %w", err)
 			}

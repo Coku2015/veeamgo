@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -20,11 +19,17 @@ import (
 	"github.com/veeamgo/veeamgo/internal/client"
 	"github.com/veeamgo/veeamgo/internal/config"
 	"github.com/veeamgo/veeamgo/internal/session"
+	"github.com/veeamgo/veeamgo/pkg/apiversion"
+	"github.com/veeamgo/veeamgo/pkg/features"
 )
 
+const envAPIVersion = "VEEAMGO_API_VERSION"
+
 var (
-	serverTimeZoneMu   sync.RWMutex
-	serverTimeLocation *time.Location
+	serverTimeZoneMu    sync.RWMutex
+	serverTimeLocation  *time.Location
+	featureMatrix       = features.DefaultMatrix()
+	newerServerWarnings sync.Map
 )
 
 func currentServerLocation() *time.Location {
@@ -155,18 +160,6 @@ func loadConfigAndProfile() (string, *config.Config, string, *config.Profile, er
 	return cfgPath, cfg, profileName, profile, nil
 }
 
-func loadSession(profileName string) (*session.Session, error) {
-	manager, err := session.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	sess, err := manager.Fetch(profileName)
-	if err != nil {
-		return nil, err
-	}
-	return sess, nil
-}
-
 func newAPIClient(ctx context.Context) (*client.Client, string, error) {
 	_, _, profileName, profile, err := loadConfigAndProfile()
 	if err != nil {
@@ -199,13 +192,79 @@ func newAPIClient(ctx context.Context) (*client.Client, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
+
+	overrideValue, overrideProvided := cliAPIVersionOverride()
+	if overrideProvided {
+		if err := httpClient.SetAPIVersion(overrideValue, true); err != nil {
+			return nil, "", err
+		}
+	}
+
+	if !overrideProvided && strings.TrimSpace(profile.APIVersion) == "" {
+		negotiation, err := httpClient.NegotiateAPIVersion(ctx)
+		if err != nil {
+			return nil, "", err
+		}
+		maybeWarnNewerServer(profileName, negotiation)
+	}
+
 	ensureServerTimeLocation(ctx, httpClient)
 	return httpClient, profileName, nil
 }
 
+func cliAPIVersionOverride() (string, bool) {
+	if override := strings.TrimSpace(opts.apiVersion); override != "" {
+		return override, true
+	}
+	if env := strings.TrimSpace(os.Getenv(envAPIVersion)); env != "" {
+		return env, true
+	}
+	return "", false
+}
+
+func maybeWarnNewerServer(profileName string, negotiation *client.NegotiationResult) {
+	if negotiation == nil || !negotiation.ServerNewerThanSupported {
+		return
+	}
+
+	key := strings.TrimSpace(profileName)
+	if key == "" && negotiation.ServerInfo != nil {
+		key = strings.TrimSpace(negotiation.ServerInfo.BuildVersion)
+	}
+	if key == "" {
+		key = negotiation.SelectedVersion
+	}
+	if key == "" {
+		key = "default"
+	}
+	if _, loaded := newerServerWarnings.LoadOrStore(key, struct{}{}); loaded {
+		return
+	}
+
+	build := ""
+	if negotiation.ServerInfo != nil {
+		build = strings.TrimSpace(negotiation.ServerInfo.BuildVersion)
+	}
+	if build == "" {
+		build = "unknown build"
+	}
+	_, _ = fmt.Fprintf(os.Stderr, "Warning: server %s advertises a newer API revision than this CLI (supported up to %s). Some features may be unavailable.\n", build, apiversion.Highest())
+}
+
+func requireFeatureSupport(httpClient *client.Client, feature features.Feature) error {
+	if httpClient == nil {
+		return fmt.Errorf("api client is not initialised")
+	}
+	version := httpClient.APIVersion()
+	if featureMatrix.Supports(version, feature) {
+		return nil
+	}
+	return featureMatrix.UnsupportedError(feature, version)
+}
+
 func promptForInput(cmd *cobra.Command, prompt string) (string, error) {
 	reader := bufio.NewReader(cmd.InOrStdin())
-	fmt.Fprintf(cmd.OutOrStdout(), "%s", prompt)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s", prompt)
 	value, err := reader.ReadString('\n')
 	if err != nil && !errors.Is(err, io.EOF) {
 		return "", fmt.Errorf("read input: %w", err)
@@ -323,33 +382,6 @@ func parseTimeFlag(value string) (*time.Time, error) {
 		return nil, fmt.Errorf("invalid time %q (use RFC3339)", value)
 	}
 	return &ts, nil
-}
-
-func parseJSONMap(value string) (map[string]any, error) {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return nil, nil
-	}
-	var payload map[string]any
-	if err := json.Unmarshal([]byte(value), &payload); err != nil {
-		return nil, fmt.Errorf("invalid JSON payload: %w", err)
-	}
-	return payload, nil
-}
-
-func parseJSONFile(path string) (map[string]any, error) {
-	if strings.TrimSpace(path) == "" {
-		return nil, nil
-	}
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("read filter file: %w", err)
-	}
-	var payload map[string]any
-	if err := json.Unmarshal(data, &payload); err != nil {
-		return nil, fmt.Errorf("invalid JSON in %s: %w", path, err)
-	}
-	return payload, nil
 }
 
 func firstNonEmpty(values ...string) string {

@@ -13,9 +13,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-// inventoryCmd is retained only for legacy wiring (hidden via root.go).
-func inventoryCmd() *cobra.Command { return nil }
-
 // --- Verb-first wiring helpers ---
 
 func inventoryGetRootCmd() *cobra.Command {

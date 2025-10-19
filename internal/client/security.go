@@ -247,7 +247,7 @@ func (c *Client) AuthorizationEvents(ctx context.Context, filter AuthorizationEv
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize
@@ -376,7 +376,7 @@ func (c *Client) SuspiciousActivityEvents(ctx context.Context, filter Suspicious
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize

@@ -11,33 +11,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func exclusionVMCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "exclusionvm",
-		Short: "Global VM exclusions",
-	}
-	root.AddCommand(newExclusionVMGetCmd(cmdGetUse, []string{cmdListUse}, false))
-	root.AddCommand(newExclusionVMDescribeCmd(cmdDescribeUse, []string{"show"}, false))
-	return root
-}
-
-func exclusionLegacyCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:    "exclusion",
-		Short:  "Global exclusion policies (deprecated)",
-		Hidden: true,
-	}
-	vm := &cobra.Command{
-		Use:    "vm",
-		Short:  "Global VM exclusions (deprecated)",
-		Hidden: true,
-	}
-	vm.AddCommand(newExclusionVMGetCmd(cmdListUse, []string{cmdGetUse}, true))
-	vm.AddCommand(newExclusionVMDescribeCmd(fmt.Sprintf("%s <exclusion-id>", cmdDescribeUse), nil, true))
-	root.AddCommand(vm)
-	return root
-}
-
 func newExclusionVMGetCmd(use string, aliases []string, hidden bool) *cobra.Command {
 	var (
 		orderColumn string

@@ -259,6 +259,19 @@ func (c *Client) Repository(ctx context.Context, id string) (map[string]any, err
 	return payload, nil
 }
 
+func (c *Client) CreateRepository(ctx context.Context, spec map[string]any) (*Session, error) {
+	if spec == nil {
+		return nil, fmt.Errorf("repository specification cannot be nil")
+	}
+
+	payload := shallowCopy(spec)
+	var sess Session
+	if err := c.postJSON(ctx, "/api/v1/backupInfrastructure/repositories", nil, payload, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
 func (c *Client) RescanRepositories(ctx context.Context, ids []string) (*Session, error) {
 	if len(ids) == 0 {
 		return nil, fmt.Errorf("no repository IDs provided")
@@ -268,6 +281,41 @@ func (c *Client) RescanRepositories(ctx context.Context, ids []string) (*Session
 	}
 	var sess Session
 	if err := c.postJSON(ctx, "/api/v1/backupInfrastructure/repositories/rescan", nil, payload, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
+func (c *Client) DeleteRepository(ctx context.Context, id string, deleteBackups bool) error {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return fmt.Errorf("repository id cannot be empty")
+	}
+
+	path := fmt.Sprintf("/api/v1/backupInfrastructure/repositories/%s", clean)
+	query := url.Values{}
+	if deleteBackups {
+		query.Set("deleteBackups", "true")
+	}
+
+	return c.delete(ctx, path, query)
+}
+
+func (c *Client) UpdateRepository(ctx context.Context, id string, spec map[string]any) (*Session, error) {
+	if spec == nil {
+		return nil, fmt.Errorf("repository specification cannot be nil")
+	}
+
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("repository id cannot be empty")
+	}
+
+	payload := shallowCopy(spec)
+	path := fmt.Sprintf("/api/v1/backupInfrastructure/repositories/%s", clean)
+
+	var sess Session
+	if err := c.putJSON(ctx, path, nil, payload, &sess); err != nil {
 		return nil, err
 	}
 	return &sess, nil

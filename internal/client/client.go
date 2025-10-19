@@ -15,6 +15,7 @@ import (
 
 	"github.com/veeamgo/veeamgo/internal/config"
 	"github.com/veeamgo/veeamgo/internal/session"
+	"github.com/veeamgo/veeamgo/pkg/apiversion"
 )
 
 // Credentials represents login parameters.
@@ -39,9 +40,13 @@ type tokenResponse struct {
 
 // Client wraps HTTP operations against the Veeam API.
 type Client struct {
-	baseURL    *url.URL
-	httpClient *http.Client
-	session    *session.Session
+	baseURL           *url.URL
+	httpClient        *http.Client
+	session           *session.Session
+	apiVersion        string
+	overrideVersion   bool
+	supportedVersions []string
+	negotiating       bool
 }
 
 // APIError captures structured error responses returned by the Veeam REST API.
@@ -130,11 +135,17 @@ func New(profile *config.Profile, sess *session.Session) (*Client, error) {
 		return nil, err
 	}
 	httpClient := newHTTPClient(profile.Insecure)
-	return &Client{
-		baseURL:    base,
-		httpClient: httpClient,
-		session:    sess,
-	}, nil
+
+	apiClient := &Client{
+		baseURL:           base,
+		httpClient:        httpClient,
+		session:           sess,
+		supportedVersions: apiversion.Supported(),
+	}
+	if err := apiClient.SetAPIVersion(profile.APIVersion, false); err != nil {
+		return nil, err
+	}
+	return apiClient, nil
 }
 
 // ServerInfo fetches metadata about the VBR server.
@@ -197,7 +208,9 @@ func requestToken(ctx context.Context, baseURL string, insecure bool, form url.V
 	if err != nil {
 		return nil, fmt.Errorf("call token endpoint: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
@@ -237,7 +250,7 @@ func (c *Client) getJSON(ctx context.Context, path string, target any) error {
 
 func (c *Client) getJSONWithQuery(ctx context.Context, path string, query url.Values, target any) error {
 	rel := &url.URL{Path: path}
-	if query != nil && len(query) > 0 {
+	if len(query) > 0 {
 		rel.RawQuery = query.Encode()
 	}
 	return c.doRequest(ctx, http.MethodGet, rel, nil, "", target)
@@ -245,7 +258,7 @@ func (c *Client) getJSONWithQuery(ctx context.Context, path string, query url.Va
 
 func (c *Client) postJSON(ctx context.Context, path string, query url.Values, payload any, target any) error {
 	rel := &url.URL{Path: path}
-	if query != nil && len(query) > 0 {
+	if len(query) > 0 {
 		rel.RawQuery = query.Encode()
 	}
 
@@ -265,7 +278,7 @@ func (c *Client) postJSON(ctx context.Context, path string, query url.Values, pa
 
 func (c *Client) putJSON(ctx context.Context, path string, query url.Values, payload any, target any) error {
 	rel := &url.URL{Path: path}
-	if query != nil && len(query) > 0 {
+	if len(query) > 0 {
 		rel.RawQuery = query.Encode()
 	}
 
@@ -285,13 +298,34 @@ func (c *Client) putJSON(ctx context.Context, path string, query url.Values, pay
 
 func (c *Client) delete(ctx context.Context, path string, query url.Values) error {
 	rel := &url.URL{Path: path}
-	if query != nil && len(query) > 0 {
+	if len(query) > 0 {
 		rel.RawQuery = query.Encode()
 	}
 	return c.doRequest(ctx, http.MethodDelete, rel, nil, "", nil)
 }
 
 func (c *Client) doRequest(ctx context.Context, method string, rel *url.URL, body io.Reader, contentType string, target any) error {
+	attemptedNegotiation := false
+	for {
+		err := c.doRequestOnce(ctx, method, rel, body, contentType, target)
+		if err == nil {
+			return nil
+		}
+
+		var apiErr *APIError
+		if !attemptedNegotiation && !c.overrideVersion && !c.negotiating && errors.As(err, &apiErr) && isNegotiationStatus(apiErr.StatusCode) {
+			if negotiation, negotiErr := c.NegotiateAPIVersion(ctx); negotiErr == nil {
+				if negotiation != nil {
+					attemptedNegotiation = true
+					continue
+				}
+			}
+		}
+		return err
+	}
+}
+
+func (c *Client) doRequestOnce(ctx context.Context, method string, rel *url.URL, body io.Reader, contentType string, target any) error {
 	reqURL := c.baseURL.ResolveReference(rel)
 	req, err := http.NewRequestWithContext(ctx, method, reqURL.String(), body)
 	if err != nil {
@@ -301,6 +335,11 @@ func (c *Client) doRequest(ctx context.Context, method string, rel *url.URL, bod
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
+	version := strings.TrimSpace(c.apiVersion)
+	if version == "" {
+		version = apiversion.DefaultVersion
+	}
+	req.Header.Set(apiversion.HeaderName, version)
 	if c.session.TokenType != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("%s %s", c.session.TokenType, c.session.AccessToken))
 	} else {
@@ -311,7 +350,9 @@ func (c *Client) doRequest(ctx context.Context, method string, rel *url.URL, bod
 	if err != nil {
 		return fmt.Errorf("call API: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))

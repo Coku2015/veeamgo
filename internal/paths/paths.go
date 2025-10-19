@@ -78,9 +78,7 @@ func ensureDir(path string, perm os.FileMode) error {
 	case !info.IsDir():
 		return fmt.Errorf("%s exists and is not a directory", path)
 	default:
-		if err := os.Chmod(path, perm); err != nil {
-			// best effort; ignore errors on chmod for read-only filesystems
-		}
+		_ = os.Chmod(path, perm) // best effort; ignore errors on read-only filesystems
 		return nil
 	}
 }

@@ -83,3 +83,133 @@ func TestCreateManagedServerNilSpec(t *testing.T) {
 		t.Fatalf("expected nil session result")
 	}
 }
+
+func TestDeleteRepository(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		if req.Method != http.MethodDelete {
+			t.Fatalf("expected DELETE, got %s", req.Method)
+		}
+		if req.URL.Path != "/api/v1/backupInfrastructure/repositories/repo-1" {
+			t.Fatalf("unexpected path %s", req.URL.Path)
+		}
+		if req.URL.RawQuery != "deleteBackups=true" {
+			t.Fatalf("unexpected query %s", req.URL.RawQuery)
+		}
+		return &http.Response{
+			StatusCode: http.StatusNoContent,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(nil)),
+		}, nil
+	})
+
+	if err := client.DeleteRepository(context.Background(), "repo-1", true); err != nil {
+		t.Fatalf("DeleteRepository returned error: %v", err)
+	}
+}
+
+func TestDeleteRepositoryValidation(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		t.Fatalf("request should not be executed")
+		return nil, nil
+	})
+
+	if err := client.DeleteRepository(context.Background(), "", false); err == nil {
+		t.Fatalf("expected error for empty id")
+	}
+}
+
+func TestCreateRepository(t *testing.T) {
+	var captured map[string]any
+
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		if req.Method != http.MethodPost {
+			t.Fatalf("expected POST, got %s", req.Method)
+		}
+		if req.URL.Path != "/api/v1/backupInfrastructure/repositories" {
+			t.Fatalf("unexpected path %s", req.URL.Path)
+		}
+
+		if err := json.NewDecoder(req.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode body: %v", err)
+		}
+
+		payload := Session{ID: "session-123"}
+		buf, _ := json.Marshal(payload)
+		return &http.Response{
+			StatusCode: http.StatusCreated,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(buf)),
+		}, nil
+	})
+
+	spec := map[string]any{
+		"name":        "Repo01",
+		"description": "Test repository",
+		"type":        "WinLocal",
+		"isDisabled":  false,
+	}
+
+	session, err := client.CreateRepository(context.Background(), spec)
+	if err != nil {
+		t.Fatalf("CreateRepository returned error: %v", err)
+	}
+	if session == nil || session.ID != "session-123" {
+		t.Fatalf("unexpected session: %+v", session)
+	}
+	if captured["name"] != "Repo01" {
+		t.Fatalf("payload missing name: %v", captured["name"])
+	}
+}
+
+func TestCreateRepositoryNilSpec(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		t.Fatalf("request should not be executed")
+		return nil, nil
+	})
+
+	if _, err := client.CreateRepository(context.Background(), nil); err == nil {
+		t.Fatalf("expected error for nil spec")
+	}
+}
+
+func TestUpdateRepository(t *testing.T) {
+	var captured map[string]any
+
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		if req.Method != http.MethodPut {
+			t.Fatalf("expected PUT, got %s", req.Method)
+		}
+		if req.URL.Path != "/api/v1/backupInfrastructure/repositories/repo-1" {
+			t.Fatalf("unexpected path %s", req.URL.Path)
+		}
+		if err := json.NewDecoder(req.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode body: %v", err)
+		}
+
+		payload := Session{ID: "session-456"}
+		buf, _ := json.Marshal(payload)
+		return &http.Response{
+			StatusCode: http.StatusCreated,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(buf)),
+		}, nil
+	})
+
+	spec := map[string]any{
+		"id":          "repo-1",
+		"name":        "Repo01",
+		"description": "Test repository",
+		"type":        "WinLocal",
+	}
+
+	session, err := client.UpdateRepository(context.Background(), "repo-1", spec)
+	if err != nil {
+		t.Fatalf("UpdateRepository returned error: %v", err)
+	}
+	if session == nil || session.ID != "session-456" {
+		t.Fatalf("unexpected session: %+v", session)
+	}
+	if captured["id"] != "repo-1" {
+		t.Fatalf("payload missing id: %v", captured["id"])
+	}
+}

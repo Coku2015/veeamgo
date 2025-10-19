@@ -21,10 +21,11 @@ type Config struct {
 
 // Profile stores connection settings for a VBR server.
 type Profile struct {
-	ServerURL string `yaml:"server_url"`
-	Username  string `yaml:"username"`
-	Password  string `yaml:"password,omitempty"`
-	Insecure  bool   `yaml:"insecure"`
+	ServerURL  string `yaml:"server_url"`
+	Username   string `yaml:"username"`
+	Password   string `yaml:"password,omitempty"`
+	Insecure   bool   `yaml:"insecure"`
+	APIVersion string `yaml:"api_version,omitempty"`
 }
 
 // Load reads the configuration from disk. If the file does not exist, a default config is returned.

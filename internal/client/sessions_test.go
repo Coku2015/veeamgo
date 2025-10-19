@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/veeamgo/veeamgo/internal/session"
+	"github.com/veeamgo/veeamgo/pkg/apiversion"
 )
 
 func TestSessionsFilterEncoding(t *testing.T) {
@@ -156,9 +157,11 @@ func testClientWithResponder(t *testing.T, fn roundTripperFunc) *Client {
 	}
 
 	return &Client{
-		baseURL:    base,
-		httpClient: &http.Client{Transport: fn},
-		session:    &session.Session{AccessToken: "token", TokenType: "Bearer"},
+		baseURL:           base,
+		httpClient:        &http.Client{Transport: fn},
+		session:           &session.Session{AccessToken: "token", TokenType: "Bearer"},
+		apiVersion:        apiversion.DefaultVersion,
+		supportedVersions: apiversion.Supported(),
 	}
 }
 

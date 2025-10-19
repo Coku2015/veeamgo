@@ -54,7 +54,7 @@ type RestorePointsResult struct {
 func (c *Client) RestorePoints(ctx context.Context, filter RestorePointsFilter) (*RestorePointsResult, error) {
 	results := make([]RestorePoint, 0)
 	rawItems := make([]map[string]any, 0)
-	pagination := paginationResult{}
+	var pagination paginationResult
 	skip := 0
 	remaining := filter.MaxItems
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 // ProxyFilter controls proxy listing.
@@ -104,7 +105,7 @@ func (c *Client) Proxies(ctx context.Context, filter ProxyFilter) (*ProxiesResul
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize
@@ -238,7 +239,7 @@ func (c *Client) ProxyStates(ctx context.Context, filter ProxyFilter) (*ProxySta
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize
@@ -316,6 +317,70 @@ func (c *Client) ProxyStates(ctx context.Context, filter ProxyFilter) (*ProxySta
 			"pagination": pagination,
 		},
 	}, nil
+}
+
+// CreateProxy provisions a new backup proxy and returns the provisioning session.
+func (c *Client) CreateProxy(ctx context.Context, spec map[string]any) (*Session, error) {
+	if spec == nil {
+		return nil, fmt.Errorf("proxy specification cannot be nil")
+	}
+
+	payload := shallowCopy(spec)
+	var session Session
+	if err := c.postJSON(ctx, "/api/v1/backupInfrastructure/proxies", nil, payload, &session); err != nil {
+		return nil, err
+	}
+	return &session, nil
+}
+
+// DeleteProxy removes a backup proxy by its identifier.
+func (c *Client) DeleteProxy(ctx context.Context, id string) error {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return fmt.Errorf("proxy id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/backupInfrastructure/proxies/%s", clean)
+	return c.delete(ctx, path, nil)
+}
+
+// EnableProxy re-enables a previously disabled proxy.
+func (c *Client) EnableProxy(ctx context.Context, id string) error {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return fmt.Errorf("proxy id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/backupInfrastructure/proxies/%s/enable", clean)
+	return c.postJSON(ctx, path, nil, nil, nil)
+}
+
+// DisableProxy disables a proxy so it is no longer used for new tasks.
+func (c *Client) DisableProxy(ctx context.Context, id string) error {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return fmt.Errorf("proxy id cannot be empty")
+	}
+	path := fmt.Sprintf("/api/v1/backupInfrastructure/proxies/%s/disable", clean)
+	return c.postJSON(ctx, path, nil, nil, nil)
+}
+
+// UpdateProxy edits an existing proxy configuration and returns the provisioning session.
+func (c *Client) UpdateProxy(ctx context.Context, id string, spec map[string]any) (*Session, error) {
+	if spec == nil {
+		return nil, fmt.Errorf("proxy specification cannot be nil")
+	}
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("proxy id cannot be empty")
+	}
+
+	payload := shallowCopy(spec)
+	path := fmt.Sprintf("/api/v1/backupInfrastructure/proxies/%s", clean)
+
+	var session Session
+	if err := c.putJSON(ctx, path, nil, payload, &session); err != nil {
+		return nil, err
+	}
+	return &session, nil
 }
 
 // ManagedServerVolumes retrieves Hyper-V volume configuration for CBT.

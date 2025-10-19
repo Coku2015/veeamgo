@@ -31,14 +31,14 @@ func printJSON(data any) error {
 
 func printTable(data any) error {
 	if data == nil {
-		fmt.Fprintln(os.Stdout, "No records found.")
+		_, _ = fmt.Fprintln(os.Stdout, "No records found.")
 		return nil
 	}
 
 	val := reflect.ValueOf(data)
 	if val.Kind() == reflect.Ptr {
 		if val.IsNil() {
-			fmt.Fprintln(os.Stdout, "No records found.")
+			_, _ = fmt.Fprintln(os.Stdout, "No records found.")
 			return nil
 		}
 		val = val.Elem()
@@ -51,12 +51,12 @@ func printTable(data any) error {
 	default:
 		records := toRecords(data)
 		if len(records) == 0 {
-			fmt.Fprintln(os.Stdout, "No records found.")
+			_, _ = fmt.Fprintln(os.Stdout, "No records found.")
 			return nil
 		}
 		w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 		for _, rec := range records {
-			fmt.Fprintf(w, "%s:\t%v\n", rec.key, rec.value)
+			_, _ = fmt.Fprintf(w, "%s:\t%v\n", rec.key, rec.value)
 		}
 		if err := w.Flush(); err != nil {
 			return fmt.Errorf("flush table: %w", err)
@@ -89,12 +89,12 @@ func printSliceTable(val reflect.Value) error {
 	if val.Len() == 0 {
 		if columns := inferColumnsFromType(val.Type().Elem()); len(columns) > 0 {
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-			fmt.Fprintf(w, "%s\n", strings.Join(columns, "\t"))
+			_, _ = fmt.Fprintf(w, "%s\n", strings.Join(columns, "\t"))
 			if err := w.Flush(); err != nil {
 				return fmt.Errorf("flush table: %w", err)
 			}
 		} else {
-			fmt.Fprintln(os.Stdout, "No records found.")
+			_, _ = fmt.Fprintln(os.Stdout, "No records found.")
 		}
 		return nil
 	}
@@ -118,7 +118,7 @@ func printSliceTable(val reflect.Value) error {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-	fmt.Fprintf(w, "%s\n", strings.Join(columns, "\t"))
+	_, _ = fmt.Fprintf(w, "%s\n", strings.Join(columns, "\t"))
 	for _, r := range rows {
 		values := make([]string, len(columns))
 		for idx, col := range columns {
@@ -128,7 +128,7 @@ func printSliceTable(val reflect.Value) error {
 				values[idx] = ""
 			}
 		}
-		fmt.Fprintf(w, "%s\n", strings.Join(values, "\t"))
+		_, _ = fmt.Fprintf(w, "%s\n", strings.Join(values, "\t"))
 	}
 	if err := w.Flush(); err != nil {
 		return fmt.Errorf("flush table: %w", err)

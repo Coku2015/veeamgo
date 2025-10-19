@@ -280,7 +280,7 @@ func (c *Client) LicenseSockets(ctx context.Context, filter LicenseSocketsFilter
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize
@@ -376,7 +376,7 @@ func (c *Client) LicenseInstances(ctx context.Context, filter InstanceLicensesFi
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize
@@ -499,7 +499,7 @@ func (c *Client) GlobalVMExclusions(ctx context.Context, filter GlobalVMExclusio
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize
@@ -585,7 +585,7 @@ func (c *Client) Services(ctx context.Context, filter ServicesFilter) (*Services
 	rawItems := make([]map[string]any, 0)
 	skip := 0
 	remaining := filter.MaxItems
-	pagination := paginationResult{}
+	var pagination paginationResult
 
 	for {
 		limit := defaultPageSize

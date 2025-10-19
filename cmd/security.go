@@ -118,7 +118,7 @@ func securityAnalyzerStartCmd() *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintln(cmd.OutOrStdout(), "Cancelled start request.")
+					_, _ = fmt.Fprintln(cmd.OutOrStdout(), "Cancelled start request.")
 					return nil
 				}
 			}
@@ -159,7 +159,7 @@ func securityAnalyzerStartCmd() *cobra.Command {
 
 				bestPractices, err := httpClient.SecurityAnalyzerBestPractices(waitCtx)
 				if err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "Warning: failed to retrieve analyzer results: %v\n", err)
+					_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "Warning: failed to retrieve analyzer results: %v\n", err)
 				} else if bestPractices != nil {
 					return printSecurityAnalyzerSummaryAndResults(cmd, session, message, bestPractices)
 				}
@@ -215,7 +215,7 @@ func printSecurityAnalyzerSummaryAndResults(cmd *cobra.Command, session *client.
 		return output.Print(format, payload)
 	}
 
-	fmt.Fprintln(cmd.OutOrStdout(), message)
-	fmt.Fprintln(cmd.OutOrStdout())
+	_, _ = fmt.Fprintln(cmd.OutOrStdout(), message)
+	_, _ = fmt.Fprintln(cmd.OutOrStdout())
 	return output.Print(format, securityAnalyzerRows(result.Items))
 }

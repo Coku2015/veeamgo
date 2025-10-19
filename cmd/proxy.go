@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 	"unicode"
@@ -12,16 +11,6 @@ import (
 	"github.com/veeamgo/veeamgo/internal/client"
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
-
-func proxyCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   "proxy",
-		Short: "Backup proxy inventory",
-	}
-	root.AddCommand(proxyListCmd())
-	root.AddCommand(proxyDescribeCmd())
-	return root
-}
 
 func proxyListCmd() *cobra.Command {
 	var (
@@ -128,28 +117,12 @@ func proxyDescribeCmd() *cobra.Command {
 				return err
 			}
 
-			states, err := httpClient.ProxyStates(ctx, client.ProxyFilter{
-				Name: name,
-				Type: typeFilter,
-			})
+			state, err := proxyStateByName(ctx, httpClient, name, typeFilter)
 			if err != nil {
 				return err
 			}
-			var match *client.ProxyState
-			for _, st := range states.States {
-				if strings.EqualFold(st.Name, name) {
-					if match != nil {
-						return fmt.Errorf("multiple proxies found matching %q; use --type or rename proxies", name)
-					}
-					state := st
-					match = &state
-				}
-			}
-			if match == nil {
-				return fmt.Errorf("proxy %q not found", name)
-			}
 
-			detail, err := httpClient.ProxyDetail(ctx, match.ID)
+			detail, err := httpClient.ProxyDetail(ctx, state.ID)
 			if err != nil {
 				return err
 			}

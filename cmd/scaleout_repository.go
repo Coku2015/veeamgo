@@ -9,18 +9,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/veeamgo/veeamgo/internal/client"
+	"github.com/veeamgo/veeamgo/pkg/features"
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
-
-func scaleOutRepositoryCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   cmdScaleOutRepositoryUse,
-		Short: "Scale-out repository inventory",
-	}
-	root.AddCommand(scaleOutRepositoryGetCmd())
-	root.AddCommand(scaleOutRepositoryDescribeCmd())
-	return root
-}
 
 func scaleOutRepositoryGetCmd() *cobra.Command {
 	var (
@@ -37,6 +28,10 @@ func scaleOutRepositoryGetCmd() *cobra.Command {
 
 			httpClient, _, err := newAPIClient(ctx)
 			if err != nil {
+				return err
+			}
+
+			if err := requireFeatureSupport(httpClient, features.FeatureScaleOutRepositories); err != nil {
 				return err
 			}
 
@@ -85,6 +80,10 @@ func scaleOutRepositoryDescribeCmd() *cobra.Command {
 
 			httpClient, _, err := newAPIClient(ctx)
 			if err != nil {
+				return err
+			}
+
+			if err := requireFeatureSupport(httpClient, features.FeatureScaleOutRepositories); err != nil {
 				return err
 			}
 

@@ -12,15 +12,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func replicaCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   cmdReplicaUse,
-		Short: "Replica restore point inventory",
-	}
-	root.AddCommand(replicaGetCmd())
-	return root
-}
-
 type replicaGetOptions struct {
 	jobName          string
 	replicaName      string

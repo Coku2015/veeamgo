@@ -13,17 +13,6 @@ import (
 	"github.com/veeamgo/veeamgo/pkg/output"
 )
 
-func backupCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   cmdBackupUse,
-		Short: "Backup inspection helpers",
-	}
-	root.AddCommand(backupListCmd())
-	root.AddCommand(backupFilesCmd())
-	root.AddCommand(backupObjectsCmd())
-	return root
-}
-
 type backupFilesOptions struct {
 	jobName       string
 	backupName    string
