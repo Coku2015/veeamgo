@@ -7,5 +7,6 @@
 smoke_test_logs/
 scripts/
 AGENTS.md
-docs/
+#docs/
 bin/
+develop_docs/
