@@ -14,5 +14,4 @@ const (
 	StartVerbShort    = "Start resources"
 	StopVerbShort     = "Stop resources"
 	RetryVerbShort    = "Retry resources"
-	MigrateVerbShort  = "Migrate resources"
 )

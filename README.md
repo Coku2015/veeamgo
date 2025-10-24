@@ -4,6 +4,12 @@ English | [中文指南](README.zh-CN.md)
 
 VeeamGo is a lightweight CLI for exploring Veeam Backup & Replication (VBR) environments via the official REST API. It gives auditors, operators, and support engineers fast read-only insight without touching the UI.
 
+## Prerequisites
+- Access to a Veeam Backup & Replication v13.x server with the REST API enabled (HTTPS port 9419 reachable).
+- A VBR account (or OAuth client) with at least read access so `veeamgo login` can authenticate successfully.
+- macOS 12+/Linux (glibc 2.31+)/Windows 10+ on x86_64 or arm64. Building from source requires Go 1.25+.
+- Outbound network access from your terminal to the VBR REST endpoint you plan to query.
+
 ## Download
 - Grab the latest signed binaries from the [GitHub Releases page](https://github.com/Coku2015/veeamgo/releases/latest).
 - Each release ships archives for macOS, Linux, and Windows; extract the archive and keep the `veeamgo` (or `veeamgo.exe`) binary.
@@ -40,4 +46,3 @@ Inside sandboxed environments set `GOCACHE=$(pwd)/.gocache` (and `GOMODCACHE=$(p
 
 ## Where To Go Next
 - Read the full command reference in `docs/UserGuide.md`.
-

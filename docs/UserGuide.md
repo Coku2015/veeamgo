@@ -229,9 +229,6 @@ Unless stated, commands honour the global flags described above. Examples assume
 | `veeamgo get malwaredetectionevent [--type YaraScan] [--severity Infected] [--detected-since 2024-01-01T00:00:00Z]` | List suspicious activity events. | `--type`, `--state`, `--source`, `--severity`, `--created-by`, `--engine`, `--machine-name`, `--backup-object`, `--detected-since`, `--detected-before`, `--sort`, `--desc`, `--limit` |
 | `veeamgo get yararule` | List YARA rule packages available on the server. | None |
 
-### 3.6 Notes on Reserved Verbs
-The `veeamgo migrate` verb is reserved for future workflows and currently has no subcommands.
-
 ## 4. Troubleshooting & Tips
 - Use `veeamgo get session logs --id <uuid>` (or the task equivalent) to diagnose failed operations.
 - Switch to JSON output (`--output json`) when you need exact API fields for scripting.

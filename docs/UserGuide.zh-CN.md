@@ -229,9 +229,6 @@ veeamgo start job --name "Daily Backup"
 | `veeamgo get malwaredetectionevent [--type YaraScan] [--severity Infected] [--detected-since 2024-01-01T00:00:00Z]` | 查看可疑活动/恶意事件。 | `--type`、`--state`、`--source`、`--severity`、`--created-by`、`--engine`、`--machine-name`、`--backup-object`、`--detected-since`、`--detected-before`、`--sort`、`--desc`、`--limit` |
 | `veeamgo get yararule` | 查看服务器上可用的 YARA 规则包。 | 无 |
 
-### 3.6 预留动词
-`veeamgo migrate` 为预留动词，目前暂无子命令。
-
 ## 4. 故障排查与建议
 - 使用 `veeamgo get session logs --id <uuid>` 或 `veeamgo get task logs --id <uuid>` 排查失败原因。
 - 需要精确字段时请切换 `--output json`，便于与自动化脚本对接。

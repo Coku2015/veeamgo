@@ -27,7 +27,6 @@ const (
 	cmdStartUse    = "start"
 	cmdStopUse     = "stop"
 	cmdRetryUse    = "retry"
-	cmdMigrateUse  = "migrate"
 	cmdAddUse      = "add"
 	cmdEditUse     = "edit"
 	cmdTemplateUse = "template"

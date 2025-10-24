@@ -22,7 +22,6 @@ func init() {
 	rootCmd.AddCommand(startVerbCmd())
 	rootCmd.AddCommand(stopVerbCmd())
 	rootCmd.AddCommand(retryVerbCmd())
-	rootCmd.AddCommand(migrateVerbCmd())
 }
 
 func getVerbCmd() *cobra.Command {
@@ -280,13 +279,5 @@ func retryVerbCmd() *cobra.Command {
 		Short: helptext.RetryVerbShort,
 	}
 	cmd.AddCommand(jobRetryCmd())
-	return cmd
-}
-
-func migrateVerbCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   cmdMigrateUse,
-		Short: helptext.MigrateVerbShort,
-	}
 	return cmd
 }

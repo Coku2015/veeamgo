@@ -4,6 +4,12 @@
 
 VeeamGo 是一个轻量级命令行工具，通过官方 REST API 帮助审计、运维和支持团队快速查看 Veeam Backup & Replication (VBR) 环境的数据，无需登录控制台界面。
 
+## 前置条件
+- 可访问的 Veeam Backup & Replication v13.x 服务器，并已启用 REST API（默认 HTTPS 端口 9419）。
+- 拥有具备读取权限的 VBR 帐号或 OAuth 应用，便于执行 `veeamgo login`。
+- 运行环境需为 macOS 12+/Linux (glibc 2.31+)/Windows 10+ 且 CPU 架构为 x86_64 或 arm64；如需自行编译请安装 Go 1.25+。
+- 终端需具备到 VBR REST 接口的网络连通性。
+
 ## 下载
 - 请前往 [GitHub Releases](https://github.com/Coku2015/veeamgo/releases/latest) 获取已签名的官方二进制文件。
 - 每个版本都会提供 macOS、Linux 与 Windows 的压缩包；解压后保留 `veeamgo`（或 `veeamgo.exe`）即可使用。
