@@ -4,8 +4,8 @@
 .env.test
 .cache/
 .golangci-lint-cache/
-#smoke_test_logs/
-#scripts/
-#AGENTS.md
-#docs/
+smoke_test_logs/
+scripts/
+AGENTS.md
+docs/
 bin/
