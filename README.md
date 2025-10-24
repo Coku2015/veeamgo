@@ -42,4 +42,4 @@ go build -o veeamgo ./cmd
 Inside sandboxed environments set `GOCACHE=$(pwd)/.gocache` (and `GOMODCACHE=$(pwd)/.gomodcache`) to reuse local Go caches.
 
 ## Where To Go Next
-- Read the full command reference in `docs/UserGuide.md`.
+- Read the full command reference in [Chinese Guide](docs/UserGuide.zh-CN.md) / [English Guide](docs/UserGuide.md) .

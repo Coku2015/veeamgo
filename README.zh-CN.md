@@ -42,4 +42,4 @@ go build -o veeamgo ./cmd
 在沙箱中运行时建议设置 `GOCACHE=$(pwd)/.gocache`（以及 `GOMODCACHE=$(pwd)/.gomodcache`）以复用本地缓存。
 
 ## 下一步
-- 阅读 `docs/UserGuide.zh-CN.md` / `docs/UserGuide.md` 获取完整命令参考。
+- 阅读 [用户手册中文版](docs/UserGuide.zh-CN.md) / [用户手册英文版] (docs/UserGuide.md) 获取完整命令参考。
