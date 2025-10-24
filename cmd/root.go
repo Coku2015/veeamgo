@@ -7,7 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/paths"
+	"github.com/Coku2015/veeamgo/internal/paths"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 type rootOptions struct {
@@ -21,7 +22,7 @@ var (
 	buildVersion = "dev"
 	rootCmd      = &cobra.Command{
 		Use:   "veeamgo",
-		Short: "VeeamGo CLI connects to Veeam Backup & Replication REST API",
+		Short: helptext.RootShort,
 	}
 	opts = rootOptions{
 		outputFormat: "table",
@@ -47,8 +48,8 @@ func init() {
 
 	rootCmd.AddCommand(loginCmd())
 	rootCmd.AddCommand(logoutCmd())
-	rootCmd.AddCommand(jobCmd())
 
+	configureCommandHelp(rootCmd)
 }
 
 func ensureConfigPath(path string) (string, error) {

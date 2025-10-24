@@ -1,4 +1,4 @@
-module github.com/veeamgo/veeamgo
+module github.com/Coku2015/veeamgo
 
 go 1.25.2
 

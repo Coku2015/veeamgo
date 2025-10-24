@@ -6,8 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func managedServerGetCmd() *cobra.Command {
@@ -19,7 +20,7 @@ func managedServerGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdManagedServerUse,
-		Short: "List managed servers",
+		Short: helptext.ManagedServerListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
 			defer cancel()
@@ -70,7 +71,7 @@ func managedServerDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdManagedServerUse,
-		Short: "Show detailed managed server information",
+		Short: helptext.ManagedServerDescribeShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if serverID == "" {
@@ -95,9 +96,14 @@ func managedServerDescribeCmd() *cobra.Command {
 				return output.Print(format, server)
 			}
 
+			typeLabel := managedServerTypeDisplay(server.Type)
+			if typeLabel == "" {
+				typeLabel = server.Type
+			}
+
 			view := managedServerDetail{
 				Name:        server.Name,
-				Type:        server.Type,
+				Type:        typeLabel,
 				Status:      server.Status,
 				Description: server.Description,
 				ID:          server.ID,

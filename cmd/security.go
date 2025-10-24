@@ -7,14 +7,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func securityAnalyzerGetCmd() *cobra.Command {
 	root := &cobra.Command{
 		Use:   "securityanalyzer",
-		Short: "Security & Compliance Analyzer insights",
+		Short: helptext.SecurityAnalyzerRootShort,
 	}
 	root.AddCommand(securityAnalyzerResultsCmd())
 	return root
@@ -23,7 +24,7 @@ func securityAnalyzerGetCmd() *cobra.Command {
 func securityAnalyzerDescribeCmd() *cobra.Command {
 	root := &cobra.Command{
 		Use:   "securityanalyzer",
-		Short: "Security & Compliance Analyzer insights",
+		Short: helptext.SecurityAnalyzerRootShort,
 	}
 	root.AddCommand(securityAnalyzerScheduleCmd())
 	return root
@@ -32,7 +33,7 @@ func securityAnalyzerDescribeCmd() *cobra.Command {
 func securityAnalyzerScheduleCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schedule",
-		Short: "Show analyzer schedule configuration",
+		Short: helptext.SecurityAnalyzerScheduleShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -76,7 +77,7 @@ func securityAnalyzerScheduleCmd() *cobra.Command {
 func securityAnalyzerResultsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "results",
-		Short: "List analyzer compliance results",
+		Short: helptext.SecurityAnalyzerResultsShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -110,10 +111,10 @@ func securityAnalyzerStartCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "securityanalyzer",
-		Short: "Start Security & Compliance Analyzer",
+		Short: helptext.SecurityAnalyzerStartShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !assumeYes {
-				confirmed, err := promptForConfirmation(cmd, "Start Security & Compliance Analyzer")
+				confirmed, err := promptForConfirmation(cmd, helptext.SecurityAnalyzerStartShort)
 				if err != nil {
 					return err
 				}

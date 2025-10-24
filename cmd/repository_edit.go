@@ -8,7 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 type repositoryEditOptions struct {
@@ -75,8 +76,8 @@ func repositoryEditCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdEditUse,
-		Short: "Edit a backup repository",
-		Long:  "Updates existing backup repository settings. Supported types: WinLocal, LinuxLocal, LinuxHardened, SMB, NFS.",
+		Short: helptext.RepositoryEditShort,
+		Long:  helptext.RepositoryEditLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runRepositoryEdit(cmd, &opts)

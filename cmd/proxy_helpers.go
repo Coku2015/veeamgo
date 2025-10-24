@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/veeamgo/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/client"
 )
 
 func proxyStateByName(ctx context.Context, api *client.Client, name, proxyType string) (*client.ProxyState, error) {
@@ -18,7 +18,11 @@ func proxyStateByName(ctx context.Context, api *client.Client, name, proxyType s
 		Name: name,
 	}
 	if trimmedType := strings.TrimSpace(proxyType); trimmedType != "" {
-		filter.Type = trimmedType
+		canonical, err := normalizeProxyType(trimmedType)
+		if err != nil {
+			return nil, err
+		}
+		filter.Type = canonical
 	}
 
 	states, err := api.ProxyStates(ctx, filter)

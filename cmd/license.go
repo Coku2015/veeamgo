@@ -7,15 +7,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func licenseSummaryCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "summary",
-		Aliases: []string{"overview"},
-		Short:   "Show license summary",
+		Use:   "summary",
+		Short: helptext.LicenseSummaryShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -54,7 +54,7 @@ func licenseVerbCmd() *cobra.Command {
 	summary := licenseSummaryCmd()
 	cmd := &cobra.Command{
 		Use:   "license",
-		Short: "License usage and allocations",
+		Short: helptext.LicenseRootShort,
 		RunE:  summary.RunE,
 	}
 
@@ -67,22 +67,11 @@ func licenseVerbCmd() *cobra.Command {
 }
 
 func licenseSocketsCmd() *cobra.Command {
-	var (
-		nameFilter     string
-		hostNameFilter string
-		hostIDFilter   string
-		socketCount    int
-		coreCount      int
-		typeFilter     string
-		orderColumn    string
-		descending     bool
-		limit          int
-	)
+	var limit int
 
 	cmd := &cobra.Command{
-		Use:     "sockets",
-		Aliases: []string{"socket"},
-		Short:   "List socket-based workloads",
+		Use:   "sockets",
+		Short: helptext.LicenseSocketsShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -93,18 +82,7 @@ func licenseSocketsCmd() *cobra.Command {
 			}
 
 			filter := client.LicenseSocketsFilter{
-				Name:          nameFilter,
-				HostName:      hostNameFilter,
-				HostID:        hostIDFilter,
-				SocketsNumber: socketCount,
-				CoresNumber:   coreCount,
-				Type:          typeFilter,
-				OrderColumn:   orderColumn,
-				MaxItems:      limit,
-			}
-			if orderColumn != "" {
-				asc := !descending
-				filter.OrderAscending = &asc
+				MaxItems: limit,
 			}
 
 			result, err := httpClient.LicenseSockets(ctx, filter)
@@ -127,41 +105,26 @@ func licenseSocketsCmd() *cobra.Command {
 					Cores:    workload.CoresNumber,
 					HostID:   workload.HostID,
 				})
+				if limit > 0 && len(rows) >= limit {
+					break
+				}
 			}
 
 			return output.Print(format, rows)
 		},
 	}
 
-	cmd.Flags().StringVar(&nameFilter, "name", "", "Filter by workload name (supports * wildcards)")
-	cmd.Flags().StringVar(&hostNameFilter, "host-name", "", "Filter by proxy host name")
-	cmd.Flags().StringVar(&hostIDFilter, "host-id", "", "Filter by proxy host id")
-	cmd.Flags().IntVar(&socketCount, "sockets", 0, "Filter by socket count")
-	cmd.Flags().IntVar(&coreCount, "cores", 0, "Filter by core count")
-	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter by workload type")
-	cmd.Flags().StringVar(&orderColumn, "sort", "", "Sort results by column (e.g. name)")
-	cmd.Flags().BoolVar(&descending, "desc", false, "Sort results in descending order")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum number of records to return (default: all)")
 
 	return cmd
 }
 
 func licenseInstancesCmd() *cobra.Command {
-	var (
-		nameFilter     string
-		hostNameFilter string
-		usedFilter     float64
-		typeFilter     string
-		instanceFilter string
-		orderColumn    string
-		descending     bool
-		limit          int
-	)
+	var limit int
 
 	cmd := &cobra.Command{
-		Use:     "instances",
-		Aliases: []string{"instance"},
-		Short:   "List instance-based workloads",
+		Use:   "instances",
+		Short: helptext.LicenseInstancesShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -172,17 +135,7 @@ func licenseInstancesCmd() *cobra.Command {
 			}
 
 			filter := client.InstanceLicensesFilter{
-				Name:                nameFilter,
-				HostName:            hostNameFilter,
-				UsedInstancesNumber: usedFilter,
-				Type:                typeFilter,
-				InstanceID:          instanceFilter,
-				OrderColumn:         orderColumn,
-				MaxItems:            limit,
-			}
-			if orderColumn != "" {
-				asc := !descending
-				filter.OrderAscending = &asc
+				MaxItems: limit,
 			}
 
 			result, err := httpClient.LicenseInstances(ctx, filter)
@@ -206,29 +159,26 @@ func licenseInstancesCmd() *cobra.Command {
 					Used:      formatFloat(workload.UsedInstancesNumber),
 					Revocable: yesNo(workload.CanBeRevoked),
 				})
+				if limit > 0 && len(rows) >= limit {
+					break
+				}
 			}
 
 			return output.Print(format, rows)
 		},
 	}
 
-	cmd.Flags().StringVar(&nameFilter, "name", "", "Filter by workload name (supports * wildcards)")
-	cmd.Flags().StringVar(&hostNameFilter, "host-name", "", "Filter by host name")
-	cmd.Flags().Float64Var(&usedFilter, "used", 0, "Filter by consumed instances")
-	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter by workload type")
-	cmd.Flags().StringVar(&instanceFilter, "instance-id", "", "Filter by instance id")
-	cmd.Flags().StringVar(&orderColumn, "sort", "", "Sort results by column (e.g. usedInstancesNumber)")
-	cmd.Flags().BoolVar(&descending, "desc", false, "Sort results in descending order")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum number of records to return (default: all)")
 
 	return cmd
 }
 
 func licenseCapacityCmd() *cobra.Command {
+	var limit int
+
 	cmd := &cobra.Command{
-		Use:     "capacity",
-		Aliases: []string{"capacity-workloads"},
-		Short:   "List capacity license workloads",
+		Use:   "capacity",
+		Short: helptext.LicenseCapacityShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -256,11 +206,16 @@ func licenseCapacityCmd() *cobra.Command {
 					UsedTB:     formatFloat(workload.UsedCapacityTB),
 					InstanceID: workload.InstanceID,
 				})
+				if limit > 0 && len(rows) >= limit {
+					break
+				}
 			}
 
 			return output.Print(format, rows)
 		},
 	}
+
+	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum number of records to return (default: all)")
 	return cmd
 }
 

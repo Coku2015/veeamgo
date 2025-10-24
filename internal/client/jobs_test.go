@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/veeamgo/veeamgo/internal/session"
+	"github.com/Coku2015/veeamgo/internal/session"
 )
 
 type roundTripFunc func(*http.Request) (*http.Response, error)

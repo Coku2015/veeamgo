@@ -9,8 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func repositoryGetCmd() *cobra.Command {
@@ -22,7 +23,7 @@ func repositoryGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: "List backup repositories",
+		Short: helptext.RepositoryListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
 			defer cancel()
@@ -90,7 +91,7 @@ func repositoryDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDescribeUse,
-		Short: "Show detailed repository configuration",
+		Short: helptext.RepositoryDescribeShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {
@@ -156,7 +157,7 @@ func repositoryRescanCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdRescanUse,
-		Short: "Rescan one or more repositories",
+		Short: helptext.RepositoryRescanShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if all && (len(ids) > 0 || len(names) > 0) {
 				return fmt.Errorf("use either --all or one of --id/--name")
@@ -278,7 +279,7 @@ func repositoryDeleteCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDeleteUse,
-		Short: "Delete a backup repository",
+		Short: helptext.RepositoryDeleteShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			nameTrim := strings.TrimSpace(repoName)

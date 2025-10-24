@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/veeamgo/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/client"
 )
 
 func resolveManagedServerByName(ctx context.Context, api *client.Client, name string) (*client.ManagedServer, error) {

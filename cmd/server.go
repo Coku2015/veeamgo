@@ -2,21 +2,20 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 	"unicode"
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func serverGetCmd() *cobra.Command {
 	get := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: "Retrieve server information",
+		Short: helptext.ServerGetRootShort,
 	}
 	get.AddCommand(serverInfoCmd())
 	get.AddCommand(serverTimeCmd())
@@ -26,7 +25,7 @@ func serverGetCmd() *cobra.Command {
 func serverInfoCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   cmdInfoUse,
-		Short: "Show server metadata",
+		Short: helptext.ServerInfoShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 30*time.Second)
 			defer cancel()
@@ -65,7 +64,7 @@ func serverInfoCmd() *cobra.Command {
 func serverTimeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   cmdTimeUse,
-		Short: "Show server clock information",
+		Short: helptext.ServerTimeShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 30*time.Second)
 			defer cancel()
@@ -101,67 +100,6 @@ func serverTimeCmd() *cobra.Command {
 			return output.Print(format, view)
 		},
 	}
-	return cmd
-}
-
-func serverRescanCmd() *cobra.Command {
-	var (
-		id   string
-		all  bool
-		wait bool
-	)
-
-	cmd := &cobra.Command{
-		Use:   cmdRescanUse,
-		Short: "Rescan managed servers",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if all && id != "" {
-				return fmt.Errorf("use either --all or --id, not both")
-			}
-			if !all && id == "" {
-				return fmt.Errorf("specify --id <server-id> or --all")
-			}
-
-			ctx, cancel := context.WithTimeout(cmd.Context(), 5*time.Minute)
-			defer cancel()
-
-			httpClient, _, err := newAPIClient(ctx)
-			if err != nil {
-				return err
-			}
-
-			var (
-				sessionResult *client.Session
-			)
-			if all {
-				sessionResult, err = httpClient.RescanAllManagedServers(ctx)
-			} else {
-				sessionResult, err = httpClient.RescanManagedServer(ctx, id)
-			}
-			if err != nil {
-				return err
-			}
-
-			if wait {
-				sessionResult, err = httpClient.WaitForSession(ctx, sessionResult.ID, 5*time.Second)
-				if err != nil {
-					return err
-				}
-			}
-
-			format := outputFormat()
-			if format == "json" {
-				return output.Print(format, sessionResult)
-			}
-
-			return output.Print(format, summarizeSession(sessionResult))
-		},
-	}
-
-	cmd.Flags().StringVar(&id, "id", "", "Managed server ID to rescan")
-	cmd.Flags().BoolVar(&all, "all", false, "Rescan all managed servers")
-	cmd.Flags().BoolVar(&wait, "wait", false, "Wait for the rescan session to finish")
-
 	return cmd
 }
 

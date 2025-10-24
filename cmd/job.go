@@ -20,25 +20,13 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/internal/jobconfig"
-	"github.com/veeamgo/veeamgo/internal/paths"
-	jobtemplates "github.com/veeamgo/veeamgo/internal/templates/job"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/jobconfig"
+	"github.com/Coku2015/veeamgo/internal/paths"
+	jobtemplates "github.com/Coku2015/veeamgo/internal/templates/job"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
-
-func jobCmd() *cobra.Command {
-	root := &cobra.Command{
-		Use:   cmdJobUse,
-		Short: jobDescriptionWithTypes("Job inventory and details"),
-		Long:  jobLongDescription("Job inventory and details"),
-	}
-	root.AddCommand(jobGetCmd())
-	root.AddCommand(jobDescribeCmd())
-	root.AddCommand(jobAddCmd())
-	root.AddCommand(jobEditCmd())
-	return root
-}
 
 type jobFilterOptions struct {
 	name         string
@@ -48,9 +36,6 @@ type jobFilterOptions struct {
 	workload     string
 	repository   string
 	highPriority bool
-	since        string
-	before       string
-	afterJob     string
 	limit        int
 }
 
@@ -77,8 +62,8 @@ func jobGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: jobDescriptionWithTypes("List jobs with current state"),
-		Long:  jobLongDescription("List jobs with current state"),
+		Short: jobDescriptionWithTypes(helptext.JobListShort),
+		Long:  jobLongDescription(helptext.JobListShort),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -127,9 +112,6 @@ func jobGetCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.workload, "workload", "", "Filter by workload (e.g. Vmware, HyperV)")
 	cmd.Flags().StringVar(&opts.repository, "repository", "", "Filter by target repository name")
 	cmd.Flags().BoolVar(&opts.highPriority, "high-priority", false, "Only include jobs marked high priority")
-	cmd.Flags().StringVar(&opts.since, "since", "", "Only include jobs with last run ≥ RFC3339 timestamp")
-	cmd.Flags().StringVar(&opts.before, "before", "", "Only include jobs with last run ≤ RFC3339 timestamp")
-	cmd.Flags().StringVar(&opts.afterJob, "after-job", "", "Only include jobs chained after the specified job name")
 	cmd.Flags().IntVar(&opts.limit, "limit", 0, "Maximum number of jobs to return (default: all)")
 
 	cmd.AddCommand(jobHistoryCmd())
@@ -137,12 +119,19 @@ func jobGetCmd() *cobra.Command {
 }
 
 func jobDescribeCmd() *cobra.Command {
+	var jobName string
+
 	cmd := &cobra.Command{
-		Use:   fmt.Sprintf("%s <name>", cmdDescribeUse),
-		Short: jobDescriptionWithTypes("Show detailed job configuration and state"),
-		Long:  jobLongDescription("Show detailed job configuration and state"),
-		Args:  cobra.ExactArgs(1),
+		Use:   cmdDescribeUse,
+		Short: jobDescriptionWithTypes(helptext.JobDescribeShort),
+		Long:  jobLongDescription(helptext.JobDescribeShort),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			name := strings.TrimSpace(jobName)
+			if name == "" {
+				return requireFlag("--name", "provide the job name to describe")
+			}
+
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
 
@@ -151,7 +140,7 @@ func jobDescribeCmd() *cobra.Command {
 				return err
 			}
 
-			state, err := httpClient.JobStateByName(ctx, args[0])
+			state, err := httpClient.JobStateByName(ctx, name)
 			if err != nil {
 				return err
 			}
@@ -201,11 +190,9 @@ func jobDescribeCmd() *cobra.Command {
 			return output.Print(format, detail)
 		},
 	}
-	return cmd
-}
 
-func jobAddCmd() *cobra.Command {
-	return newJobAddCommand("add")
+	cmd.Flags().StringVar(&jobName, "name", "", "Job name to describe")
+	return cmd
 }
 
 func jobAddVerbCmd() *cobra.Command {
@@ -224,8 +211,8 @@ func newJobAddCommand(use string) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   use,
-		Short: jobDescriptionWithTypes("Create a new job"),
-		Long:  jobLongDescription("Create a new job"),
+		Short: jobDescriptionWithTypes(helptext.JobCreateShort),
+		Long:  jobLongDescription(helptext.JobCreateShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			overrides, err := parseOverridePairs(opts.overrides)
@@ -305,10 +292,6 @@ func newJobAddCommand(use string) *cobra.Command {
 	return cmd
 }
 
-func jobEditCmd() *cobra.Command {
-	return newJobEditCommand("edit")
-}
-
 func jobEditVerbCmd() *cobra.Command {
 	return newJobEditCommand("job")
 }
@@ -329,8 +312,8 @@ func newJobEditCommand(use string) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   use,
-		Short: jobDescriptionWithTypes("Edit an existing job"),
-		Long:  jobLongDescription("Edit an existing job"),
+		Short: jobDescriptionWithTypes(helptext.JobEditShort),
+		Long:  jobLongDescription(helptext.JobEditShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if opts.fromLive && strings.TrimSpace(opts.specPath) != "" {
@@ -493,8 +476,8 @@ func jobHistoryCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "history",
-		Short: jobDescriptionWithTypes("List session history for a job"),
-		Long:  jobLongDescription("List session history for a job"),
+		Short: jobDescriptionWithTypes(helptext.JobHistoryShort),
+		Long:  jobLongDescription(helptext.JobHistoryShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(opts.name) == "" {
@@ -626,8 +609,8 @@ func jobStartCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "job",
-		Short: jobDescriptionWithTypes("Start a job"),
-		Long:  jobLongDescription("Start a job"),
+		Short: jobDescriptionWithTypes(helptext.JobStartShort),
+		Long:  jobLongDescription(helptext.JobStartShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runJobStart(cmd, jobName, jobID, yes, performActiveFull, startChained, syncRestorePoints)
@@ -655,8 +638,8 @@ func jobStopCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "job",
-		Short: jobDescriptionWithTypes("Stop a job"),
-		Long:  jobLongDescription("Stop a job"),
+		Short: jobDescriptionWithTypes(helptext.JobStopShort),
+		Long:  jobLongDescription(helptext.JobStopShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runJobStop(cmd, jobName, jobID, yes, graceful, cancelChained)
@@ -682,8 +665,8 @@ func jobRetryCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "job",
-		Short: jobDescriptionWithTypes("Retry a job"),
-		Long:  jobLongDescription("Retry a job"),
+		Short: jobDescriptionWithTypes(helptext.JobRetryShort),
+		Long:  jobLongDescription(helptext.JobRetryShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runJobRetry(cmd, jobName, jobID, yes, startChained)
@@ -708,8 +691,8 @@ func jobQuickBackupCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "quickbackup",
-		Short: jobDescriptionWithTypes("Start a quick backup"),
-		Long:  jobLongDescription("Start a quick backup"),
+		Short: jobDescriptionWithTypes(helptext.JobQuickBackupShort),
+		Long:  jobLongDescription(helptext.JobQuickBackupShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runJobQuickBackup(cmd, jobName, jobID, yes, vmName)
@@ -733,8 +716,8 @@ func jobCloneCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "job",
-		Short: jobDescriptionWithTypes("Clone a job"),
-		Long:  jobLongDescription("Clone a job"),
+		Short: jobDescriptionWithTypes(helptext.JobCloneShort),
+		Long:  jobLongDescription(helptext.JobCloneShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runJobClone(cmd, jobName, jobID, yes)
@@ -756,8 +739,8 @@ func jobDeleteCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "job",
-		Short: jobDescriptionWithTypes("Delete a job"),
-		Long:  jobLongDescription("Delete a job"),
+		Short: jobDescriptionWithTypes(helptext.JobDeleteShort),
+		Long:  jobLongDescription(helptext.JobDeleteShort),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runJobDelete(cmd, jobName, jobID, yes)
@@ -784,8 +767,8 @@ func newJobToggleCommand(action, actionPast string, desiredDisabled bool, apiCal
 
 	cmd := &cobra.Command{
 		Use:   "job",
-		Short: jobDescriptionWithTypes(fmt.Sprintf("%s a job", label)),
-		Long:  jobLongDescription(fmt.Sprintf("%s a job", label)),
+		Short: jobDescriptionWithTypes(fmt.Sprintf(helptext.JobToggleShortFormat, label)),
+		Long:  jobLongDescription(fmt.Sprintf(helptext.JobToggleShortFormat, label)),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runJobToggle(cmd, jobName, jobID, yes, action, actionPast, desiredDisabled, apiCall)
@@ -1738,31 +1721,6 @@ func buildJobStatesFilter(ctx context.Context, httpClient *client.Client, opts j
 			return filter, fmt.Errorf("resolve repository %q: %w", opts.repository, err)
 		}
 		filter.RepositoryID = repo.ID
-	}
-
-	if opts.afterJob != "" {
-		after, err := httpClient.JobStateByName(ctx, opts.afterJob)
-		if err != nil {
-			return filter, fmt.Errorf("resolve after-job %q: %w", opts.afterJob, err)
-		}
-		filter.AfterJobID = after.ID
-		filter.AfterJobName = after.Name
-	}
-
-	if opts.since != "" {
-		parsed, err := time.Parse(time.RFC3339, opts.since)
-		if err != nil {
-			return filter, fmt.Errorf("parse --since: %w", err)
-		}
-		filter.LastRunAfter = &parsed
-	}
-
-	if opts.before != "" {
-		parsed, err := time.Parse(time.RFC3339, opts.before)
-		if err != nil {
-			return filter, fmt.Errorf("parse --before: %w", err)
-		}
-		filter.LastRunBefore = &parsed
 	}
 
 	return filter, nil

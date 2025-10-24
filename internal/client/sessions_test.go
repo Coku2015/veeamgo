@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/veeamgo/veeamgo/internal/session"
-	"github.com/veeamgo/veeamgo/pkg/apiversion"
+	"github.com/Coku2015/veeamgo/internal/session"
+	"github.com/Coku2015/veeamgo/pkg/apiversion"
 )
 
 func TestSessionsFilterEncoding(t *testing.T) {
@@ -107,9 +107,6 @@ func TestTaskSessionsFilterEncoding(t *testing.T) {
 		SessionType:    "Job",
 		State:          "Working",
 		Result:         "Success",
-		ScanType:       "MalwareScan",
-		ScanResult:     "Clean",
-		ScanState:      "Finished",
 		CreatedAfter:   &created,
 		CreatedBefore:  &ended,
 		OrderColumn:    "creationTime",
@@ -130,9 +127,6 @@ func TestTaskSessionsFilterEncoding(t *testing.T) {
 	assertQueryEquals(t, captured.query, "sessionTypeFilter", "Job")
 	assertQueryEquals(t, captured.query, "stateFilter", "Working")
 	assertQueryEquals(t, captured.query, "resultFilter", "Success")
-	assertQueryEquals(t, captured.query, "scanTypeFilter", "MalwareScan")
-	assertQueryEquals(t, captured.query, "scanResultFilter", "Clean")
-	assertQueryEquals(t, captured.query, "scanStateFilter", "Finished")
 	assertQueryEquals(t, captured.query, "createdAfterFilter", created.Format(time.RFC3339))
 	assertQueryEquals(t, captured.query, "createdBeforeFilter", ended.Format(time.RFC3339))
 	assertQueryEquals(t, captured.query, "orderColumn", "creationTime")

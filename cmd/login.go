@@ -13,10 +13,11 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/internal/config"
-	"github.com/veeamgo/veeamgo/internal/session"
-	"github.com/veeamgo/veeamgo/pkg/apiversion"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/config"
+	"github.com/Coku2015/veeamgo/internal/session"
+	"github.com/Coku2015/veeamgo/pkg/apiversion"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 func loginCmd() *cobra.Command {
@@ -33,7 +34,7 @@ func loginCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Authenticate with a Veeam Backup & Replication server",
+		Short: helptext.LoginShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 30*time.Second)
 			defer cancel()

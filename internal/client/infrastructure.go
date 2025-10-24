@@ -119,6 +119,20 @@ func (c *Client) RescanManagedServer(ctx context.Context, id string) (*Session, 
 	return &sess, nil
 }
 
+func (c *Client) DeleteManagedServer(ctx context.Context, id string) (*Session, error) {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("managed server id cannot be empty")
+	}
+
+	path := fmt.Sprintf("/api/v1/backupInfrastructure/managedServers/%s", clean)
+	var sess Session
+	if err := c.deleteJSON(ctx, path, nil, &sess); err != nil {
+		return nil, err
+	}
+	return &sess, nil
+}
+
 type RepositoryStatesFilter struct {
 	Name     string
 	Types    []string

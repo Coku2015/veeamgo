@@ -7,11 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
-func newExclusionVMGetCmd(use string, aliases []string, hidden bool) *cobra.Command {
+func newExclusionVMGetCmd(use string, hidden bool) *cobra.Command {
 	var (
 		orderColumn string
 		descending  bool
@@ -19,10 +20,9 @@ func newExclusionVMGetCmd(use string, aliases []string, hidden bool) *cobra.Comm
 	)
 
 	cmd := &cobra.Command{
-		Use:     use,
-		Aliases: aliases,
-		Short:   "List globally excluded VMs",
-		Hidden:  hidden,
+		Use:    use,
+		Short:  helptext.ExclusionListShort,
+		Hidden: hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -72,13 +72,12 @@ func newExclusionVMGetCmd(use string, aliases []string, hidden bool) *cobra.Comm
 	return cmd
 }
 
-func newExclusionVMDescribeCmd(use string, aliases []string, hidden bool) *cobra.Command {
+func newExclusionVMDescribeCmd(use string, hidden bool) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     use,
-		Aliases: aliases,
-		Short:   "Describe a VM exclusion entry",
-		Hidden:  hidden,
-		Args:    cobra.ExactArgs(1),
+		Use:    use,
+		Short:  helptext.ExclusionDescribeShort,
+		Hidden: hidden,
+		Args:   cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()

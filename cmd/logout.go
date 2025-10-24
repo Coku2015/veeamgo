@@ -6,15 +6,16 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/config"
-	"github.com/veeamgo/veeamgo/internal/session"
+	"github.com/Coku2015/veeamgo/internal/config"
+	"github.com/Coku2015/veeamgo/internal/session"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 func logoutCmd() *cobra.Command {
 	var clearAll bool
 	cmd := &cobra.Command{
 		Use:   "logout",
-		Short: "Remove cached authentication tokens",
+		Short: helptext.LogoutShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfgPath, err := ensureConfigPath(opts.configPath)
 			if err != nil {

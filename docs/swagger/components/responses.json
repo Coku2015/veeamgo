@@ -1,0 +1,72 @@
+{
+  "Deleted": {
+    "description": "Removed.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/EmptySuccessResponse"
+        }
+      }
+    }
+  },
+  "BadRequest": {
+    "description": "Bad request. This error is related to POST/PUT requests. The request body is malformed, incomplete or otherwise invalid.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    }
+  },
+  "Unauthorized": {
+    "description": "Unauthorized. The authorization header has been expected but not found (or found but is expired).",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    }
+  },
+  "Forbidden": {
+    "description": "Forbidden. The user sending the request does not have adequate privileges to access one or more objects specified in the request.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    }
+  },
+  "NotFound": {
+    "description": "Not found. No object was found with the path parameter specified in the request.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    }
+  },
+  "MethodNotAllowed": {
+    "description": "Method not allowed. Indicates that the server knows the request method, but the target resource does not support this method.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    }
+  },
+  "InternalServerError": {
+    "description": "Internal server error. The request has been received but could not be completed because of an internal error at the server side.",
+    "content": {
+      "application/json": {
+        "schema": {
+          "$ref": "#/components/schemas/Error"
+        }
+      }
+    }
+  }
+}

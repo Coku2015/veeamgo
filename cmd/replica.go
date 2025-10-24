@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 type replicaGetOptions struct {
@@ -17,7 +18,6 @@ type replicaGetOptions struct {
 	replicaName      string
 	replicaPointName string
 	platformName     string
-	platformID       string
 	malwareStatus    string
 	createdAfter     string
 	createdBefore    string
@@ -31,7 +31,7 @@ func replicaGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: "List replica restore points for a replication job",
+		Short: helptext.ReplicaListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -59,7 +59,6 @@ func replicaGetCmd() *cobra.Command {
 				Name:          opts.replicaPointName,
 				ReplicaID:     replica.ID,
 				PlatformName:  opts.platformName,
-				PlatformID:    opts.platformID,
 				MalwareStatus: opts.malwareStatus,
 				MaxItems:      opts.limit,
 			}
@@ -115,7 +114,6 @@ func replicaGetCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.replicaName, "replica", "", "Replica name (optional if job has a single replica)")
 	cmd.Flags().StringVar(&opts.replicaPointName, "replica-point", "", "Filter by replica restore point name (supports * wildcards)")
 	cmd.Flags().StringVar(&opts.platformName, "platform", "", "Filter by platform name (e.g. VMware)")
-	cmd.Flags().StringVar(&opts.platformID, "platform-id", "", "Filter by platform ID")
 	cmd.Flags().StringVar(&opts.malwareStatus, "malware", "", "Filter by malware status")
 	cmd.Flags().StringVar(&opts.createdAfter, "created-since", "", "Include restore points created on/after RFC3339 timestamp")
 	cmd.Flags().StringVar(&opts.createdBefore, "created-before", "", "Include restore points created on/before RFC3339 timestamp")

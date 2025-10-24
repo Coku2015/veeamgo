@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 type proxyEditOptions struct {
@@ -34,8 +35,8 @@ func proxyEditCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdProxyUse,
-		Short: "Edit a backup proxy",
-		Long:  "Updates mutable backup proxy settings such as name, description, host, and transport configuration.",
+		Short: helptext.ProxyEditShort,
+		Long:  helptext.ProxyEditLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runProxyEdit(cmd, opts)
@@ -44,7 +45,7 @@ func proxyEditCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&opts.targetName, "name", "", "Proxy name to edit (optional)")
 	cmd.Flags().StringVar(&opts.targetID, "id", "", "Proxy ID to edit (optional)")
-	cmd.Flags().StringVar(&opts.targetType, "type", "", "Proxy type to disambiguate by name (optional)")
+	cmd.Flags().StringVar(&opts.targetType, "type", "", "Proxy platform to disambiguate by name (vmware, hyperv, general)")
 	cmd.Flags().BoolVar(&opts.assumeYes, "yes", false, "Confirm without prompting (required to execute)")
 	cmd.Flags().BoolVar(&opts.wait, "wait", false, "Wait for the proxy reconfiguration session to finish")
 
@@ -52,11 +53,11 @@ func proxyEditCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.description, "description", "", "Proxy description")
 	cmd.Flags().StringVar(&opts.managedServer, "managed-server", "", "Managed server host name to associate with the proxy")
 	cmd.Flags().IntVar(&opts.maxTasks, "max-tasks", 0, "Maximum concurrent tasks handled by the proxy")
-	cmd.Flags().StringVar(&opts.transportMode, "transport-mode", "", "Transport mode for ViProxy (auto, directAccess, virtualAppliance, network)")
-	cmd.Flags().BoolVar(&opts.failoverToNetwork, "failover-to-network", false, "Allow fallback to network mode if the primary transport fails (ViProxy only)")
-	cmd.Flags().BoolVar(&opts.hostToProxyEncryption, "host-to-proxy-encryption", false, "Enable TLS encryption between host and proxy in network mode (ViProxy only)")
-	cmd.Flags().BoolVar(&opts.autoSelectDatastores, "auto-select-datastores", false, "Automatically select accessible datastores (ViProxy only)")
-	cmd.Flags().BoolVar(&opts.noAutoSelectDatastores, "no-auto-select-datastores", false, "Disable automatic datastore selection (ViProxy only)")
+	cmd.Flags().StringVar(&opts.transportMode, "transport-mode", "", "Transport mode for VMware proxies (auto, directAccess, virtualAppliance, network)")
+	cmd.Flags().BoolVar(&opts.failoverToNetwork, "failover-to-network", false, "Allow fallback to network mode if the primary transport fails (VMware proxies only)")
+	cmd.Flags().BoolVar(&opts.hostToProxyEncryption, "host-to-proxy-encryption", false, "Enable TLS encryption between host and proxy in network mode (VMware proxies only)")
+	cmd.Flags().BoolVar(&opts.autoSelectDatastores, "auto-select-datastores", false, "Automatically select accessible datastores (VMware proxies only)")
+	cmd.Flags().BoolVar(&opts.noAutoSelectDatastores, "no-auto-select-datastores", false, "Disable automatic datastore selection (VMware proxies only)")
 
 	return cmd
 }

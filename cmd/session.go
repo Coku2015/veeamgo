@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 type sessionListOptions struct {
@@ -32,7 +33,7 @@ func sessionListCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "List Veeam job sessions",
+		Short: helptext.SessionListShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -137,7 +138,7 @@ func sessionDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDescribeUse,
-		Short: "Show detailed information about a session",
+		Short: helptext.SessionDescribeShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(sessionID) == "" {
@@ -197,7 +198,7 @@ func sessionLogsCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "logs",
-		Short: "Show session log records",
+		Short: helptext.SessionLogsShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(sessionID) == "" {

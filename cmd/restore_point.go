@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 type restorePointGetOptions struct {
@@ -18,7 +19,6 @@ type restorePointGetOptions struct {
 	restorePointName string
 	objectID         string
 	platformName     string
-	platformID       string
 	malwareStatus    string
 	createdAfter     string
 	createdBefore    string
@@ -32,7 +32,7 @@ func restorePointGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: "List restore points for a backup job",
+		Short: helptext.RestorePointListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -63,7 +63,6 @@ func restorePointGetCmd() *cobra.Command {
 				BackupID:       backup.ID,
 				BackupObjectID: opts.objectID,
 				PlatformName:   opts.platformName,
-				PlatformID:     opts.platformID,
 				MalwareStatus:  opts.malwareStatus,
 				MaxItems:       opts.limit,
 			}
@@ -108,6 +107,7 @@ func restorePointGetCmd() *cobra.Command {
 					CreatedAt:  formatTimestampValue(rp.CreationTime),
 					JobName:    jobLabel,
 					Malware:    rp.MalwareStatus,
+					ID:         rp.ID,
 				})
 			}
 
@@ -120,7 +120,6 @@ func restorePointGetCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.restorePointName, "restorepoint", "", "Filter by restore point name (supports * wildcards)")
 	cmd.Flags().StringVar(&opts.objectID, "object", "", "Filter by backup object ID")
 	cmd.Flags().StringVar(&opts.platformName, "platform", "", "Filter by platform name (e.g. VMware)")
-	cmd.Flags().StringVar(&opts.platformID, "platform-id", "", "Filter by platform ID")
 	cmd.Flags().StringVar(&opts.malwareStatus, "malware", "", "Filter by malware status")
 	cmd.Flags().StringVar(&opts.createdAfter, "created-since", "", "Include restore points created on/after RFC3339 timestamp")
 	cmd.Flags().StringVar(&opts.createdBefore, "created-before", "", "Include restore points created on/before RFC3339 timestamp")
@@ -138,4 +137,5 @@ type restorePointRow struct {
 	CreatedAt  string `json:"Created At"`
 	JobName    string `json:"Job Name"`
 	Malware    string `json:"Malware Status"`
+	ID         string `json:"Id"`
 }

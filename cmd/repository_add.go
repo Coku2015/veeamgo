@@ -8,7 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 type repositoryAddOptions struct {
@@ -62,8 +63,8 @@ func repositoryAddCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdAddUse,
-		Short: "Add a backup repository",
-		Long:  "Creates a new backup repository. Supported types: WinLocal, LinuxLocal, LinuxHardened, SMB, NFS.",
+		Short: helptext.RepositoryAddShort,
+		Long:  helptext.RepositoryAddLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runRepositoryAdd(cmd, &opts)

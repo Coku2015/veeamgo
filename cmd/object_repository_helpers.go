@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 func loadSpecFile(path string) (map[string]any, error) {
@@ -21,10 +24,45 @@ func loadSpecFile(path string) (map[string]any, error) {
 		return nil, fmt.Errorf("read spec: %w", err)
 	}
 	payload := make(map[string]any)
-	if err := json.Unmarshal(data, &payload); err != nil {
+	if err := json.Unmarshal(data, &payload); err == nil {
+		return payload, nil
+	}
+
+	var yamlPayload map[string]any
+	if err := yaml.Unmarshal(data, &yamlPayload); err != nil {
 		return nil, fmt.Errorf("decode spec: %w", err)
 	}
-	return payload, nil
+
+	normalized := normalizeYAMLMap(yamlPayload)
+	result, ok := normalized.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("decode spec: expected mapping at root")
+	}
+	return result, nil
+}
+
+func normalizeYAMLMap(value any) any {
+	switch v := value.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(v))
+		for key, val := range v {
+			out[key] = normalizeYAMLMap(val)
+		}
+		return out
+	case map[any]any:
+		out := make(map[string]any, len(v))
+		for key, val := range v {
+			out[fmt.Sprint(key)] = normalizeYAMLMap(val)
+		}
+		return out
+	case []any:
+		for i := range v {
+			v[i] = normalizeYAMLMap(v[i])
+		}
+		return v
+	default:
+		return v
+	}
 }
 
 func deepCopyMap(src map[string]any) (map[string]any, error) {
@@ -127,4 +165,75 @@ func deriveObjectTarget(repoType string, payload map[string]any) string {
 		}
 	}
 	return ""
+}
+
+func nestedValue(payload map[string]any, path ...string) (any, bool) {
+	if len(path) == 0 {
+		return payload, true
+	}
+
+	current := any(payload)
+	for _, key := range path {
+		nextMap, ok := current.(map[string]any)
+		if !ok {
+			return nil, false
+		}
+		next, ok := nextMap[key]
+		if !ok {
+			return nil, false
+		}
+		current = next
+	}
+	return current, true
+}
+
+func nestedString(payload map[string]any, path ...string) string {
+	if value, ok := nestedValue(payload, path...); ok {
+		if s, ok := value.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
+func nestedBool(payload map[string]any, path ...string) (bool, bool) {
+	if value, ok := nestedValue(payload, path...); ok {
+		switch typed := value.(type) {
+		case bool:
+			return typed, true
+		case *bool:
+			if typed == nil {
+				return false, false
+			}
+			return *typed, true
+		}
+	}
+	return false, false
+}
+
+func nestedStringSlice(payload map[string]any, path ...string) []string {
+	value, ok := nestedValue(payload, path...)
+	if !ok {
+		return nil
+	}
+	switch typed := value.(type) {
+	case []string:
+		return typed
+	case []any:
+		result := make([]string, 0, len(typed))
+		for _, v := range typed {
+			result = append(result, fmt.Sprint(v))
+		}
+		return result
+	default:
+		val := reflect.ValueOf(value)
+		if val.Kind() == reflect.Slice || val.Kind() == reflect.Array {
+			result := make([]string, val.Len())
+			for i := 0; i < val.Len(); i++ {
+				result[i] = fmt.Sprint(val.Index(i).Interface())
+			}
+			return result
+		}
+	}
+	return nil
 }

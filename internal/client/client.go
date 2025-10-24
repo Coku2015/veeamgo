@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/veeamgo/veeamgo/internal/config"
-	"github.com/veeamgo/veeamgo/internal/session"
-	"github.com/veeamgo/veeamgo/pkg/apiversion"
+	"github.com/Coku2015/veeamgo/internal/config"
+	"github.com/Coku2015/veeamgo/internal/session"
+	"github.com/Coku2015/veeamgo/pkg/apiversion"
 )
 
 // Credentials represents login parameters.
@@ -302,6 +302,14 @@ func (c *Client) delete(ctx context.Context, path string, query url.Values) erro
 		rel.RawQuery = query.Encode()
 	}
 	return c.doRequest(ctx, http.MethodDelete, rel, nil, "", nil)
+}
+
+func (c *Client) deleteJSON(ctx context.Context, path string, query url.Values, target any) error {
+	rel := &url.URL{Path: path}
+	if len(query) > 0 {
+		rel.RawQuery = query.Encode()
+	}
+	return c.doRequest(ctx, http.MethodDelete, rel, nil, "", target)
 }
 
 func (c *Client) doRequest(ctx context.Context, method string, rel *url.URL, body io.Reader, contentType string, target any) error {

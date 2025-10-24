@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/veeamgo/veeamgo/internal/paths"
-	"github.com/veeamgo/veeamgo/internal/secrets"
+	"github.com/Coku2015/veeamgo/internal/paths"
+	"github.com/Coku2015/veeamgo/internal/secrets"
 )
 
 // ErrNotFound is returned when a profile session does not exist.

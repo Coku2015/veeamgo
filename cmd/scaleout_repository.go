@@ -8,9 +8,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/features"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/features"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func scaleOutRepositoryGetCmd() *cobra.Command {
@@ -21,7 +22,7 @@ func scaleOutRepositoryGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: "List scale-out backup repositories",
+		Short: helptext.ScaleoutRepositoryListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
 			defer cancel()
@@ -68,7 +69,7 @@ func scaleOutRepositoryDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDescribeUse,
-		Short: "Show detailed scale-out repository configuration",
+		Short: helptext.ScaleoutRepositoryDescribeShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {

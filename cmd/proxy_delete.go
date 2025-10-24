@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 func proxyDeleteCmd() *cobra.Command {
@@ -19,8 +21,8 @@ func proxyDeleteCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdProxyUse,
-		Short: "Delete a backup proxy",
-		Long:  "Removes a backup proxy from the Veeam Backup & Replication infrastructure.",
+		Short: helptext.ProxyDeleteShort,
+		Long:  helptext.ProxyDeleteLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runProxyDelete(cmd, proxyName, proxyID, proxyType, yes)
@@ -29,7 +31,7 @@ func proxyDeleteCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&proxyName, "name", "", "Proxy name to delete (optional)")
 	cmd.Flags().StringVar(&proxyID, "id", "", "Proxy ID to delete (optional)")
-	cmd.Flags().StringVar(&proxyType, "type", "", "Proxy type to disambiguate by name (optional)")
+	cmd.Flags().StringVar(&proxyType, "type", "", "Proxy platform to disambiguate by name (vmware, hyperv, general)")
 	cmd.Flags().BoolVar(&yes, "yes", false, "Confirm without prompting (required to execute)")
 	return cmd
 }

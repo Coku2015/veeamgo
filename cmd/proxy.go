@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func proxyListCmd() *cobra.Command {
@@ -23,9 +24,8 @@ func proxyListCmd() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:     cmdListUse,
-		Aliases: []string{"get"},
-		Short:   "List backup proxies",
+		Use:   cmdListUse,
+		Short: helptext.ProxyListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -37,10 +37,16 @@ func proxyListCmd() *cobra.Command {
 
 			filter := client.ProxyFilter{
 				Name:        nameFilter,
-				Type:        typeFilter,
 				HostID:      hostID,
 				OrderColumn: orderColumn,
 				MaxItems:    limit,
+			}
+			if trimmedType := strings.TrimSpace(typeFilter); trimmedType != "" {
+				canonical, err := normalizeProxyType(trimmedType)
+				if err != nil {
+					return err
+				}
+				filter.Type = canonical
 			}
 			if orderColumn != "" {
 				asc := !descending
@@ -86,7 +92,7 @@ func proxyListCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&nameFilter, "name", "", "Filter by proxy name (supports * wildcards)")
-	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter by proxy type (e.g. ViProxy, HvProxy)")
+	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter by proxy platform (vmware, hyperv, general)")
 	cmd.Flags().StringVar(&hostID, "host-id", "", "Filter by host identifier")
 	cmd.Flags().StringVar(&orderColumn, "sort", "", "Sort results by column (e.g. name)")
 	cmd.Flags().BoolVar(&descending, "desc", false, "Sort results in descending order")
@@ -100,10 +106,9 @@ func proxyDescribeCmd() *cobra.Command {
 	var typeFilter string
 
 	cmd := &cobra.Command{
-		Use:     cmdDescribeUse,
-		Aliases: []string{"show"},
-		Short:   "Describe a backup proxy",
-		Args:    cobra.NoArgs,
+		Use:   cmdDescribeUse,
+		Short: helptext.ProxyDescribeShort,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {
 				return requireFlag("--name", "provide the proxy name")
@@ -152,7 +157,7 @@ func proxyDescribeCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&name, "name", "", "Proxy name to describe")
-	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter by proxy type when resolving name")
+	cmd.Flags().StringVar(&typeFilter, "type", "", "Proxy platform to disambiguate when resolving the name (vmware, hyperv, general)")
 	return cmd
 }
 

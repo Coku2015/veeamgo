@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/veeamgo/veeamgo/pkg/apiversion"
+	"github.com/Coku2015/veeamgo/pkg/apiversion"
 )
 
 func TestNegotiateAPIVersionFallback(t *testing.T) {

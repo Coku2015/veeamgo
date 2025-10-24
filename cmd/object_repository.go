@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func objectRepositoryGetCmd() *cobra.Command {
@@ -21,7 +22,7 @@ func objectRepositoryGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: "List object storage repositories",
+		Short: helptext.ObjectRepositoryListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
 			defer cancel()
@@ -94,7 +95,7 @@ func objectRepositoryDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDescribeUse,
-		Short: "Describe an object storage repository",
+		Short: helptext.ObjectRepositoryDescribeShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {
@@ -157,7 +158,7 @@ func objectRepositoryRescanCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdRescanUse,
-		Short: "Rescan object storage repositories",
+		Short: helptext.ObjectRepositoryRescanShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if all && (len(ids) > 0 || len(names) > 0) {
 				return fmt.Errorf("use either --all or one of --id/--name")
@@ -280,7 +281,7 @@ func objectRepositoryDeleteCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDeleteUse,
-		Short: "Delete an object storage repository",
+		Short: helptext.ObjectRepositoryDeleteShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			nameTrim := strings.TrimSpace(repoName)
@@ -386,7 +387,7 @@ func objectRepositoryAddCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdObjectRepositoryUse,
-		Short: "Add an object storage repository",
+		Short: helptext.ObjectRepositoryAddShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			disableSet := cmd.Flags().Changed("disable")
@@ -403,17 +404,37 @@ func objectRepositoryAddCmd() *cobra.Command {
 	cmd.Flags().BoolVar(&opts.wait, "wait", false, "Wait for the provisioning session to finish")
 	cmd.Flags().BoolVar(&opts.yes, "yes", false, "Confirm without prompting (required to execute)")
 
+	_ = cmd.RegisterFlagCompletionFunc("type", fixedCompletion(objectRepositoryTypesList))
+
+	for _, provider := range objectRepositoryProviderList() {
+		cmd.AddCommand(newObjectRepositoryProviderAddCmd(provider))
+	}
+	cmd.AddCommand(objectRepositoryAddTypesCmd())
+
 	return cmd
 }
 
 func runObjectRepositoryAdd(cmd *cobra.Command, opts *objectRepositoryAddOptions, disableSet bool) error {
-	if strings.TrimSpace(opts.specPath) == "" {
-		return requireFlag("--spec", "provide the repository spec file path")
-	}
+	return runObjectRepositoryAddWithBase(cmd, opts, disableSet, nil)
+}
 
-	payload, err := loadSpecFile(opts.specPath)
-	if err != nil {
-		return err
+func runObjectRepositoryAddWithBase(cmd *cobra.Command, opts *objectRepositoryAddOptions, disableSet bool, base map[string]any) error {
+	var payload map[string]any
+	var err error
+	if base != nil {
+		payload, err = deepCopyMap(base)
+		if err != nil {
+			return err
+		}
+	} else {
+		if strings.TrimSpace(opts.specPath) == "" {
+			return requireFlag("--spec", "provide the repository spec file path")
+		}
+
+		payload, err = loadSpecFile(opts.specPath)
+		if err != nil {
+			return err
+		}
 	}
 
 	repoType := strings.TrimSpace(opts.repoType)
@@ -438,7 +459,7 @@ func runObjectRepositoryAdd(cmd *cobra.Command, opts *objectRepositoryAddOptions
 	if strings.TrimSpace(opts.description) != "" {
 		payload["description"] = opts.description
 	}
-	if _, ok := payload["name"].(string); !ok || strings.TrimSpace(payload["name"].(string)) == "" {
+	if name, ok := payload["name"].(string); !ok || strings.TrimSpace(name) == "" {
 		return requireFlag("--name", "provide the repository name (or include it in the spec)")
 	}
 	if _, ok := payload["description"].(string); !ok {
@@ -536,7 +557,7 @@ func objectRepositoryEditCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdObjectRepositoryUse,
-		Short: "Edit an object storage repository",
+		Short: helptext.ObjectRepositoryEditShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			disableSet := cmd.Flags().Changed("disable")

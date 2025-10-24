@@ -706,6 +706,35 @@ func (m backupContentMount) toSummary() InstantRecoveryMountSummary {
 	}
 }
 
+// DataIntegrationMounts lists published disk mounts (Data Integration API).
+func (c *Client) DataIntegrationMounts(ctx context.Context, limit int) ([]InstantRecoveryMountSummary, error) {
+	filter := InstantRecoveryMountFilter{
+		Platforms: []InstantRecoveryPlatform{InstantRecoveryPlatformDataIntegration},
+		Limit:     limit,
+	}
+	return c.fetchDataIntegrationMounts(ctx, filter, limit)
+}
+
+// DataIntegrationMount retrieves a specific published disk mount by ID.
+func (c *Client) DataIntegrationMount(ctx context.Context, id string) (*InstantRecoveryMountDetail, error) {
+	clean := strings.TrimSpace(id)
+	if clean == "" {
+		return nil, fmt.Errorf("mount id cannot be empty")
+	}
+
+	mount, raw, err := c.fetchDataIntegrationMountDetail(ctx, clean)
+	if err != nil {
+		return nil, err
+	}
+	summary := mount.toSummary()
+	summary.Raw = raw
+	return &InstantRecoveryMountDetail{
+		Platform: InstantRecoveryPlatformDataIntegration,
+		Summary:  summary,
+		Raw:      raw,
+	}, nil
+}
+
 func structToMap(value any) (map[string]any, error) {
 	raw, err := json.Marshal(value)
 	if err != nil {

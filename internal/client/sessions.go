@@ -170,9 +170,6 @@ type TaskSessionsFilter struct {
 	SessionType    string
 	State          string
 	Result         string
-	ScanType       string
-	ScanResult     string
-	ScanState      string
 	CreatedAfter   *time.Time
 	CreatedBefore  *time.Time
 	EndedAfter     *time.Time
@@ -236,15 +233,6 @@ func (c *Client) TaskSessions(ctx context.Context, filter TaskSessionsFilter) ([
 		}
 		if filter.Result != "" {
 			query.Set("resultFilter", filter.Result)
-		}
-		if filter.ScanType != "" {
-			query.Set("scanTypeFilter", filter.ScanType)
-		}
-		if filter.ScanResult != "" {
-			query.Set("scanResultFilter", filter.ScanResult)
-		}
-		if filter.ScanState != "" {
-			query.Set("scanStateFilter", filter.ScanState)
 		}
 		if filter.CreatedAfter != nil && !filter.CreatedAfter.IsZero() {
 			query.Set("createdAfterFilter", filter.CreatedAfter.Format(time.RFC3339))

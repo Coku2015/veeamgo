@@ -7,7 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func configBackupStartCmd() *cobra.Command {
@@ -18,7 +19,7 @@ func configBackupStartCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "configurationbackup",
-		Short: "Start an on-demand configuration backup",
+		Short: helptext.ConfigurationBackupStartShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !assumeYes {
 				confirmed, err := promptForConfirmation(cmd, "Start configuration backup")
@@ -75,14 +76,13 @@ func configBackupStartCmd() *cobra.Command {
 	return cmd
 }
 
-func newConfigurationBackupDescribeCmd(use string, hidden bool, aliases []string) *cobra.Command {
+func newConfigurationBackupDescribeCmd(use string, hidden bool) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     use,
-		Aliases: aliases,
-		Short:   "Describe configuration backup settings",
-		Hidden:  hidden,
-		Args:    cobra.NoArgs,
-		RunE:    runConfigurationBackupDescribe,
+		Use:    use,
+		Short:  helptext.ConfigurationBackupDescribeShort,
+		Hidden: hidden,
+		Args:   cobra.NoArgs,
+		RunE:   runConfigurationBackupDescribe,
 	}
 	return cmd
 }

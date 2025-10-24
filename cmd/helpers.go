@@ -15,12 +15,12 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/config"
+	"github.com/Coku2015/veeamgo/internal/session"
+	"github.com/Coku2015/veeamgo/pkg/apiversion"
+	"github.com/Coku2015/veeamgo/pkg/features"
 	"github.com/spf13/cobra"
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/internal/config"
-	"github.com/veeamgo/veeamgo/internal/session"
-	"github.com/veeamgo/veeamgo/pkg/apiversion"
-	"github.com/veeamgo/veeamgo/pkg/features"
 )
 
 const envAPIVersion = "VEEAMGO_API_VERSION"
@@ -30,7 +30,67 @@ var (
 	serverTimeLocation  *time.Location
 	featureMatrix       = features.DefaultMatrix()
 	newerServerWarnings sync.Map
+	usageTemplateOnce   sync.Once
 )
+
+func configureCommandHelp(cmd *cobra.Command) {
+	usageTemplateOnce.Do(func() {
+		cobra.AddTemplateFunc("pad", padSpacing)
+		cobra.AddTemplateFunc("indent", indentHelp)
+	})
+	cmd.SetUsageTemplate(customUsageTemplate)
+}
+
+func padSpacing(value int) int {
+	if value <= 0 {
+		return value
+	}
+	return value + 4
+}
+
+func indentHelp(text string, spaces int) string {
+	text = strings.TrimRight(text, "\n")
+	if text == "" {
+		return ""
+	}
+	prefix := strings.Repeat(" ", spaces)
+	lines := strings.Split(text, "\n")
+	for i, line := range lines {
+		lines[i] = prefix + line
+	}
+	return strings.Join(lines, "\n") + "\n"
+}
+
+const customUsageTemplate = `Usage:{{if .Runnable}}
+  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
+
+Aliases:
+  {{.NameAndAliases}}{{end}}{{if .HasExample}}
+
+Examples:
+{{.Example}}{{end}}{{if .HasAvailableSubCommands}}{{$cmds := .Commands}}{{if eq (len .Groups) 0}}
+
+Available Commands:{{range $cmds}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
+  {{rpad .Name (pad .NamePadding)}} {{.Short}}{{end}}{{end}}{{else}}{{range $group := .Groups}}
+
+{{.Title}}{{range $cmds}}{{if (and (eq .GroupID $group.ID) (or .IsAvailableCommand (eq .Name "help")))}}
+  {{rpad .Name (pad .NamePadding)}} {{.Short}}{{end}}{{end}}{{end}}{{if not .AllChildCommandsHaveGroup}}
+
+Additional Commands:{{range $cmds}}{{if (and (eq .GroupID "") (or .IsAvailableCommand (eq .Name "help")))}}
+  {{rpad .Name (pad .NamePadding)}} {{.Short}}{{end}}{{end}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
+
+Flags:
+{{indent (.LocalFlags.FlagUsages | trimTrailingWhitespaces) 2}}{{end}}{{if .HasAvailableInheritedFlags}}
+
+Global Flags:
+{{indent (.InheritedFlags.FlagUsages | trimTrailingWhitespaces) 2}}{{end}}{{if .HasHelpSubCommands}}
+
+Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
+  {{rpad .CommandPath (pad .CommandPathPadding)}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
+
+Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
+`
 
 func currentServerLocation() *time.Location {
 	serverTimeZoneMu.RLock()

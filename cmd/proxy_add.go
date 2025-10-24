@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func proxyAddCmd() *cobra.Command {
@@ -29,13 +30,13 @@ func proxyAddCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdProxyUse,
-		Short: "Add a backup proxy",
-		Long:  "Registers a backup proxy using an existing managed server as the host. Supported proxy types are ViProxy, HvProxy, and GeneralPurposeProxy.",
+		Short: helptext.ProxyAddShort,
+		Long:  helptext.ProxyAddLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rawProxyType := strings.TrimSpace(opts.proxyType)
 			if rawProxyType == "" {
-				rawProxyType = "ViProxy"
+				rawProxyType = "vmware"
 			}
 			proxyType, err := normalizeProxyType(rawProxyType)
 			if err != nil {
@@ -117,13 +118,13 @@ func proxyAddCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&opts.name, "name", "", "Proxy name (defaults to managed server name if omitted)")
 	cmd.Flags().StringVar(&opts.description, "description", "", "Proxy description")
-	cmd.Flags().StringVar(&opts.proxyType, "type", "ViProxy", "Proxy type (ViProxy, HvProxy, GeneralPurposeProxy)")
+	cmd.Flags().StringVar(&opts.proxyType, "type", "vmware", "Proxy platform (vmware, hyperv, general)")
 	cmd.Flags().StringVar(&opts.managedServer, "managed-server", "", "Managed server host name already added to inventory")
 	cmd.Flags().IntVar(&opts.maxTasks, "max-tasks", 0, "Maximum concurrent tasks handled by the proxy (default: platform default)")
-	cmd.Flags().StringVar(&opts.transportMode, "transport-mode", "auto", "Transport mode for ViProxy (auto, directAccess, virtualAppliance, network)")
-	cmd.Flags().BoolVar(&opts.failoverToNetwork, "failover-to-network", false, "Allow fallback to network mode if the primary transport fails (ViProxy only)")
-	cmd.Flags().BoolVar(&opts.hostToProxyEncryption, "host-to-proxy-encryption", false, "Enable TLS encryption between host and proxy in network mode (ViProxy only)")
-	cmd.Flags().BoolVar(&opts.autoSelectDatastores, "auto-select-datastores", false, "Automatically select accessible datastores (ViProxy only)")
+	cmd.Flags().StringVar(&opts.transportMode, "transport-mode", "auto", "Transport mode for VMware proxies (auto, directAccess, virtualAppliance, network)")
+	cmd.Flags().BoolVar(&opts.failoverToNetwork, "failover-to-network", false, "Allow fallback to network mode if the primary transport fails (VMware proxies only)")
+	cmd.Flags().BoolVar(&opts.hostToProxyEncryption, "host-to-proxy-encryption", false, "Enable TLS encryption between host and proxy in network mode (VMware proxies only)")
+	cmd.Flags().BoolVar(&opts.autoSelectDatastores, "auto-select-datastores", false, "Automatically select accessible datastores (VMware proxies only)")
 	cmd.Flags().BoolVar(&opts.wait, "wait", false, "Wait for the provisioning session to complete")
 	cmd.Flags().BoolVar(&opts.yes, "yes", false, "Confirm without prompting (required for non-interactive use)")
 
@@ -189,14 +190,14 @@ func buildProxySpec(cmd *cobra.Command, opts struct {
 
 func normalizeProxyType(v string) (string, error) {
 	switch strings.ToLower(strings.TrimSpace(v)) {
-	case "viproxy", "vi":
+	case "vmware", "vmware proxy", "vi", "viproxy", "vsphere":
 		return "ViProxy", nil
-	case "hvproxy", "hv", "hyperv":
+	case "hvproxy", "hv", "hyperv", "hyper-v", "hyper v":
 		return "HvProxy", nil
-	case "generalpurposeproxy", "generalpurpose", "general", "gp":
+	case "generalpurposeproxy", "generalpurpose", "general-purpose", "general purpose", "general", "gp":
 		return "GeneralPurposeProxy", nil
 	default:
-		return "", fmt.Errorf("proxy type %q is not supported; use ViProxy, HvProxy, or GeneralPurposeProxy", v)
+		return "", fmt.Errorf("proxy type %q is not supported; use vmware, hyperv, or general", v)
 	}
 }
 

@@ -9,8 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	jobtemplates "github.com/veeamgo/veeamgo/internal/templates/job"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	jobtemplates "github.com/Coku2015/veeamgo/internal/templates/job"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func templateJobCmd() *cobra.Command {
@@ -26,8 +27,8 @@ func templateJobCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdJobUse,
-		Short: "Export job configuration templates",
-		Long:  "Generate YAML blueprints for creating or editing jobs. Combine with 'veeamgo add job --template' to seed new jobs quickly.",
+		Short: helptext.TemplateJobShort,
+		Long:  helptext.TemplateJobLong,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if opts.listOnly {
 				return renderTemplateList(cmd)

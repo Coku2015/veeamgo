@@ -9,8 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 type backupFilesOptions struct {
@@ -47,7 +48,7 @@ func backupListCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "List backups",
+		Short: helptext.BackupListShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
@@ -152,7 +153,7 @@ func backupFilesCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "files",
-		Short: "List files contained in a backup",
+		Short: helptext.BackupFilesShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
@@ -244,7 +245,7 @@ func backupObjectsCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "objects",
-		Short: "List objects protected by a backup",
+		Short: helptext.BackupObjectsShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
@@ -431,11 +432,4 @@ func formatGFSPeroids(periods []string) string {
 	}
 
 	return strings.Join(cleaned, ", ")
-}
-
-func objectsInBackupCmd() *cobra.Command {
-	cmd := backupObjectsCmd()
-	cmd.Use = "objectsinbackup"
-	cmd.Short = "List objects contained in a backup"
-	return cmd
 }

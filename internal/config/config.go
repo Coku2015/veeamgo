@@ -10,7 +10,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/veeamgo/veeamgo/internal/secrets"
+	"github.com/Coku2015/veeamgo/internal/secrets"
 )
 
 // Config holds CLI configuration.

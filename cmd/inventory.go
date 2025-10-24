@@ -9,8 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 // --- Verb-first wiring helpers ---
@@ -18,7 +19,7 @@ import (
 func inventoryGetRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   cmdInventoryUse,
-		Short: "Explore inventory resources",
+		Short: helptext.InventoryGetRootShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -33,7 +34,7 @@ func inventoryGetRootCmd() *cobra.Command {
 func inventoryDescribeRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   cmdInventoryUse,
-		Short: "Describe inventory resources",
+		Short: helptext.InventoryDescribeRootShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -52,7 +53,8 @@ func inventoryVirtualInfraListCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "virtualinfra",
-		Short: "List virtual infrastructure servers",
+		Short: helptext.InventoryVirtualListShort,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -63,8 +65,8 @@ func inventoryVirtualInfraListCmd() *cobra.Command {
 			}
 
 			req := client.InventoryRequest{}
-			if opts.limit > 0 || opts.skip > 0 {
-				req.Pagination = &client.InventoryPagination{Skip: opts.skip, Limit: opts.limit}
+			if opts.limit > 0 {
+				req.Pagination = &client.InventoryPagination{Limit: opts.limit}
 			}
 			if opts.sort != "" {
 				req.Sorting = map[string]any{
@@ -118,7 +120,6 @@ func inventoryVirtualInfraListCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.name, "name", "", "Filter by server name (case insensitive substring)")
 	cmd.Flags().StringVar(&opts.host, "host", "", "Filter by host name")
 	cmd.Flags().IntVar(&opts.limit, "limit", opts.limit, "Maximum records to return (default 200)")
-	cmd.Flags().IntVar(&opts.skip, "skip", 0, "Number of records to skip")
 	cmd.Flags().StringVar(&opts.sort, "sort", "", "Sort by field (e.g. name)")
 	cmd.Flags().BoolVar(&opts.desc, "desc", false, "Sort in descending order")
 
@@ -134,7 +135,8 @@ func inventoryVirtualInfraObjectsCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "objects",
-		Short: "List inventory objects for a virtual infrastructure server",
+		Short: helptext.InventoryVirtualObjectsShort,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(opts.name) == "" {
 				return requireFlag("--name", "provide the server or host name to inspect")
@@ -149,8 +151,8 @@ func inventoryVirtualInfraObjectsCmd() *cobra.Command {
 			}
 
 			req := client.InventoryRequest{}
-			if opts.limit > 0 || opts.skip > 0 {
-				req.Pagination = &client.InventoryPagination{Skip: opts.skip, Limit: opts.limit}
+			if opts.limit > 0 {
+				req.Pagination = &client.InventoryPagination{Limit: opts.limit}
 			}
 			if opts.hierarchy != "" {
 				req.HierarchyType = opts.hierarchy
@@ -199,7 +201,6 @@ func inventoryVirtualInfraObjectsCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.name, "name", "", "Server or host name to browse")
 	cmd.Flags().StringVar(&opts.hierarchy, "hierarchy", "", "Hierarchy type (e.g. HostsAndClusters, VmsAndTemplates)")
 	cmd.Flags().IntVar(&opts.limit, "limit", opts.limit, "Maximum child objects to return (default 200)")
-	cmd.Flags().IntVar(&opts.skip, "skip", 0, "Number of child objects to skip")
 	cmd.Flags().StringVar(&opts.sort, "sort", "", "Sort child objects by field (e.g. name)")
 	cmd.Flags().BoolVar(&opts.desc, "desc", false, "Sort child objects descending")
 	cmd.Flags().StringSliceVar(&opts.objectTypes, "object-type", nil, "Filter objects by type (e.g. Datacenter, VirtualMachine)")
@@ -213,7 +214,8 @@ func inventoryVirtualInfraDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "virtualinfra",
-		Short: "Describe a virtual infrastructure server",
+		Short: helptext.InventoryVirtualDescribeShort,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(opts.name) == "" {
 				return requireFlag("--name", "provide the server or host name to describe")
@@ -228,8 +230,8 @@ func inventoryVirtualInfraDescribeCmd() *cobra.Command {
 			}
 
 			req := client.InventoryRequest{}
-			if opts.limit > 0 || opts.skip > 0 {
-				req.Pagination = &client.InventoryPagination{Skip: opts.skip, Limit: opts.limit}
+			if opts.limit > 0 {
+				req.Pagination = &client.InventoryPagination{Limit: opts.limit}
 			}
 			if opts.sort != "" {
 				req.Sorting = map[string]any{
@@ -243,12 +245,12 @@ func inventoryVirtualInfraDescribeCmd() *cobra.Command {
 				return err
 			}
 
-			rows := make([]inventoryVirtualDescribeRow, 0, len(result.Data))
+			var detail *inventoryVirtualDescribeDetail
 			for _, entry := range result.Data {
 				if !strings.EqualFold(stringFromMap(entry, "name"), opts.name) {
 					continue
 				}
-				rows = append(rows, inventoryVirtualDescribeRow{
+				detail = &inventoryVirtualDescribeDetail{
 					Name:     stringFromMap(entry, "name"),
 					Type:     stringFromMap(entry, "type"),
 					Host:     stringFromMap(entry, "hostName"),
@@ -256,19 +258,19 @@ func inventoryVirtualInfraDescribeCmd() *cobra.Command {
 					URN:      stringFromMap(entry, "urn"),
 					Platform: friendlyPlatform(stringFromMap(entry, "platform")),
 					Size:     stringFromMap(entry, "size"),
-				})
+				}
+				break
 			}
 
-			if len(rows) == 0 {
+			if detail == nil {
 				return fmt.Errorf("inventory server %q not found", opts.name)
 			}
-			return output.Print(outputFormat(), rows)
+			return output.Print(outputFormat(), detail)
 		},
 	}
 
 	cmd.Flags().StringVar(&opts.name, "name", "", "Server or host name to describe")
 	cmd.Flags().IntVar(&opts.limit, "limit", opts.limit, "Maximum records to inspect (default 200)")
-	cmd.Flags().IntVar(&opts.skip, "skip", 0, "Number of records to skip")
 	cmd.Flags().StringVar(&opts.sort, "sort", "", "Sort records by field (e.g. name)")
 	cmd.Flags().BoolVar(&opts.desc, "desc", false, "Sort records descending")
 
@@ -280,7 +282,8 @@ func inventoryUnstructuredListCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "unstructured",
-		Short: "List unstructured data servers",
+		Short: helptext.InventoryUnstructuredListShort,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -291,7 +294,7 @@ func inventoryUnstructuredListCmd() *cobra.Command {
 			}
 
 			filter := client.UnstructuredDataServersFilter{
-				Skip:  opts.skip,
+				Skip:  0,
 				Limit: opts.limit,
 				Name:  opts.name,
 			}
@@ -336,7 +339,6 @@ func inventoryUnstructuredListCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.contains, "contains", "", "Filter servers whose name contains the provided value (case insensitive)")
 	cmd.Flags().StringSliceVar(&opts.types, "type", nil, "Filter servers by type (FileServer, SMBShare, NFSShare, NASFiler, S3Compatible, AmazonS3, AzureBlob)")
 	cmd.Flags().IntVar(&opts.limit, "limit", opts.limit, "Maximum records to return (default 200)")
-	cmd.Flags().IntVar(&opts.skip, "skip", 0, "Number of records to skip")
 	cmd.Flags().StringVar(&opts.sort, "sort", "", "Sort by column (Name or Description)")
 	cmd.Flags().BoolVar(&opts.desc, "desc", false, "Sort in descending order")
 
@@ -348,7 +350,8 @@ func inventoryUnstructuredDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "unstructured",
-		Short: "Describe an unstructured data server",
+		Short: helptext.InventoryUnstructuredDescribeShort,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(opts.id) == "" && strings.TrimSpace(opts.name) == "" {
 				return requireFlag("--name or --id", "provide the server name or ID to describe")
@@ -427,7 +430,7 @@ func inventoryProtectionGroupListCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "protectiongroup",
-		Short: "List protection groups",
+		Short: helptext.InventoryProtectionGroupListShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -481,7 +484,7 @@ func inventoryProtectionGroupAgentsCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "agents",
-		Short: "List discovered agents for a protection group",
+		Short: helptext.InventoryProtectionGroupAgentsShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(opts.groupName) == "" {
 				return requireFlag("--name", "provide the protection group name")
@@ -536,7 +539,7 @@ func inventoryProtectionGroupAgentsCmd() *cobra.Command {
 func inventoryProtectionGroupDescribeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "protectiongroup",
-		Short: "Describe protection group resources",
+		Short: helptext.InventoryProtectionGroupDescribeShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -551,7 +554,7 @@ func inventoryProtectionGroupDescribeAgentCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "agent",
-		Short: "Describe a protection group agent",
+		Short: helptext.InventoryProtectionGroupAgentDescribeShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(opts.agentName) == "" {
 				return requireFlag("--name", "provide the agent name")
@@ -613,7 +616,6 @@ type inventoryVirtualListOptions struct {
 	name      string
 	host      string
 	limit     int
-	skip      int
 	sort      string
 	desc      bool
 }
@@ -624,7 +626,6 @@ type inventoryVirtualObjectsOptions struct {
 	objectTypes []string
 	objectName  string
 	limit       int
-	skip        int
 	sort        string
 	desc        bool
 }
@@ -632,7 +633,6 @@ type inventoryVirtualObjectsOptions struct {
 type inventoryVirtualDescribeOptions struct {
 	name  string
 	limit int
-	skip  int
 	sort  string
 	desc  bool
 }
@@ -642,7 +642,6 @@ type inventoryUnstructuredListOptions struct {
 	contains string
 	types    []string
 	limit    int
-	skip     int
 	sort     string
 	desc     bool
 }
@@ -682,7 +681,7 @@ type inventoryVirtualObjectRow struct {
 	Size     string `json:"Size"`
 }
 
-type inventoryVirtualDescribeRow struct {
+type inventoryVirtualDescribeDetail struct {
 	Name     string `json:"Name"`
 	Type     string `json:"Type"`
 	Host     string `json:"Host"`

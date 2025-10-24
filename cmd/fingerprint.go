@@ -9,8 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func fingerprintGetCmd() *cobra.Command {
@@ -24,7 +25,7 @@ func fingerprintGetCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "fingerprint",
-		Short: "Request a managed server certificate or SSH fingerprint",
+		Short: helptext.FingerprintShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.serverName = strings.TrimSpace(opts.serverName)
 			if opts.serverName == "" {

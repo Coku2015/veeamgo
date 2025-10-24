@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/veeamgo/veeamgo/internal/client"
+import "github.com/Coku2015/veeamgo/internal/client"
 
 type sessionSummary struct {
 	ID        string `json:"id"`

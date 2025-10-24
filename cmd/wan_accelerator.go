@@ -8,21 +8,20 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 func wanAcceleratorGetCmd() *cobra.Command {
 	var (
-		nameFilter  string
-		orderColumn string
-		descending  bool
-		limit       int
+		nameFilter string
+		limit      int
 	)
 
 	cmd := &cobra.Command{
 		Use:   cmdGetUse,
-		Short: "List WAN accelerators",
+		Short: helptext.WanAcceleratorListShort,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -33,13 +32,8 @@ func wanAcceleratorGetCmd() *cobra.Command {
 			}
 
 			filter := client.WANAcceleratorFilter{
-				Name:        nameFilter,
-				OrderColumn: orderColumn,
-				MaxItems:    limit,
-			}
-			if orderColumn != "" {
-				orderAsc := !descending
-				filter.OrderAscending = &orderAsc
+				Name:     nameFilter,
+				MaxItems: limit,
 			}
 
 			accelerators, err := httpClient.WANAccelerators(ctx, filter)
@@ -62,8 +56,6 @@ func wanAcceleratorGetCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&nameFilter, "name", "", "Filter by WAN accelerator name (supports * wildcards)")
-	cmd.Flags().StringVar(&orderColumn, "sort", "", "Sort results by column (name|hostId|trafficPort)")
-	cmd.Flags().BoolVar(&descending, "desc", false, "Sort results in descending order")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum number of WAN accelerators to return (default: all)")
 
 	return cmd
@@ -74,7 +66,7 @@ func wanAcceleratorDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDescribeUse,
-		Short: "Show detailed WAN accelerator configuration",
+		Short: helptext.WanAcceleratorDescribeShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(name) == "" {

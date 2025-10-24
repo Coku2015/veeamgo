@@ -118,6 +118,52 @@ func TestDeleteRepositoryValidation(t *testing.T) {
 	}
 }
 
+func TestDeleteManagedServer(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		if req.Method != http.MethodDelete {
+			t.Fatalf("expected DELETE, got %s", req.Method)
+		}
+		if req.URL.Path != "/api/v1/backupInfrastructure/managedServers/server-1" {
+			t.Fatalf("unexpected path %s", req.URL.Path)
+		}
+
+		payload := Session{
+			ID:           "session-del-1",
+			State:        "InProgress",
+			SessionType:  "InfrastructureItemDeletion",
+			CreationTime: time.Date(2025, 10, 18, 9, 30, 0, 0, time.UTC),
+		}
+		buf, _ := json.Marshal(payload)
+		return &http.Response{
+			StatusCode: http.StatusCreated,
+			Header:     make(http.Header),
+			Body:       ioNopCloser(bytes.NewReader(buf)),
+		}, nil
+	})
+
+	session, err := client.DeleteManagedServer(context.Background(), "server-1")
+	if err != nil {
+		t.Fatalf("DeleteManagedServer returned error: %v", err)
+	}
+	if session == nil {
+		t.Fatalf("expected session")
+	}
+	if session.ID != "session-del-1" {
+		t.Fatalf("unexpected session id %s", session.ID)
+	}
+}
+
+func TestDeleteManagedServerValidation(t *testing.T) {
+	client := testClientWithResponder(t, func(req *http.Request) (*http.Response, error) {
+		t.Fatalf("request should not be executed")
+		return nil, nil
+	})
+
+	if _, err := client.DeleteManagedServer(context.Background(), ""); err == nil {
+		t.Fatalf("expected error for empty id")
+	}
+}
+
 func TestCreateRepository(t *testing.T) {
 	var captured map[string]any
 

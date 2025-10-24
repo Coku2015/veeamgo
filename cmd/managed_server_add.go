@@ -9,7 +9,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 var handshakeCodePattern = regexp.MustCompile(`^\d{6}$`)
@@ -17,7 +18,7 @@ var handshakeCodePattern = regexp.MustCompile(`^\d{6}$`)
 func managedServerAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   cmdManagedServerUse,
-		Short: "Add managed servers",
+		Short: helptext.ManagedServerAddRootShort,
 	}
 
 	cmd.AddCommand(managedServerAddVsphereCmd())
@@ -44,8 +45,8 @@ func managedServerAddVsphereCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "vsphere",
-		Short: "Add a VMware vSphere managed server",
-		Long:  "Registers a VMware vSphere server (vCenter or ESXi) and optionally provisions credentials automatically.",
+		Short: helptext.ManagedServerAddVSphereShort,
+		Long:  helptext.ManagedServerAddVSphereLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.name = strings.TrimSpace(opts.name)
@@ -156,8 +157,8 @@ func managedServerAddWindowsCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "windows",
-		Short: "Add a Microsoft Windows managed server",
-		Long:  "Registers a Windows server and can create standard credentials automatically or rely on certificate-based authentication when the deployment kit is installed.",
+		Short: helptext.ManagedServerAddWindowsShort,
+		Long:  helptext.ManagedServerAddWindowsLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.name = strings.TrimSpace(opts.name)
@@ -410,8 +411,8 @@ func managedServerAddLinuxCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "linux",
-		Short: "Add a Linux managed server",
-		Long:  "Registers a Linux managed server. Supports permanent credentials, single-use SSH credentials, or certificate-based pairing when the deployment kit is installed.",
+		Short: helptext.ManagedServerAddLinuxShort,
+		Long:  helptext.ManagedServerAddLinuxLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.name = strings.TrimSpace(opts.name)

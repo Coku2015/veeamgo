@@ -1,0 +1,3151 @@
+[2025-10-20 13:24:26] Log file: /home/v100lab/veeamgo-test-20251020-132426.log
+[2025-10-20 13:24:26] veeamgo binary: /usr/local/bin/veeamgo
+[2025-10-20 13:24:26] jq binary: /usr/bin/jq
+[2025-10-20 13:24:26] Host: Linux v100lab 5.4.0-216-generic #236-Ubuntu SMP Fri Apr 11 19:53:21 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+[2025-10-20 13:24:26] RUN: veeamgo version
+[2025-10-20 13:24:26] CMD: veeamgo --version
+[2025-10-20 13:24:26] STATUS: success
+----- output begin: veeamgo version -----
+dev
+----- output end: veeamgo version -----
+[2025-10-20 13:24:26] RUN: veeamgo help
+[2025-10-20 13:24:26] CMD: veeamgo --help
+[2025-10-20 13:24:26] STATUS: success
+----- output begin: veeamgo help -----
+VeeamGo CLI connects to Veeam Backup & Replication REST API
+
+Usage:
+  veeamgo [command]
+
+Available Commands:
+  add             Create resources
+  clone           Clone resources
+  completion      Generate the autocompletion script for the specified shell
+  delete          Delete resources
+  describe        Describe resources
+  disable         Disable resources
+  edit            Edit resources
+  enable          Enable resources
+  get             Retrieve resources
+  help            Help about any command
+  login           Authenticate with a Veeam Backup & Replication server
+  logout          Remove cached authentication tokens
+  migrate         Migrate resources
+  publish         Publish resources
+  rescan          Trigger rescans
+  retry           Retry resources
+  start           Start resources
+  stop            Stop resources
+  template        Generate starter templates
+
+Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+    -h, --help                 help for veeamgo
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+    -v, --version              version for veeamgo
+
+
+Use "veeamgo [command] --help" for more information about a command.
+----- output end: veeamgo help -----
+[2025-10-20 13:24:31] 
+[2025-10-20 13:24:31] ===== Server =====
+[2025-10-20 13:24:31] RUN: get server info (table)
+[2025-10-20 13:24:31] CMD: veeamgo get server info
+[2025-10-20 13:24:31] STATUS: success
+----- output begin: get server info (table) -----
+Name:              vbr-e869635e
+Platform:          Linux
+VBR uuid:          4693f9f0-ddf6-46be-96d5-6c20fd29584b
+Build Version:     13.0.0.4967
+Database:          PostgreSQL
+Database Version:  PostgreSQL 17.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 11.5.0 20240719 (Red Hat 11.5.0-5), 64-bit
+Database Edition:  
+Patches:           
+----- output end: get server info (table) -----
+[2025-10-20 13:24:31] RUN: get server time (table)
+[2025-10-20 13:24:31] CMD: veeamgo get server time
+[2025-10-20 13:24:31] STATUS: success
+----- output begin: get server time (table) -----
+Server Time:  2025-10-20 21:24:31 (+08:00)
+Timezone:     (UTC+08:00) China Standard Time (Shanghai)
+----- output end: get server time (table) -----
+[2025-10-20 13:24:31] 
+[2025-10-20 13:24:31] ===== Managed Servers =====
+[2025-10-20 13:24:31] RUN: get managedserver (table)
+[2025-10-20 13:24:31] CMD: veeamgo get managedserver --limit 20
+[2025-10-20 13:24:32] STATUS: success
+----- output begin: get managedserver (table) -----
+Name          Type               Status     Description                                                      Id
+10.10.1.200   VMware             Available  Created by .\veeamadmin at 9/13/2025 8:37 PM.                    1dc73954-2f3b-454f-8abd-95feab801805
+10.10.1.201   Microsoft Windows  Available  Microsoft Windows 10.10.1.201 (added via veeamgo on 2025-10-17)  32f860fd-5600-416f-8a3c-ed644dae9e37
+10.10.1.224   Linux              Available  Created by .\veeamadmin at 9/13/2025 9:18 PM.                    6e83061a-fee5-42ee-858d-257a055fac99
+vbr-e869635e  Linux              Available  Backup server                                                    6745a759-2205-4cd2-b172-8ec8f7e60ef8
+----- output end: get managedserver (table) -----
+[2025-10-20 13:24:32] RUN: describe managedserver 1dc73954-2f3b-454f-8abd-95feab801805 (table)
+[2025-10-20 13:24:32] CMD: veeamgo describe managedserver --id 1dc73954-2f3b-454f-8abd-95feab801805
+[2025-10-20 13:24:32] STATUS: success
+----- output begin: describe managedserver 1dc73954-2f3b-454f-8abd-95feab801805 (table) -----
+Name:         10.10.1.200
+Type:         VMware
+Status:       Available
+Description:  Created by .\veeamadmin at 9/13/2025 8:37 PM.
+Id:           1dc73954-2f3b-454f-8abd-95feab801805
+----- output end: describe managedserver 1dc73954-2f3b-454f-8abd-95feab801805 (table) -----
+[2025-10-20 13:24:32] 
+[2025-10-20 13:24:32] ===== Repositories =====
+[2025-10-20 13:24:32] RUN: get repository (table)
+[2025-10-20 13:24:32] CMD: veeamgo get repository --limit 20
+[2025-10-20 13:24:32] STATUS: success
+----- output begin: get repository (table) -----
+Name                       Type                       Host          Path                              Capacity (GB)  Free (GB)  Used (GB)
+Default Backup Repository  Linux Hardened Repository  vbr-e869635e  /var/lib/veeam/backup             216.9          212.3      0
+vbr-local-01               Linux Hardened Repository  vbr-e869635e  /var/lib/veeam/vbr-local-repo-01  216.9          212.3      0.2
+VHR-01                     Linux Hardened Repository  10.10.1.224   /var/lib/veeam/backup             1023.5         979.2      93.3
+----- output end: get repository (table) -----
+[2025-10-20 13:24:32] RUN: describe repository Default Backup Repository (table)
+[2025-10-20 13:24:32] CMD: veeamgo describe repository --name Default Backup Repository
+[2025-10-20 13:24:32] STATUS: success
+----- output begin: describe repository Default Backup Repository (table) -----
+Name:          Default Backup Repository
+Type:          LinuxHardened
+Description:   Created by Veeam Backup
+Host:          vbr-e869635e
+Path:          /var/lib/veeam/backup
+Capacity(GB):  216.9
+Free(GB):      212.3
+Used(GB):      0
+Online:        Yes
+Out of Date:   No
+Id:            88788f9e-d8f5-4eb4-bc4f-9b3f5403bcec
+Config:        
+  description: Created by Veeam Backup
+  hostId: 6745a759-2205-4cd2-b172-8ec8f7e60ef8
+  id: 88788f9e-d8f5-4eb4-bc4f-9b3f5403bcec
+  mountServer:
+      linux:
+          mountServerId: 6745a759-2205-4cd2-b172-8ec8f7e60ef8
+          vPowerNFSEnabled: true
+          vPowerNFSPortSettings:
+              mountPort: 1058
+              vPowerNFSPort: 2049
+          writeCacheFolder: /var/lib/veeamdata/veeam/IRCache/
+      mountServerSettingsType: linux
+  name: Default Backup Repository
+  repository:
+      advancedSettings:
+          RotatedDriveCleanupMode: Disabled
+          alignDataBlocks: true
+          decompressBeforeStoring: false
+          perVmBackup: true
+          rotatedDrives: false
+      makeRecentBackupsImmutableDays: 7
+      maxTaskCount: 4
+      path: /var/lib/veeam/backup
+      readWriteLimitEnabled: false
+      readWriteRate: 0
+      taskLimitEnabled: true
+      useFastCloningOnXFSVolumes: true
+  type: LinuxHardened
+  uniqueId: 88788f9ed8f54eb4bc4f9b3f5403bcec
+----- output end: describe repository Default Backup Repository (table) -----
+[2025-10-20 13:24:32] RUN: get objectrepository (table)
+[2025-10-20 13:24:32] CMD: veeamgo get objectrepository --limit 20
+[2025-10-20 13:24:32] STATUS: success
+----- output begin: get objectrepository (table) -----
+Name  Type  Description  Online  Id
+----- output end: get objectrepository (table) -----
+[2025-10-20 13:24:32] RUN: get sobr (table)
+[2025-10-20 13:24:32] CMD: veeamgo get sobr --limit 20
+[2025-10-20 13:24:33] STATUS: success
+----- output begin: get sobr (table) -----
+Name  Performance Extents  Placement Policy  Strict Placement  Capacity Tier  Archive Tier
+----- output end: get sobr (table) -----
+[2025-10-20 13:24:33] 
+[2025-10-20 13:24:33] ===== WAN Accelerator =====
+[2025-10-20 13:24:33] RUN: get wanaccelerator (table)
+[2025-10-20 13:24:33] CMD: veeamgo get wanaccelerator --limit 20
+[2025-10-20 13:24:33] STATUS: success
+----- output begin: get wanaccelerator (table) -----
+Name  Description  Traffic Port  Streams  High Bandwidth Mode  Cache Folder  Cache Size
+----- output end: get wanaccelerator (table) -----
+[2025-10-20 13:24:33] 
+[2025-10-20 13:24:33] ===== General Options =====
+[2025-10-20 13:24:33] RUN: get generaloption (table)
+[2025-10-20 13:24:33] CMD: veeamgo get generaloption
+[2025-10-20 13:24:33] STATUS: success
+----- output begin: get generaloption (table) -----
+Notifications Enabled:            No
+Storage Space Threshold Alert:    Yes
+Datastore Space Threshold Alert:  Yes
+Skip VM Space Threshold Alert:    Yes
+Support Expiration Alerts:        Yes
+Update Notifications:             Yes
+SIEM SNMP Events:                 No
+SIEM Syslog Events:               No
+Config:                           
+  emailSettings:
+      advancedSmtpOptions:
+          SSLEnabled: false
+          authRequired: false
+          port: 25
+          timeoutMs: 100000
+      from: ""
+      notifyOnFailure: true
+      notifyOnLastRetry: true
+      notifyOnSuccess: true
+      notifyOnWarning: true
+      sendDailyReportsAt: "2019-01-01T22:00:00+08:00"
+      smtpServerName: ""
+      subject: '[%JobResult%] %JobName% (%ObjectCount% objects) %Issues%'
+      to: ""
+  notificationEnabled: false
+  notifications:
+      datastoreSpaceThreshold: 10
+      datastoreSpaceThresholdEnabled: true
+      notifyOnSupportExpiration: true
+      notifyOnUpdates: true
+      skipVMSpaceThreshold: 5
+      skipVMSpaceThresholdEnabled: true
+      storageSpaceThreshold: 10
+      storageSpaceThresholdEnabled: true
+  siemIntegration:
+      SNMPEventsEnabled: false
+      SNMPServers: []
+      SyslogEventsEnabled: false
+      syslogEventFiltering: []
+----- output end: get generaloption (table) -----
+[2025-10-20 13:24:33] 
+[2025-10-20 13:24:33] ===== Jobs & Backups =====
+[2025-10-20 13:24:33] RUN: get job (table)
+[2025-10-20 13:24:33] CMD: veeamgo get job --limit 20
+[2025-10-20 13:24:33] STATUS: success
+----- output begin: get job (table) -----
+Name                 Type                Status   Last Result  Last Run                      Next Run                      Repository
+Backup Job 1_clone1  VMware Backup       Stopped  Success      2025-10-19 22:00:20 (+08:00)  2025-10-20 22:00:00 (+08:00)  VHR-01
+replication test     VMware Replication  Stopped  Success      2025-10-20 20:00:15 (+08:00)  2025-10-21 20:00:00 (+08:00)  Default Backup Repository
+veeamgo_test         VMware Backup       Stopped  Success      2025-10-19 22:00:15 (+08:00)  2025-10-20 22:00:00 (+08:00)  vbr-local-01
+----- output end: get job (table) -----
+[2025-10-20 13:24:33] RUN: describe job Backup Job 1_clone1 (table)
+[2025-10-20 13:24:33] CMD: veeamgo describe job --name Backup Job 1_clone1
+[2025-10-20 13:24:34] STATUS: success
+----- output begin: describe job Backup Job 1_clone1 (table) -----
+Name:             Backup Job 1_clone1
+Type:             VMware Backup
+Workload:         vm
+Description:      Created by .\veeamadmin at 9/16/2025 12:57 PM.
+Status:           Stopped
+Last Result:      Success
+Last Run:         2025-10-19 22:00:20 (+08:00)
+Next Run:         2025-10-20 22:00:00 (+08:00)
+Next Run Policy:  10/20/2025 10:00 PM
+Repository:       VHR-01 (47f8a73a-30cf-46a9-b59d-e5df16ccbf91)
+Objects:          2
+High Priority:    No
+Last Session:     d4271786-9b32-4f24-9aa9-c3b4b50f46e9
+Run After:        
+Disabled:         No
+Config:           
+  description: Created by .\veeamadmin at 9/16/2025 12:57 PM.
+  guestProcessing:
+      appAwareProcessing:
+          isEnabled: false
+      guestCredentials:
+          credentials:
+              credentialsId: 00000000-0000-0000-0000-000000000000
+              credentialsType: Linux
+          credentialsPerMachine:
+              - default: true
+                vmObject:
+                  hostName: 10.10.1.200
+                  isEnabled: false
+                  name: ubuntu
+                  objectId: vm-16
+                  platform: VSphere
+                  size: 0 B
+                  type: VirtualMachine
+              - default: true
+                vmObject:
+                  hostName: 10.10.1.200
+                  isEnabled: false
+                  name: Win001
+                  objectId: vm-15
+                  platform: VSphere
+                  size: 0 B
+                  type: VirtualMachine
+          useAgentManagementCredentials: false
+      guestFSIndexing:
+          isEnabled: false
+      guestInteractionProxies:
+          autoSelectEnabled: true
+          proxyIds: []
+  id: 18b6d24a-7145-4fa3-ab73-496233e33726
+  isDisabled: false
+  isHighPriority: false
+  name: Backup Job 1_clone1
+  schedule:
+      afterThisJob:
+          isEnabled: false
+      backupWindow:
+          backupWindow:
+              days:
+                  - day: sunday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: monday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: tuesday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: wednesday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: thursday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: friday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: saturday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+          isEnabled: false
+      continuously:
+          backupWindow:
+              days:
+                  - day: sunday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: monday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: tuesday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: wednesday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: thursday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: friday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: saturday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+          isEnabled: false
+      daily:
+          dailyKind: Everyday
+          days:
+              - monday
+              - tuesday
+              - wednesday
+              - thursday
+              - friday
+              - saturday
+              - sunday
+          isEnabled: true
+          localTime: "22:00"
+      monthly:
+          dayNumberInMonth: Fourth
+          dayOfWeek: saturday
+          isEnabled: false
+          isLastDayOfMonth: false
+          localTime: "22:00"
+          months:
+              - January
+              - February
+              - March
+              - April
+              - May
+              - June
+              - July
+              - August
+              - September
+              - October
+              - November
+              - December
+      periodically:
+          backupWindow:
+              days:
+                  - day: sunday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: monday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: tuesday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: wednesday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: thursday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: friday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+                  - day: saturday
+                    hours: 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+          frequency: 1
+          isEnabled: false
+          periodicallyKind: Hours
+          startTimeWithinAnHour: 0
+      retry:
+          awaitMinutes: 10
+          isEnabled: true
+          retryCount: 3
+      runAutomatically: true
+  storage:
+      advancedSettings:
+          activeFulls:
+              isEnabled: false
+              monthly:
+                  dayNumberInMonth: First
+                  dayOfMonth: 1
+                  dayOfWeek: monday
+                  isEnabled: false
+                  isLastDayOfMonth: false
+                  localTime: ""
+                  months:
+                      - January
+                      - February
+                      - March
+                      - April
+                      - May
+                      - June
+                      - July
+                      - August
+                      - September
+                      - October
+                      - November
+                      - December
+              weekly:
+                  days:
+                      - saturday
+                  isEnabled: true
+                  localTime: ""
+          backupHealth:
+              isEnabled: false
+              monthly:
+                  dayNumberInMonth: Last
+                  dayOfMonth: 1
+                  dayOfWeek: saturday
+                  isEnabled: true
+                  isLastDayOfMonth: false
+                  localTime: "05:00"
+                  months:
+                      - January
+                      - February
+                      - March
+                      - April
+                      - May
+                      - June
+                      - July
+                      - August
+                      - September
+                      - October
+                      - November
+                      - December
+              weekly:
+                  days:
+                      - saturday
+                  isEnabled: false
+                  localTime: "05:00"
+          backupModeType: Incremental
+          fullBackupMaintenance:
+              RemoveData:
+                  afterDays: 14
+                  isEnabled: false
+              defragmentAndCompact:
+                  isEnabled: false
+                  monthly:
+                      dayNumberInMonth: Last
+                      dayOfMonth: 1
+                      dayOfWeek: saturday
+                      isEnabled: true
+                      isLastDayOfMonth: false
+                      localTime: ""
+                      months:
+                          - January
+                          - February
+                          - March
+                          - April
+                          - May
+                          - June
+                          - July
+                          - August
+                          - September
+                          - October
+                          - November
+                          - December
+                  weekly:
+                      days:
+                          - saturday
+                      isEnabled: false
+                      localTime: ""
+          notifications:
+              emailNotifications:
+                  isEnabled: false
+              sendSNMPNotifications: false
+              vmAttribute:
+                  appendToExistingValue: true
+                  isEnabled: false
+                  notes: Notes
+          scripts:
+              dayOfWeek:
+                  - saturday
+              periodicityType: BackupSessions
+              postCommand:
+                  command: ""
+                  isEnabled: false
+              preCommand:
+                  command: ""
+                  isEnabled: false
+              runScriptEvery: 1
+          storageData:
+              compressionLevel: Optimal
+              encryption:
+                  encryptionType: ByUserPassword
+                  isEnabled: false
+              excludeDeletedFileBlocks: true
+              excludeSwapFileBlocks: true
+              inlineDataDedupEnabled: true
+              storageOptimization: 1MB
+          storageIntegration:
+              failoverToStandardBackup: false
+              isEnabled: true
+              processedVmsCount: 10
+              processedVmsLimitEnabled: false
+          synthenticFulls:
+              isEnabled: true
+              monthly:
+                  dayNumberInMonth: First
+                  dayOfMonth: 1
+                  dayOfWeek: monday
+                  isEnabled: false
+                  isLastDayOfMonth: false
+                  localTime: ""
+                  months:
+                      - January
+                      - February
+                      - March
+                      - April
+                      - May
+                      - June
+                      - July
+                      - August
+                      - September
+                      - October
+                      - November
+                      - December
+              weekly:
+                  days:
+                      - saturday
+                  isEnabled: true
+                  localTime: ""
+          vSphere:
+              changedBlockTracking:
+                  enableCBTautomatically: true
+                  isEnabled: true
+                  resetCBTonActiveFull: true
+              enableVMWareToolsQuiescence: false
+      backupProxies:
+          autoSelectEnabled: true
+          proxyIds: []
+      backupRepositoryId: 47f8a73a-30cf-46a9-b59d-e5df16ccbf91
+      gfsPolicy:
+          isEnabled: false
+          monthly:
+              desiredTime: First
+              isEnabled: false
+              keepForNumberOfMonths: 1
+          weekly:
+              desiredTime: sunday
+              isEnabled: false
+              keepForNumberOfWeeks: 1
+          yearly:
+              desiredTime: January
+              isEnabled: false
+              keepForNumberOfYears: 1
+      retentionPolicy:
+          quantity: 7
+          type: Days
+  type: VSphereBackup
+  virtualMachines:
+      excludes:
+          disks:
+              - disks: []
+                disksToProcess: AllDisks
+                removeFromVMConfiguration: true
+                vmObject:
+                  hostName: 10.10.1.200
+                  isEnabled: true
+                  name: ubuntu
+                  objectId: vm-16
+                  platform: VSphere
+                  size: 12.2 GB
+                  type: VirtualMachine
+                  urn: vc:10.10.1.200;datacenter:datacenter-3;vm:vm-16
+              - disks: []
+                disksToProcess: AllDisks
+                removeFromVMConfiguration: true
+                vmObject:
+                  hostName: 10.10.1.200
+                  isEnabled: true
+                  name: Win001
+                  objectId: vm-15
+                  platform: VSphere
+                  size: 63.8 GB
+                  type: VirtualMachine
+                  urn: vc:10.10.1.200;datacenter:datacenter-3;vm:vm-15
+          templates:
+              excludeFromIncremental: true
+              isEnabled: true
+          vms: []
+      includes:
+          - hostName: 10.10.1.200
+            isEnabled: true
+            name: ubuntu
+            objectId: vm-16
+            platform: VSphere
+            size: 12.2 GB
+            type: VirtualMachine
+            urn: vc:10.10.1.200;datacenter:datacenter-3;vm:vm-16
+          - hostName: 10.10.1.200
+            isEnabled: true
+            name: Win001
+            objectId: vm-15
+            platform: VSphere
+            size: 63.8 GB
+            type: VirtualMachine
+            urn: vc:10.10.1.200;datacenter:datacenter-3;vm:vm-15
+----- output end: describe job Backup Job 1_clone1 (table) -----
+[2025-10-20 13:24:34] RUN: get backup (table)
+[2025-10-20 13:24:34] CMD: veeamgo get backup --limit 20
+[2025-10-20 13:24:34] STATUS: success
+----- output begin: get backup (table) -----
+Name                          Backup ID                             Job                                   Job Type       Repository    Created
+veeamgo_test                  019760bd-1e1a-4be5-9830-9f31527bc7e3  6fd337b2-3d24-4820-9867-43125a9b7f0a  VSphereBackup  vbr-local-01  2025-10-15 22:00:27 (+08:00)
+ubuntu_2025-10-14_2025-10-21  27d39803-f2f2-4544-96a0-5f18ad8164c2  (deleted job)                         VSphereBackup  VHR-01        2025-10-14 22:24:59 (+08:00)
+Backup Job 1_clone1           f2942be1-8eee-4537-8683-a57bd88180ad  18b6d24a-7145-4fa3-ab73-496233e33726  VSphereBackup  VHR-01        2025-10-14 19:59:47 (+08:00)
+Backup Job 1                  635aa52d-7df8-4d02-8769-3efba381a834  (deleted job)                         VSphereBackup  VHR-01        2025-09-16 12:57:55 (+08:00)
+----- output end: get backup (table) -----
+[2025-10-20 13:24:34] RUN: get restorepoint for Backup Job 1_clone1 (table)
+[2025-10-20 13:24:34] CMD: veeamgo get restorepoint --name Backup Job 1_clone1 --limit 20
+[2025-10-20 13:24:34] STATUS: success
+----- output begin: get restorepoint for Backup Job 1_clone1 (table) -----
+Object Name  Type       Platform  Created At                    Job Name             Malware Status  Id
+Win001       Increment  VMware    2025-10-19 22:02:16 (+08:00)  Backup Job 1_clone1  Clean           30d65f6a-8498-4c2b-bd2d-2041947be3e8
+ubuntu       Increment  VMware    2025-10-19 22:01:52 (+08:00)  Backup Job 1_clone1  Clean           2866f66e-93d4-4ff5-a369-02a52a9f03c3
+Win001       Full       VMware    2025-10-18 22:02:10 (+08:00)  Backup Job 1_clone1  Clean           16b959b2-dccd-433b-8391-3ff764135f85
+ubuntu       Full       VMware    2025-10-18 22:01:47 (+08:00)  Backup Job 1_clone1  Clean           9b8bf01f-4576-450a-b61c-f19d2f015b64
+Win001       Increment  VMware    2025-10-17 22:02:20 (+08:00)  Backup Job 1_clone1  Clean           06961df0-bc59-4939-831e-a889e1eb3ad1
+ubuntu       Increment  VMware    2025-10-17 22:01:57 (+08:00)  Backup Job 1_clone1  Clean           884871b1-8ec3-4da7-8cd9-80908d120b51
+Win001       Increment  VMware    2025-10-16 22:02:20 (+08:00)  Backup Job 1_clone1  Clean           f2a9906d-0504-4631-899b-b0c34b96ffc1
+ubuntu       Increment  VMware    2025-10-16 22:01:53 (+08:00)  Backup Job 1_clone1  Clean           c193235b-2689-407e-9789-fe82a7a50e8e
+Win001       Increment  VMware    2025-10-16 10:48:52 (+08:00)  Backup Job 1_clone1  Clean           3018c515-a55d-47e2-8f44-3f78d1ac2f24
+ubuntu       Increment  VMware    2025-10-16 10:48:29 (+08:00)  Backup Job 1_clone1  Clean           e94c6826-f7de-4871-9916-1507df04fcad
+Win001       Increment  VMware    2025-10-15 22:02:18 (+08:00)  Backup Job 1_clone1  Clean           18215650-c815-4cd0-ac7c-0660f1f3878e
+ubuntu       Increment  VMware    2025-10-15 22:01:55 (+08:00)  Backup Job 1_clone1  Clean           cc06f4dd-adb9-45fb-9c4c-ff234ec6e556
+Win001       Increment  VMware    2025-10-14 22:12:07 (+08:00)  Backup Job 1_clone1  Clean           05958a3f-fa1e-41b8-a52c-af68928afa6c
+Win001       Increment  VMware    2025-10-14 22:06:58 (+08:00)  Backup Job 1_clone1  Clean           3f445778-aaef-4273-9dcd-c2957386b775
+Win001       Increment  VMware    2025-10-14 22:02:11 (+08:00)  Backup Job 1_clone1  Clean           e4e02d1a-64a9-49d5-b33b-31ff04ed9117
+ubuntu       Increment  VMware    2025-10-14 22:01:53 (+08:00)  Backup Job 1_clone1  Clean           8ce6deb8-a704-42ec-8f1a-30822b29bec1
+Win001       Full       VMware    2025-10-14 20:02:06 (+08:00)  Backup Job 1_clone1  Clean           7706d922-10fb-4a81-a6b5-8c3e30a2c9ac
+ubuntu       Full       VMware    2025-10-14 20:01:28 (+08:00)  Backup Job 1_clone1  Clean           5070669c-d317-4aa6-8b1f-9bc346c78fff
+----- output end: get restorepoint for Backup Job 1_clone1 (table) -----
+[2025-10-20 13:24:34] 
+[2025-10-20 13:24:35] ===== Instant Recovery & Replicas =====
+[2025-10-20 13:24:35] RUN: get instantrecovery (table)
+[2025-10-20 13:24:35] CMD: veeamgo get instantrecovery --all --limit 20
+[2025-10-20 13:24:35] STATUS: success
+----- output begin: get instantrecovery (table) -----
+Id  Platform  Object  Job  Host  State  Restore Point  Mode  Error
+----- output end: get instantrecovery (table) -----
+[2025-10-20 13:24:35] RUN: get replica for Backup Job 1_clone1 (table)
+[2025-10-20 13:24:35] CMD: veeamgo get replica --name Backup Job 1_clone1 --limit 20
+[2025-10-20 13:24:35] STATUS: failure (exit 1)
+----- output begin: get replica for Backup Job 1_clone1 (table) -----
+2025/10/20 13:24:35 error: no replicas found for job "Backup Job 1_clone1"
+----- output end: get replica for Backup Job 1_clone1 (table) -----
+[2025-10-20 13:24:35] 
+[2025-10-20 13:24:35] ===== Proxies =====
+[2025-10-20 13:24:35] RUN: get proxy (table)
+[2025-10-20 13:24:35] CMD: veeamgo get proxy --limit 20
+[2025-10-20 13:24:35] STATUS: success
+----- output begin: get proxy (table) -----
+Name                 Type           Host         Max Tasks  Online  Disabled  Out Of Date
+Backup Proxy         General Proxy  This server  2          Yes     No        No
+VMware Backup Proxy  VMware Proxy   This server  8          Yes     No        No
+----- output end: get proxy (table) -----
+[2025-10-20 13:24:35] RUN: describe proxy Backup Proxy (table)
+[2025-10-20 13:24:35] CMD: veeamgo describe proxy --name Backup Proxy
+[2025-10-20 13:24:36] STATUS: success
+----- output begin: describe proxy Backup Proxy (table) -----
+ID:                        50cbf622-129e-482a-9197-d67e5bb1fb1f
+Name:                      Backup Proxy
+Type:                      General Proxy
+API Type:                  GeneralPurposeProxy
+Description:               Created by Veeam Backup & Replication
+Host ID:                   6745a759-2205-4cd2-b172-8ec8f7e60ef8
+Host:                      This server
+Max Tasks:                 2
+Transport Mode:            
+Failover To Network:       No
+Host To Proxy Encryption:  No
+Auto Select Datastores:    No
+Connected Datastores:      
+----- output end: describe proxy Backup Proxy (table) -----
+[2025-10-20 13:24:36] 
+[2025-10-20 13:24:36] ===== Traffic Rules & Exclusions =====
+[2025-10-20 13:24:36] RUN: get trafficrule (table)
+[2025-10-20 13:24:36] CMD: veeamgo get trafficrule
+[2025-10-20 13:24:36] STATUS: success
+----- output begin: get trafficrule (table) -----
+Name      Source Range  Target Range  Encryption  Throttling  Limit Value  Limit Unit   Time Window
+Internet  Any           Internet      Yes         No          1            MbitPerSpec  No
+----- output end: get trafficrule (table) -----
+[2025-10-20 13:24:36] RUN: get exclusionvm (table)
+[2025-10-20 13:24:36] CMD: veeamgo get exclusionvm --limit 20
+[2025-10-20 13:24:36] STATUS: success
+----- output begin: get exclusionvm (table) -----
+id  name  platform  note
+----- output end: get exclusionvm (table) -----
+[2025-10-20 13:24:36] 
+[2025-10-20 13:24:36] ===== Inventory =====
+[2025-10-20 13:24:36] RUN: get inventory virtualinfra (table)
+[2025-10-20 13:24:36] CMD: veeamgo get inventory virtualinfra --limit 20
+[2025-10-20 13:24:36] STATUS: success
+----- output begin: get inventory virtualinfra (table) -----
+Name         Type           Host         Size      Platform
+10.10.1.200  vCenterServer  10.10.1.200  372.1 GB  VSphere
+----- output end: get inventory virtualinfra (table) -----
+[2025-10-20 13:24:36] RUN: describe inventory virtualinfra 10.10.1.200 (table)
+[2025-10-20 13:24:36] CMD: veeamgo describe inventory virtualinfra --name 10.10.1.200
+[2025-10-20 13:24:37] STATUS: success
+----- output begin: describe inventory virtualinfra 10.10.1.200 (table) -----
+Name:       10.10.1.200
+Type:       vCenterServer
+Host:       10.10.1.200
+Object ID:  10.10.1.200
+URN:        vc:10.10.1.200
+Platform:   VSphere
+Size:       372.1 GB
+----- output end: describe inventory virtualinfra 10.10.1.200 (table) -----
+[2025-10-20 13:24:37] RUN: get inventory virtualinfra objects for 10.10.1.200 (table)
+[2025-10-20 13:24:37] CMD: veeamgo get inventory virtualinfra objects --name 10.10.1.200 --limit 20
+[2025-10-20 13:24:37] STATUS: success
+----- output begin: get inventory virtualinfra objects for 10.10.1.200 (table) -----
+Name                      Type            Host         Object ID     Size
+10.10.1.200               vCenterServer   10.10.1.200  10.10.1.200   372.1 GB
+Datacenter                Datacenter      10.10.1.200  datacenter-3  372.1 GB
+V100PROD                  Cluster         10.10.1.200  domain-c1001  109 GB
+TinyLinux_replica         VirtualMachine  10.10.1.200  vm-5019       294 MB
+Win001                    VirtualMachine  10.10.1.200  vm-15         63.8 GB
+ubuntu                    VirtualMachine  10.10.1.200  vm-16         12.2 GB
+v100_AD                   VirtualMachine  10.10.1.200  vm-14         32.8 GB
+10.10.1.100               Host            10.10.1.200  host-10       109 GB
+V100DR                    Cluster         10.10.1.200  domain-c1004  263.1 GB
+ubuntu_replica            VirtualMachine  10.10.1.200  vm-5112       221 GB
+Virtual_Lab               VirtualMachine  10.10.1.200  vm-5046       231.4 KB
+TinyLinux                 VirtualMachine  10.10.1.200  vm-22         484.8 MB
+Entire_TinyLinux          VirtualMachine  10.10.1.200  vm-5011       147 MB
+v100_SQL                  VirtualMachine  10.10.1.200  vm-21         41.4 GB
+TinyLinux_20250911_guogm  VirtualMachine  10.10.1.200  vm-5009       147.3 MB
+10.10.1.101               Host            10.10.1.200  host-19       263.1 GB
+----- output end: get inventory virtualinfra objects for 10.10.1.200 (table) -----
+[2025-10-20 13:24:37] RUN: get inventory unstructured (table)
+[2025-10-20 13:24:37] CMD: veeamgo get inventory unstructured --limit 20
+[2025-10-20 13:24:37] STATUS: success
+----- output begin: get inventory unstructured (table) -----
+Name             Type      Location         ID
+\\10.10.1.50\c$  SMBShare  \\10.10.1.50\c$  88f3ba8c-d898-45d3-81b2-0975b2653cbd
+----- output end: get inventory unstructured (table) -----
+[2025-10-20 13:24:37] 
+[2025-10-20 13:24:37] ===== Sessions & Tasks =====
+[2025-10-20 13:24:37] RUN: get session (table)
+[2025-10-20 13:24:37] CMD: veeamgo get session --limit 20
+[2025-10-20 13:24:37] STATUS: success
+----- output begin: get session (table) -----
+Name                                  Type                          State    Result   Progress  Created                       Ended                         Session ID
+Rescan of Protection Group 1          AgentDiscovery                Stopped  Failed   100%      2025-10-20 21:00:06 (+08:00)  2025-10-20 21:02:51 (+08:00)  1d5a6c45-1cfc-4833-9718-b9fd86cd10ac
+Host Discovery                        VolumesDiscover               Stopped  Warning  100%      2025-10-20 20:57:56 (+08:00)  2025-10-20 20:59:44 (+08:00)  5de772bc-57c1-4d85-86ac-82d419145752
+replication test (Incremental)        ReplicaJob                    Stopped  Success  100%      2025-10-20 20:00:15 (+08:00)  2025-10-20 20:26:21 (+08:00)  9b849cb9-909e-484f-bd4c-efa055f8cc4d
+Host Discovery                        VolumesDiscover               Stopped  Warning  100%      2025-10-20 16:57:55 (+08:00)  2025-10-20 16:59:14 (+08:00)  7e7c9ca6-9b7b-4cb0-9d5a-b8422e6cfb5f
+Host Discovery                        VolumesDiscover               Stopped  Warning  100%      2025-10-20 12:57:55 (+08:00)  2025-10-20 12:59:44 (+08:00)  1108f145-d4ab-42d0-91db-1befce964142
+Win001                                PublishBackupContentViaMount  Stopped  Failed   100%      2025-10-20 10:47:13 (+08:00)  2025-10-20 10:47:14 (+08:00)  3d757d12-a780-40be-b14a-b9ef0b16b0e8
+Configuration Database Resynchronize  ConfigurationResynchronize    Stopped  Success  100%      2025-10-20 10:43:56 (+08:00)  2025-10-20 10:44:08 (+08:00)  fca21a87-2486-45be-b886-5530128a230c
+Backup Configuration Job              ConfigurationBackup           Stopped  Warning  100%      2025-10-20 10:00:17 (+08:00)  2025-10-20 10:00:37 (+08:00)  63e0c40f-d554-4e6d-94b4-dca7260536bf
+Host Discovery                        VolumesDiscover               Stopped  Warning  100%      2025-10-20 08:57:32 (+08:00)  2025-10-20 08:59:12 (+08:00)  234900e9-659f-43c2-ac47-f3fba7b7a3bc
+Host Discovery                        VolumesDiscover               Stopped  Warning  100%      2025-10-20 04:57:09 (+08:00)  2025-10-20 04:58:29 (+08:00)  ff3dafb1-5505-405d-a0df-8e00cafc4b57
+Host Discovery                        VolumesDiscover               Stopped  Warning  100%      2025-10-20 00:56:47 (+08:00)  2025-10-20 00:59:35 (+08:00)  d4eeaad5-4f7e-4841-bff4-debbc80fea13
+Retention job                         Retention                     Stopped  Success  100%      2025-10-20 00:30:02 (+08:00)  2025-10-20 00:30:15 (+08:00)  10763912-7030-4cbf-8c2c-ef62bccab411
+Malware Detection                     MalwareDetection              Working  None     0%        2025-10-20 00:00:20 (+08:00)                                ab8f766b-5425-4466-92df-bc913e5b49bc
+Security & Compliance Analyzer        SecurityComplianceAnalyzer    Stopped  Warning  100%      2025-10-19 22:00:20 (+08:00)  2025-10-19 22:02:47 (+08:00)  ef9604ef-1223-4816-9879-167c91d61bb0
+Rescan of Manually Added              AgentDiscovery                Stopped  Success  100%      2025-10-19 22:00:20 (+08:00)  2025-10-19 22:00:37 (+08:00)  9c346d29-b305-4bcc-b8e9-ffa85361e5e1
+Backup Job 1_clone1 (Incremental)     BackupJob                     Stopped  Success  100%      2025-10-19 22:00:20 (+08:00)  2025-10-19 22:02:39 (+08:00)  d4271786-9b32-4f24-9aa9-c3b4b50f46e9
+veeamgo_test (Incremental)            BackupJob                     Stopped  Success  100%      2025-10-19 22:00:15 (+08:00)  2025-10-19 22:02:19 (+08:00)  6b875cd5-af6e-42b8-94d9-f5c719922cd4
+Configuration Database Resynchronize  ConfigurationResynchronize    Stopped  Success  100%      2025-10-19 21:22:14 (+08:00)  2025-10-19 21:22:26 (+08:00)  7aa356a7-bddb-45a3-91f3-272b8708a200
+Rescan of Protection Group 1          AgentDiscovery                Stopped  Failed   100%      2025-10-19 21:00:04 (+08:00)  2025-10-19 21:02:50 (+08:00)  2a06d75b-5795-4e11-abaa-939ef59e08fb
+Host Discovery                        VolumesDiscover               Stopped  Warning  100%      2025-10-19 20:56:47 (+08:00)  2025-10-19 20:58:58 (+08:00)  4558689a-5974-498d-bb3f-ef929cfddec3
+----- output end: get session (table) -----
+[2025-10-20 13:24:37] RUN: describe session 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac (table)
+[2025-10-20 13:24:37] CMD: veeamgo describe session --id 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac
+[2025-10-20 13:24:37] STATUS: success
+----- output begin: describe session 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac (table) -----
+ID:                  1d5a6c45-1cfc-4833-9718-b9fd86cd10ac
+Name:                Rescan of Protection Group 1
+Type:                AgentDiscovery
+State:               Stopped
+Result:              Failed (Rescan failed, check session log for details.)
+Progress:            100%
+Created:             2025-10-20 21:00:06 (+08:00)
+Ended:               2025-10-20 21:02:51 (+08:00)
+Job ID:              a41f9265-63e5-4f52-a805-2569deca1ab4
+Parent Session ID:   
+Resource ID:         
+Resource Reference:  
+Platform:            WindowsPhysical
+Initiated By:        veeam-usr-vbr
+----- output end: describe session 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac (table) -----
+[2025-10-20 13:24:37] RUN: get session logs 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac (table)
+[2025-10-20 13:24:37] CMD: veeamgo get session logs --id 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac
+[2025-10-20 13:24:38] STATUS: success
+----- output begin: get session logs 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac (table) -----
+ID     Status     Started                       Updated                       Title                                              Description  Additional Info
+27932  Succeeded  2025-10-20 21:00:10 (+08:00)  2025-10-20 21:00:10 (+08:00)  Job started at 10/20/2025 9:00:06 PM                            
+27933  Succeeded  2025-10-20 21:00:10 (+08:00)  2025-10-20 21:02:51 (+08:00)  Performing rescan                                               
+27937  Succeeded  2025-10-20 21:02:44 (+08:00)  2025-10-20 21:02:44 (+08:00)  0 hosts processed                                               
+27938  Failed     2025-10-20 21:02:44 (+08:00)  2025-10-20 21:02:44 (+08:00)  Failed to process 1 host                                        
+27939  Failed     2025-10-20 21:02:51 (+08:00)  2025-10-20 21:02:51 (+08:00)  Job finished with error at 10/20/2025 9:02:51 PM                
+----- output end: get session logs 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac (table) -----
+[2025-10-20 13:24:38] RUN: get task (table)
+[2025-10-20 13:24:38] CMD: veeamgo get task --limit 20
+[2025-10-20 13:24:38] STATUS: success
+----- output begin: get task (table) -----
+Name        Type     Session Type    State    Result   Progress  Created                       Ended                         Session ID                            Task ID
+10.10.1.50  Backup   AgentDiscovery  Stopped  Failed   100%      2025-10-21 05:00:11 (+08:00)  2025-10-21 05:02:44 (+08:00)  1d5a6c45-1cfc-4833-9718-b9fd86cd10ac  b70b4e22-d92c-48d5-9c58-0620a1af9a68
+ubuntu      Replica  ReplicaJob      Stopped  Success  100%      2025-10-21 04:01:37 (+08:00)  2025-10-21 04:26:03 (+08:00)  9b849cb9-909e-484f-bd4c-efa055f8cc4d  9428ec0c-25ce-4062-849c-e2d9964a7b78
+Win001      Backup   BackupJob       Stopped  Success  100%      2025-10-20 06:02:09 (+08:00)  2025-10-20 06:02:36 (+08:00)  d4271786-9b32-4f24-9aa9-c3b4b50f46e9  7720aad7-d038-45f5-a5b0-bc64a44a9fc6
+TinyLinux   Backup   BackupJob       Stopped  Success  100%      2025-10-20 06:01:44 (+08:00)  2025-10-20 06:02:14 (+08:00)  6b875cd5-af6e-42b8-94d9-f5c719922cd4  5e25909f-422e-45a4-b8fa-4a1064d93ca1
+ubuntu      Backup   BackupJob       Stopped  Success  100%      2025-10-20 06:01:44 (+08:00)  2025-10-20 06:02:15 (+08:00)  d4271786-9b32-4f24-9aa9-c3b4b50f46e9  89b88c27-8a2f-4a93-894b-16a1b10dd834
+10.10.1.50  Backup   AgentDiscovery  Stopped  Failed   100%      2025-10-20 05:00:10 (+08:00)  2025-10-20 05:02:42 (+08:00)  2a06d75b-5795-4e11-abaa-939ef59e08fb  32ab57ca-731a-4e76-8b4f-cf6c2380fc7b
+ubuntu      Replica  ReplicaJob      Stopped  Success  100%      2025-10-20 04:01:32 (+08:00)  2025-10-20 04:02:50 (+08:00)  5842742d-bc0a-4cac-b4f5-a45c8b58572a  d97e2a9a-3f93-4623-af46-0a2e66857bba
+Win001      Backup   BackupJob       Stopped  Success  100%      2025-10-19 06:02:03 (+08:00)  2025-10-19 06:02:38 (+08:00)  71166a9e-24bc-4062-a811-4513d68b90e4  3641736d-b7ff-4fb1-b4bc-c2aba415073d
+TinyLinux   Backup   BackupJob       Stopped  Success  100%      2025-10-19 06:01:39 (+08:00)  2025-10-19 06:02:17 (+08:00)  c8c757e7-7636-4b6a-bdab-dcfd9f83e32c  2dbef3cb-31ef-47fe-911b-f6c9cdf6e570
+ubuntu      Backup   BackupJob       Stopped  Success  100%      2025-10-19 06:01:39 (+08:00)  2025-10-19 06:02:20 (+08:00)  71166a9e-24bc-4062-a811-4513d68b90e4  be1706b6-75e0-4baf-a4d7-a7b72e27de94
+10.10.1.50  Backup   AgentDiscovery  Stopped  Failed   100%      2025-10-19 05:00:09 (+08:00)  2025-10-19 05:02:42 (+08:00)  3290e14e-a6ee-47ed-9823-cb766ba2e25e  bcbbc197-f8d4-4e7f-befe-8392b0a7594b
+ubuntu      Replica  ReplicaJob      Stopped  Success  100%      2025-10-19 04:01:35 (+08:00)  2025-10-19 04:02:56 (+08:00)  32832b14-524e-449e-9968-b524767e283b  1adab6e6-fc9d-4465-a85b-5dc3e39db103
+Win001      Backup   BackupJob       Stopped  Success  100%      2025-10-18 06:02:13 (+08:00)  2025-10-18 06:02:39 (+08:00)  adc79fec-818c-4d98-bf9b-d635f4d3816d  6b26680f-7ba5-491b-a2c6-2d2cbf5193e9
+ubuntu      Backup   BackupJob       Stopped  Success  100%      2025-10-18 06:01:49 (+08:00)  2025-10-18 06:02:19 (+08:00)  adc79fec-818c-4d98-bf9b-d635f4d3816d  f205d9e6-1c0f-4856-8814-7e12b3dfa513
+TinyLinux   Backup   BackupJob       Stopped  Success  100%      2025-10-18 06:01:49 (+08:00)  2025-10-18 06:02:18 (+08:00)  eeaa6020-efac-4343-a910-2dd8b3a29da2  1bc69c85-2081-4aa7-8733-cf28fe567430
+10.10.1.50  Backup   AgentDiscovery  Stopped  Failed   100%      2025-10-18 05:00:09 (+08:00)  2025-10-18 05:02:41 (+08:00)  ca5b048c-8bd0-44aa-8e14-d0ed063df644  5c9f47c5-88db-4431-881d-cfce20a20607
+ubuntu      Replica  ReplicaJob      Stopped  Success  100%      2025-10-18 04:01:34 (+08:00)  2025-10-18 04:02:44 (+08:00)  7eb5178e-fa58-4de6-a325-fac0f4be2cb1  30d63775-1335-4ea6-b407-e7ef6b036c84
+ubuntu      Replica  ReplicaJob      Stopped  Success  100%      2025-10-17 21:24:02 (+08:00)  2025-10-17 21:25:21 (+08:00)  1c7b2dc6-6505-4090-a4c8-112df491d426  412d76f7-08bf-4047-9eda-893fe2d1f284
+Win001      Backup   BackupJob       Stopped  Success  100%      2025-10-17 06:02:13 (+08:00)  2025-10-17 06:02:44 (+08:00)  8f736845-6c8c-4a1a-aecf-ef7277292af4  456d8494-9d24-48b4-a912-564c9c7fc1ce
+ubuntu      Backup   BackupJob       Stopped  Success  100%      2025-10-17 06:01:43 (+08:00)  2025-10-17 06:02:16 (+08:00)  8f736845-6c8c-4a1a-aecf-ef7277292af4  52111c78-f1a3-4f2d-871f-c4c6d08731bc
+----- output end: get task (table) -----
+[2025-10-20 13:24:38] RUN: describe task b70b4e22-d92c-48d5-9c58-0620a1af9a68 (table)
+[2025-10-20 13:24:38] CMD: veeamgo describe task --id b70b4e22-d92c-48d5-9c58-0620a1af9a68
+[2025-10-20 13:24:38] STATUS: success
+----- output begin: describe task b70b4e22-d92c-48d5-9c58-0620a1af9a68 (table) -----
+Task ID:       b70b4e22-d92c-48d5-9c58-0620a1af9a68
+Name:          10.10.1.50
+Type:          Backup
+Session Type:  AgentDiscovery
+Session ID:    1d5a6c45-1cfc-4833-9718-b9fd86cd10ac
+State:         Stopped
+Result:        Failed (Unable to install backup agent: failed to connect to 10.10.1.50 Error: Failed to install or connect to the Deployement Kit. (Attempting to apply parameters 10.10.1.50:6160: Access is denied. Ensure Kerberos credentials are specified in FQDN\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with 'Administrator@V100LAB.LOCAL' (V100LAB.LOCAL\Administrator) to access '10.10.1.50' not possible. ]. ) (Attempting to apply parameters 10.10.1.50:11731: Access is denied. Ensure Kerberos credentials are specified in FQDN\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with 'Administrator@V100LAB.LOCAL' (V100LAB.LOCAL\Administrator) to access '10.10.1.50' not possible. ]. ).)
+Progress:      100%
+Created:       2025-10-21 05:00:11 (+08:00)
+Ended:         2025-10-21 05:02:44 (+08:00)
+Payload:       
+  algorithm: None
+  creationTime: 2025-10-20T21:00:11.425935
+  endTime: 2025-10-20T21:02:44.153649
+  id: b70b4e22-d92c-48d5-9c58-0620a1af9a68
+  name: 10.10.1.50
+  progress:
+      bottleneck: NotDefined
+      duration: "00:02:32"
+      processedSize: 0
+      processingRate: N/A
+      progressPercent: 100
+      readSize: 0
+      transferredSize: 0
+  repositoryId: 00000000-0000-0000-0000-000000000000
+  result:
+      isCanceled: false
+      message: 'Unable to install backup agent: failed to connect to 10.10.1.50 Error: Failed to install or connect to the Deployement Kit. (Attempting to apply parameters 10.10.1.50:6160: Access is denied. Ensure Kerberos credentials are specified in FQDN\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with ''Administrator@V100LAB.LOCAL'' (V100LAB.LOCAL\Administrator) to access ''10.10.1.50'' not possible. ]. ) (Attempting to apply parameters 10.10.1.50:11731: Access is denied. Ensure Kerberos credentials are specified in FQDN\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with ''Administrator@V100LAB.LOCAL'' (V100LAB.LOCAL\Administrator) to access ''10.10.1.50'' not possible. ]. ).'
+      result: Failed
+  sessionId: 1d5a6c45-1cfc-4833-9718-b9fd86cd10ac
+  sessionType: AgentDiscovery
+  state: Stopped
+  type: Backup
+  usn: 346385
+----- output end: describe task b70b4e22-d92c-48d5-9c58-0620a1af9a68 (table) -----
+[2025-10-20 13:24:38] RUN: get task logs b70b4e22-d92c-48d5-9c58-0620a1af9a68 (table)
+[2025-10-20 13:24:38] CMD: veeamgo get task logs --id b70b4e22-d92c-48d5-9c58-0620a1af9a68
+[2025-10-20 13:24:38] STATUS: success
+----- output begin: get task logs b70b4e22-d92c-48d5-9c58-0620a1af9a68 (table) -----
+ID     Status     Started                       Updated                       Title                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Description  Additional Info
+27934  Succeeded  2025-10-20 21:00:11 (+08:00)  2025-10-20 21:00:11 (+08:00)  Processing 10.10.1.50                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+27935  Failed     2025-10-20 21:02:44 (+08:00)  2025-10-20 21:02:44 (+08:00)  Unable to install backup agent: failed to connect to 10.10.1.50 Error: Failed to install or connect to the Deployement Kit. (Attempting to apply parameters 10.10.1.50:6160: Access is denied. Ensure Kerberos credentials are specified in FQDN\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with 'Administrator@V100LAB.LOCAL' (V100LAB.LOCAL\Administrator) to access '10.10.1.50' not possible. ]. ) (Attempting to apply parameters 10.10.1.50:11731: Access is denied. Ensure Kerberos credentials are specified in FQDN\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with 'Administrator@V100LAB.LOCAL' (V100LAB.LOCAL\Administrator) to access '10.10.1.50' not possible. ]. ).               
+27936  Failed     2025-10-20 21:02:44 (+08:00)  2025-10-20 21:02:44 (+08:00)  Processing finished with errors at 10/20/2025 9:02:44 PM                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+----- output end: get task logs b70b4e22-d92c-48d5-9c58-0620a1af9a68 (table) -----
+[2025-10-20 13:24:38] 
+[2025-10-20 13:24:38] ===== Malware Detection =====
+[2025-10-20 13:24:38] RUN: get malwaredetectionevent (table)
+[2025-10-20 13:24:38] CMD: veeamgo get malwaredetectionevent --limit 20
+[2025-10-20 13:24:38] STATUS: success
+----- output begin: get malwaredetectionevent (table) -----
+Event ID  Type  Severity  State  Source  Engine  Machine  Detected At  Created At  Created By  Details
+----- output end: get malwaredetectionevent (table) -----
+[2025-10-20 13:24:38] RUN: get yararule (table)
+[2025-10-20 13:24:38] CMD: veeamgo get yararule
+[2025-10-20 13:24:39] STATUS: success
+----- output begin: get yararule (table) -----
+File Name
+FindFileByHash.yara
+FindFileByParameters.yara
+FindString.yara
+----- output end: get yararule (table) -----
+[2025-10-20 13:24:39] 
+[2025-10-20 13:24:39] ===== Published Disks =====
+[2025-10-20 13:24:39] RUN: get publisheddisk (table)
+[2025-10-20 13:24:39] CMD: veeamgo get publisheddisk --all --limit 20
+[2025-10-20 13:24:39] STATUS: success
+----- output begin: get publisheddisk (table) -----
+Id  Restore Point  Mode  State  Target  IPs  Port  Error
+----- output end: get publisheddisk (table) -----
+[2025-10-20 13:24:39] 
+[2025-10-20 13:24:39] ===== License =====
+[2025-10-20 13:24:39] RUN: get license summary (table)
+[2025-10-20 13:24:39] CMD: veeamgo get license summary
+[2025-10-20 13:24:39] STATUS: success
+----- output begin: get license summary (table) -----
+Licensed To                           Edition         Type  Status  Expires At                    Support Expires At
+Veeam Software - Activities Tracking  EnterprisePlus  NFR   Valid   2026-09-05 08:00:00 (+08:00)  
+----- output end: get license summary (table) -----
+[2025-10-20 13:24:39] RUN: get license sockets (table)
+[2025-10-20 13:24:39] CMD: veeamgo get license sockets --limit 20
+[2025-10-20 13:24:40] STATUS: success
+----- output begin: get license sockets (table) -----
+Workload  Host  Type  Sockets  Cores  Host ID
+----- output end: get license sockets (table) -----
+[2025-10-20 13:24:40] RUN: get license instances (table)
+[2025-10-20 13:24:40] CMD: veeamgo get license instances --limit 20
+[2025-10-20 13:24:40] STATUS: success
+----- output begin: get license instances (table) -----
+Workload   Host         Type  Platform  Used Instances  Revocable
+TinyLinux  10.10.1.200  VM    VMware    1.00            Yes
+Win001     10.10.1.200  VM    VMware    1.00            Yes
+ubuntu     10.10.1.200  VM    VMware    1.00            Yes
+----- output end: get license instances (table) -----
+[2025-10-20 13:24:40] RUN: get license capacity (table)
+[2025-10-20 13:24:40] CMD: veeamgo get license capacity --limit 20
+[2025-10-20 13:24:40] STATUS: success
+----- output begin: get license capacity (table) -----
+Workload  Type  Used (TB)  Instance ID
+----- output end: get license capacity (table) -----
+[2025-10-20 13:24:40] 
+[2025-10-20 13:24:40] ===== Configuration Backup =====
+[2025-10-20 13:24:40] RUN: describe configurationbackup (table)
+[2025-10-20 13:24:40] CMD: veeamgo describe configurationbackup
+[2025-10-20 13:24:40] STATUS: success
+----- output begin: describe configurationbackup (table) -----
+Enabled:                 Yes
+Repository ID:           88788f9e-d8f5-4eb4-bc4f-9b3f5403bcec
+Restore Points To Keep:  10
+Encryption Enabled:      No
+Encryption Password ID:  00000000-0000-0000-0000-000000000000
+Last Successful Run:     2025-10-20 10:00:37 (+08:00)
+Last Session ID:         63e0c40f-d554-4e6d-94b4-dca7260536bf
+----- output end: describe configurationbackup (table) -----
+[2025-10-20 13:24:40] 
+[2025-10-20 13:24:40] ===== JSON Phase =====
+[2025-10-20 13:24:40] RUN: get repository (json)
+[2025-10-20 13:24:40] CMD: veeamgo get repository --limit 5 --output json
+[2025-10-20 13:24:40] STATUS: success
+----- output begin: get repository (json) -----
+[
+  {
+    "id": "88788f9e-d8f5-4eb4-bc4f-9b3f5403bcec",
+    "name": "Default Backup Repository",
+    "type": "LinuxHardened",
+    "description": "Created by Veeam Backup",
+    "hostId": "6745a759-2205-4cd2-b172-8ec8f7e60ef8",
+    "hostName": "vbr-e869635e",
+    "path": "/var/lib/veeam/backup",
+    "capacityGB": 216.9,
+    "freeGB": 212.3,
+    "usedSpaceGB": 0,
+    "isOnline": true,
+    "isOutOfDate": false
+  },
+  {
+    "id": "de95e786-f428-4dd0-a336-dc21423ef57f",
+    "name": "vbr-local-01",
+    "type": "LinuxHardened",
+    "description": "Created by .\\veeamadmin at 9/16/2025 11:46 AM.",
+    "hostId": "6745a759-2205-4cd2-b172-8ec8f7e60ef8",
+    "hostName": "vbr-e869635e",
+    "path": "/var/lib/veeam/vbr-local-repo-01",
+    "capacityGB": 216.9,
+    "freeGB": 212.3,
+    "usedSpaceGB": 0.2,
+    "isOnline": true,
+    "isOutOfDate": false
+  },
+  {
+    "id": "47f8a73a-30cf-46a9-b59d-e5df16ccbf91",
+    "name": "VHR-01",
+    "type": "LinuxHardened",
+    "description": "Created by .\\veeamadmin at 9/13/2025 9:18 PM.",
+    "hostId": "6e83061a-fee5-42ee-858d-257a055fac99",
+    "hostName": "10.10.1.224",
+    "path": "/var/lib/veeam/backup",
+    "capacityGB": 1023.5,
+    "freeGB": 979.2,
+    "usedSpaceGB": 93.3,
+    "isOnline": true,
+    "isOutOfDate": false
+  }
+]
+----- output end: get repository (json) -----
+[2025-10-20 13:24:40] RUN: get objectrepository (json)
+[2025-10-20 13:24:40] CMD: veeamgo get objectrepository --limit 5 --output json
+[2025-10-20 13:24:41] STATUS: success
+----- output begin: get objectrepository (json) -----
+[]
+----- output end: get objectrepository (json) -----
+[2025-10-20 13:24:41] RUN: get job (json)
+[2025-10-20 13:24:41] CMD: veeamgo get job --limit 5 --output json
+[2025-10-20 13:24:41] STATUS: success
+----- output begin: get job (json) -----
+[
+  {
+    "id": "18b6d24a-7145-4fa3-ab73-496233e33726",
+    "name": "Backup Job 1_clone1",
+    "type": "VSphereBackup",
+    "description": "Created by .\\veeamadmin at 9/16/2025 12:57 PM.",
+    "status": "stopped",
+    "lastRun": "2025-10-19T22:00:20.064545+08:00",
+    "lastResult": "Success",
+    "nextRun": "2025-10-20T22:00:00+08:00",
+    "nextRunPolicy": "10/20/2025 10:00 PM",
+    "workload": "vm",
+    "repositoryId": "47f8a73a-30cf-46a9-b59d-e5df16ccbf91",
+    "repositoryName": "VHR-01",
+    "objectsCount": 2,
+    "sessionId": "d4271786-9b32-4f24-9aa9-c3b4b50f46e9",
+    "highPriority": false,
+    "progressPercent": 100,
+    "sessionProgress": {
+      "duration": "00:02:19",
+      "processingRate": "105.3 MB/s",
+      "bottleneck": "Source",
+      "processedSize": 322122547200,
+      "readSize": 1104150528,
+      "transferredSize": 227817782,
+      "progressPercent": 100
+    },
+    "runAfterJob": null,
+    "backupCopyMode": "",
+    "isStorageSnapshot": false
+  },
+  {
+    "id": "179b3f1e-70da-4906-a741-8642f6036251",
+    "name": "replication test",
+    "type": "VSphereReplica",
+    "description": "Created by .\\veeamadmin at 10/11/2025 11:19 PM.",
+    "status": "stopped",
+    "lastRun": "2025-10-20T20:00:15.251648+08:00",
+    "lastResult": "Success",
+    "nextRun": "2025-10-21T20:00:00+08:00",
+    "nextRunPolicy": "10/21/2025 8:00 PM",
+    "workload": "vm",
+    "repositoryId": "88788f9e-d8f5-4eb4-bc4f-9b3f5403bcec",
+    "repositoryName": "Default Backup Repository",
+    "objectsCount": 1,
+    "sessionId": "9b849cb9-909e-484f-bd4c-efa055f8cc4d",
+    "highPriority": false,
+    "progressPercent": 100,
+    "sessionProgress": {
+      "duration": "00:26:06",
+      "processingRate": "76.9 MB/s",
+      "bottleneck": "Target",
+      "processedSize": 214748364800,
+      "readSize": 112847749120,
+      "transferredSize": 579431888,
+      "progressPercent": 100
+    },
+    "runAfterJob": null,
+    "backupCopyMode": "",
+    "isStorageSnapshot": false
+  },
+  {
+    "id": "6fd337b2-3d24-4820-9867-43125a9b7f0a",
+    "name": "veeamgo_test",
+    "type": "VSphereBackup",
+    "description": "Nightly backup for production workloads",
+    "status": "stopped",
+    "lastRun": "2025-10-19T22:00:15.941509+08:00",
+    "lastResult": "Success",
+    "nextRun": "2025-10-20T22:00:00+08:00",
+    "nextRunPolicy": "10/20/2025 10:00 PM",
+    "workload": "vm",
+    "repositoryId": "de95e786-f428-4dd0-a336-dc21423ef57f",
+    "repositoryName": "vbr-local-01",
+    "objectsCount": 1,
+    "sessionId": "6b875cd5-af6e-42b8-94d9-f5c719922cd4",
+    "highPriority": false,
+    "progressPercent": 100,
+    "sessionProgress": {
+      "duration": "00:02:04",
+      "processingRate": "1.4 MB/s",
+      "bottleneck": "Source",
+      "processedSize": 2415919104,
+      "readSize": 14680064,
+      "transferredSize": 5158254,
+      "progressPercent": 100
+    },
+    "runAfterJob": null,
+    "backupCopyMode": "",
+    "isStorageSnapshot": false
+  }
+]
+----- output end: get job (json) -----
+[2025-10-20 13:24:41] RUN: get backup (json)
+[2025-10-20 13:24:41] CMD: veeamgo get backup --limit 5 --output json
+[2025-10-20 13:24:41] STATUS: success
+----- output begin: get backup (json) -----
+[
+  {
+    "id": "019760bd-1e1a-4be5-9830-9f31527bc7e3",
+    "name": "veeamgo_test",
+    "jobId": "6fd337b2-3d24-4820-9867-43125a9b7f0a",
+    "jobType": "VSphereBackup",
+    "policyUniqueId": "6fd337b2-3d24-4820-9867-43125a9b7f0a",
+    "platformName": "VMware",
+    "platformId": "00000000-0000-0000-0000-000000000000",
+    "repositoryId": "de95e786-f428-4dd0-a336-dc21423ef57f",
+    "repositoryName": "vbr-local-01",
+    "creationTime": "2025-10-15T22:00:27.768883+08:00"
+  },
+  {
+    "id": "27d39803-f2f2-4544-96a0-5f18ad8164c2",
+    "name": "ubuntu_2025-10-14_2025-10-21",
+    "jobId": "00000000-0000-0000-0000-000000000000",
+    "jobType": "VSphereBackup",
+    "policyUniqueId": "db1e905b-2f54-4002-b85b-50296209a037",
+    "platformName": "VMware",
+    "platformId": "00000000-0000-0000-0000-000000000000",
+    "repositoryId": "47f8a73a-30cf-46a9-b59d-e5df16ccbf91",
+    "repositoryName": "VHR-01",
+    "creationTime": "2025-10-14T22:24:59.370167+08:00"
+  },
+  {
+    "id": "f2942be1-8eee-4537-8683-a57bd88180ad",
+    "name": "Backup Job 1_clone1",
+    "jobId": "18b6d24a-7145-4fa3-ab73-496233e33726",
+    "jobType": "VSphereBackup",
+    "policyUniqueId": "18b6d24a-7145-4fa3-ab73-496233e33726",
+    "platformName": "VMware",
+    "platformId": "00000000-0000-0000-0000-000000000000",
+    "repositoryId": "47f8a73a-30cf-46a9-b59d-e5df16ccbf91",
+    "repositoryName": "VHR-01",
+    "creationTime": "2025-10-14T19:59:47.196454+08:00"
+  },
+  {
+    "id": "635aa52d-7df8-4d02-8769-3efba381a834",
+    "name": "Backup Job 1",
+    "jobId": "00000000-0000-0000-0000-000000000000",
+    "jobType": "VSphereBackup",
+    "policyUniqueId": "e4bf1214-0d25-420d-8419-0643d9b90eef",
+    "platformName": "VMware",
+    "platformId": "00000000-0000-0000-0000-000000000000",
+    "repositoryId": "47f8a73a-30cf-46a9-b59d-e5df16ccbf91",
+    "repositoryName": "VHR-01",
+    "creationTime": "2025-09-16T12:57:55.250744+08:00"
+  }
+]
+----- output end: get backup (json) -----
+[2025-10-20 13:24:41] RUN: get session (json)
+[2025-10-20 13:24:41] CMD: veeamgo get session --limit 5 --output json
+[2025-10-20 13:24:41] STATUS: success
+----- output begin: get session (json) -----
+[
+  {
+    "id": "1d5a6c45-1cfc-4833-9718-b9fd86cd10ac",
+    "name": "Rescan of Protection Group 1",
+    "sessionType": "AgentDiscovery",
+    "jobId": "a41f9265-63e5-4f52-a805-2569deca1ab4",
+    "state": "Stopped",
+    "progressPercent": 100,
+    "result": {
+      "result": "Failed",
+      "message": "Rescan failed, check session log for details."
+    },
+    "creationTime": "2025-10-20T21:00:06.289692+08:00",
+    "endTime": "2025-10-20T21:02:51.444865+08:00",
+    "resourceId": "",
+    "resourceReference": "",
+    "parentSessionId": "",
+    "usn": 346396,
+    "platformName": "WindowsPhysical",
+    "platformId": "00000000-0000-0000-0000-000000000000",
+    "initiatedBy": "veeam-usr-vbr"
+  },
+  {
+    "id": "5de772bc-57c1-4d85-86ac-82d419145752",
+    "name": "Host Discovery",
+    "sessionType": "VolumesDiscover",
+    "jobId": "abed9faa-b6b4-44bc-9ff4-c52d33fe2822",
+    "state": "Stopped",
+    "progressPercent": 100,
+    "result": {
+      "result": "Warning",
+      "message": "Warning"
+    },
+    "creationTime": "2025-10-20T20:57:56.615884+08:00",
+    "endTime": "2025-10-20T20:59:44.957246+08:00",
+    "resourceId": "",
+    "resourceReference": "",
+    "parentSessionId": "",
+    "usn": 346229,
+    "platformName": "",
+    "platformId": "",
+    "initiatedBy": "veeam-usr-vbr"
+  },
+  {
+    "id": "9b849cb9-909e-484f-bd4c-efa055f8cc4d",
+    "name": "replication test (Incremental)",
+    "sessionType": "ReplicaJob",
+    "jobId": "179b3f1e-70da-4906-a741-8642f6036251",
+    "state": "Stopped",
+    "progressPercent": 100,
+    "result": {
+      "result": "Success",
+      "message": "Success"
+    },
+    "creationTime": "2025-10-20T20:00:15.251648+08:00",
+    "endTime": "2025-10-20T20:26:21.963943+08:00",
+    "resourceId": "276917aa-5b6e-466d-90e3-72124aeefab2",
+    "resourceReference": "/api/v1/replicas/276917aa-5b6e-466d-90e3-72124aeefab2",
+    "parentSessionId": "",
+    "usn": 345881,
+    "platformName": "VMware",
+    "platformId": "00000000-0000-0000-0000-000000000000",
+    "initiatedBy": "veeam-usr-vbr"
+  },
+  {
+    "id": "7e7c9ca6-9b7b-4cb0-9d5a-b8422e6cfb5f",
+    "name": "Host Discovery",
+    "sessionType": "VolumesDiscover",
+    "jobId": "8a683b0a-c9ad-49c2-a553-85c9f13f2efd",
+    "state": "Stopped",
+    "progressPercent": 100,
+    "result": {
+      "result": "Warning",
+      "message": "Warning"
+    },
+    "creationTime": "2025-10-20T16:57:55.485395+08:00",
+    "endTime": "2025-10-20T16:59:14.013257+08:00",
+    "resourceId": "",
+    "resourceReference": "",
+    "parentSessionId": "",
+    "usn": 344573,
+    "platformName": "",
+    "platformId": "",
+    "initiatedBy": "veeam-usr-vbr"
+  },
+  {
+    "id": "1108f145-d4ab-42d0-91db-1befce964142",
+    "name": "Host Discovery",
+    "sessionType": "VolumesDiscover",
+    "jobId": "23933fec-a846-4d95-8666-54df6aabe79e",
+    "state": "Stopped",
+    "progressPercent": 100,
+    "result": {
+      "result": "Warning",
+      "message": "Warning"
+    },
+    "creationTime": "2025-10-20T12:57:55.218112+08:00",
+    "endTime": "2025-10-20T12:59:44.131007+08:00",
+    "resourceId": "",
+    "resourceReference": "",
+    "parentSessionId": "",
+    "usn": 343449,
+    "platformName": "",
+    "platformId": "",
+    "initiatedBy": "veeam-usr-vbr"
+  }
+]
+----- output end: get session (json) -----
+[2025-10-20 13:24:41] RUN: get task (json)
+[2025-10-20 13:24:41] CMD: veeamgo get task --limit 5 --output json
+[2025-10-20 13:24:41] STATUS: success
+----- output begin: get task (json) -----
+[
+  {
+    "id": "b70b4e22-d92c-48d5-9c58-0620a1af9a68",
+    "name": "10.10.1.50",
+    "type": "Backup",
+    "sessionId": "1d5a6c45-1cfc-4833-9718-b9fd86cd10ac",
+    "sessionType": "AgentDiscovery",
+    "state": "Stopped",
+    "result": {
+      "result": "Failed",
+      "message": "Unable to install backup agent: failed to connect to 10.10.1.50 Error: Failed to install or connect to the Deployement Kit. (Attempting to apply parameters 10.10.1.50:6160: Access is denied. Ensure Kerberos credentials are specified in FQDN\\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with 'Administrator@V100LAB.LOCAL' (V100LAB.LOCAL\\Administrator) to access '10.10.1.50' not possible. ]. ) (Attempting to apply parameters 10.10.1.50:11731: Access is denied. Ensure Kerberos credentials are specified in FQDN\\USER or USER@FQDN format. Local user accounts are not supported. Samba failed with error: NT_STATUS_ACCESS_DENIED [stdout: session setup failed: NT_STATUS_ACCESS_DENIED. stderr: Kerberos auth with 'Administrator@V100LAB.LOCAL' (V100LAB.LOCAL\\Administrator) to access '10.10.1.50' not possible. ]. )."
+    },
+    "progress": {
+      "duration": "00:02:32",
+      "processingRate": "N/A",
+      "bottleneck": "NotDefined",
+      "processedSize": 0,
+      "readSize": 0,
+      "transferredSize": 0,
+      "progressPercent": 100
+    },
+    "creationTime": "2025-10-20T21:00:11.425935Z",
+    "endTime": "2025-10-20T21:02:44.153649Z"
+  },
+  {
+    "id": "9428ec0c-25ce-4062-849c-e2d9964a7b78",
+    "name": "ubuntu",
+    "type": "Replica",
+    "sessionId": "9b849cb9-909e-484f-bd4c-efa055f8cc4d",
+    "sessionType": "ReplicaJob",
+    "state": "Stopped",
+    "result": {
+      "result": "Success",
+      "message": "Success"
+    },
+    "progress": {
+      "duration": "00:24:25",
+      "processingRate": "76.9 MB",
+      "bottleneck": "Target",
+      "processedSize": 214748364800,
+      "readSize": 112847749120,
+      "transferredSize": 579431888,
+      "progressPercent": 100
+    },
+    "creationTime": "2025-10-20T20:01:37.609485Z",
+    "endTime": "2025-10-20T20:26:03.149194Z"
+  },
+  {
+    "id": "7720aad7-d038-45f5-a5b0-bc64a44a9fc6",
+    "name": "Win001",
+    "type": "Backup",
+    "sessionId": "d4271786-9b32-4f24-9aa9-c3b4b50f46e9",
+    "sessionType": "BackupJob",
+    "state": "Stopped",
+    "result": {
+      "result": "Success",
+      "message": "Success"
+    },
+    "progress": {
+      "duration": "00:00:27",
+      "processingRate": "46.3 MB",
+      "bottleneck": "Source",
+      "processedSize": 107374182400,
+      "readSize": 485490688,
+      "transferredSize": 101526981,
+      "progressPercent": 100
+    },
+    "creationTime": "2025-10-19T22:02:09.07106Z",
+    "endTime": "2025-10-19T22:02:36.949698Z"
+  },
+  {
+    "id": "5e25909f-422e-45a4-b8fa-4a1064d93ca1",
+    "name": "TinyLinux",
+    "type": "Backup",
+    "sessionId": "6b875cd5-af6e-42b8-94d9-f5c719922cd4",
+    "sessionType": "BackupJob",
+    "state": "Stopped",
+    "result": {
+      "result": "Success",
+      "message": "Success"
+    },
+    "progress": {
+      "duration": "00:00:29",
+      "processingRate": "1.4 MB",
+      "bottleneck": "Source",
+      "processedSize": 2415919104,
+      "readSize": 14680064,
+      "transferredSize": 5158254,
+      "progressPercent": 100
+    },
+    "creationTime": "2025-10-19T22:01:44.539285Z",
+    "endTime": "2025-10-19T22:02:14.10088Z"
+  },
+  {
+    "id": "89b88c27-8a2f-4a93-894b-16a1b10dd834",
+    "name": "ubuntu",
+    "type": "Backup",
+    "sessionId": "d4271786-9b32-4f24-9aa9-c3b4b50f46e9",
+    "sessionType": "BackupJob",
+    "state": "Stopped",
+    "result": {
+      "result": "Success",
+      "message": "Success"
+    },
+    "progress": {
+      "duration": "00:00:31",
+      "processingRate": "59 MB",
+      "bottleneck": "Source",
+      "processedSize": 214748364800,
+      "readSize": 618659840,
+      "transferredSize": 126290801,
+      "progressPercent": 100
+    },
+    "creationTime": "2025-10-19T22:01:44.539275Z",
+    "endTime": "2025-10-19T22:02:15.569507Z"
+  }
+]
+----- output end: get task (json) -----
+[2025-10-20 13:24:41] RUN: get inventory virtualinfra (json)
+[2025-10-20 13:24:41] CMD: veeamgo get inventory virtualinfra --limit 5 --output json
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: get inventory virtualinfra (json) -----
+[
+  {
+    "Name": "10.10.1.200",
+    "Type": "vCenterServer",
+    "Host": "10.10.1.200",
+    "Size": "372.1 GB"
+  }
+]
+----- output end: get inventory virtualinfra (json) -----
+[2025-10-20 13:24:42] RUN: get instantrecovery (json)
+[2025-10-20 13:24:42] CMD: veeamgo get instantrecovery --all --limit 5 --output json
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: get instantrecovery (json) -----
+[]
+----- output end: get instantrecovery (json) -----
+[2025-10-20 13:24:42] RUN: get publisheddisk (json)
+[2025-10-20 13:24:42] CMD: veeamgo get publisheddisk --all --limit 5 --output json
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: get publisheddisk (json) -----
+[]
+----- output end: get publisheddisk (json) -----
+[2025-10-20 13:24:42] 
+[2025-10-20 13:24:42] ===== Help Phase =====
+[2025-10-20 13:24:42] RUN: help: veeamgo get
+[2025-10-20 13:24:42] CMD: veeamgo get --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo get -----
+Retrieve resources
+
+Usage:
+  veeamgo get [command]
+
+Available Commands:
+  backup                    List backups
+  exclusionvm               List globally excluded VMs
+  fingerprint               Request a managed server certificate or SSH fingerprint
+  generaloption             Show global notification and SIEM options
+  instantrecovery           List Instant Recovery sessions
+  inventory                 Explore inventory resources
+  job                       List jobs with current state
+  license                   License usage and allocations
+  malwaredetectionevent     List malware detection events
+  managedserver             List managed servers
+  objectrepository          List object storage repositories
+  proxy                     List backup proxies
+  publisheddisk             List published disks
+  replica                   List replica restore points for a replication job
+  repository                List backup repositories
+  restorepoint              List restore points for a backup job
+  securityanalyzer          Security & Compliance Analyzer insights
+  server                    Retrieve server information
+  session                   List Veeam job sessions
+  sobr                      List scale-out backup repositories
+  task                      List task sessions
+  trafficrule               List traffic rules and preferred networks
+  wanaccelerator            List WAN accelerators
+  yararule                  List uploaded YARA rules
+
+Flags:
+    -h, --help   help for get
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get [command] --help" for more information about a command.
+----- output end: help: veeamgo get -----
+[2025-10-20 13:24:42] RUN: help: veeamgo describe
+[2025-10-20 13:24:42] CMD: veeamgo describe --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo describe -----
+Describe resources
+
+Usage:
+  veeamgo describe [command]
+
+Available Commands:
+  configurationbackup     Describe configuration backup settings
+  exclusionvm             Describe a VM exclusion entry
+  inventory               Describe inventory resources
+  job                     Show detailed job configuration and state
+  managedserver           Show detailed managed server information
+  objectrepository        Describe an object storage repository
+  proxy                   Describe a backup proxy
+  repository              Show detailed repository configuration
+  securityanalyzer        Security & Compliance Analyzer insights
+  session                 Show detailed information about a session
+  sobr                    Show detailed scale-out repository configuration
+  task                    Show detailed information about a task session
+  wanaccelerator          Show detailed WAN accelerator configuration
+
+Flags:
+    -h, --help   help for describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo describe [command] --help" for more information about a command.
+----- output end: help: veeamgo describe -----
+[2025-10-20 13:24:42] RUN: help: veeamgo rescan
+[2025-10-20 13:24:42] CMD: veeamgo rescan --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo rescan -----
+Trigger rescans
+
+Usage:
+  veeamgo rescan [command]
+
+Available Commands:
+  managedserver        Rescan managed servers
+  objectrepository     Rescan object storage repositories
+  repository           Rescan one or more repositories
+
+Flags:
+    -h, --help   help for rescan
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo rescan [command] --help" for more information about a command.
+----- output end: help: veeamgo rescan -----
+[2025-10-20 13:24:42] RUN: help: veeamgo template
+[2025-10-20 13:24:42] CMD: veeamgo template --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo template -----
+Generate starter templates
+
+Usage:
+  veeamgo template [command]
+
+Available Commands:
+  instantrecovery     Generate Instant Recovery customization templates
+  job                 Export job configuration templates
+
+Flags:
+    -h, --help   help for template
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo template [command] --help" for more information about a command.
+----- output end: help: veeamgo template -----
+[2025-10-20 13:24:42] RUN: help: veeamgo add
+[2025-10-20 13:24:42] CMD: veeamgo add --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo add -----
+Create resources
+
+Usage:
+  veeamgo add [command]
+
+Available Commands:
+  job                  Create a new job
+  managedserver        Add managed servers
+  objectrepository     Add an object storage repository
+  proxy                Add a backup proxy
+  repository           Add a backup repository
+
+Flags:
+    -h, --help   help for add
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo add [command] --help" for more information about a command.
+----- output end: help: veeamgo add -----
+[2025-10-20 13:24:42] RUN: help: veeamgo edit
+[2025-10-20 13:24:42] CMD: veeamgo edit --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo edit -----
+Edit resources
+
+Usage:
+  veeamgo edit [command]
+
+Available Commands:
+  job                  Edit an existing job
+  objectrepository     Edit an object storage repository
+  proxy                Edit a backup proxy
+  repository           Edit a backup repository
+
+Flags:
+    -h, --help   help for edit
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo edit [command] --help" for more information about a command.
+----- output end: help: veeamgo edit -----
+[2025-10-20 13:24:42] RUN: help: veeamgo enable
+[2025-10-20 13:24:42] CMD: veeamgo enable --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo enable -----
+Enable resources
+
+Usage:
+  veeamgo enable [command]
+
+Available Commands:
+  job             Enable a job
+  proxy           Enable a backup proxy
+
+Flags:
+    -h, --help   help for enable
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo enable [command] --help" for more information about a command.
+----- output end: help: veeamgo enable -----
+[2025-10-20 13:24:42] RUN: help: veeamgo disable
+[2025-10-20 13:24:42] CMD: veeamgo disable --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo disable -----
+Disable resources
+
+Usage:
+  veeamgo disable [command]
+
+Available Commands:
+  job             Disable a job
+  proxy           Disable a backup proxy
+
+Flags:
+    -h, --help   help for disable
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo disable [command] --help" for more information about a command.
+----- output end: help: veeamgo disable -----
+[2025-10-20 13:24:42] RUN: help: veeamgo clone
+[2025-10-20 13:24:42] CMD: veeamgo clone --help
+[2025-10-20 13:24:42] STATUS: success
+----- output begin: help: veeamgo clone -----
+Clone resources
+
+Usage:
+  veeamgo clone [command]
+
+Available Commands:
+  job             Clone a job
+
+Flags:
+    -h, --help   help for clone
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo clone [command] --help" for more information about a command.
+----- output end: help: veeamgo clone -----
+[2025-10-20 13:24:43] RUN: help: veeamgo delete
+[2025-10-20 13:24:43] CMD: veeamgo delete --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo delete -----
+Delete resources
+
+Usage:
+  veeamgo delete [command]
+
+Available Commands:
+  job                  Delete a job
+  managedserver        Delete a managed server
+  objectrepository     Delete an object storage repository
+  proxy                Delete a backup proxy
+  repository           Delete a backup repository
+
+Flags:
+    -h, --help   help for delete
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo delete [command] --help" for more information about a command.
+----- output end: help: veeamgo delete -----
+[2025-10-20 13:24:43] RUN: help: veeamgo start
+[2025-10-20 13:24:43] CMD: veeamgo start --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo start -----
+Start resources
+
+Usage:
+  veeamgo start [command]
+
+Available Commands:
+  configurationbackup     Start an on-demand configuration backup
+  instantrecovery         Start Instant Recovery sessions
+  job                     Start a job
+  quickbackup             Start a quick backup
+  securityanalyzer        Start Security & Compliance Analyzer
+
+Flags:
+    -h, --help   help for start
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo start [command] --help" for more information about a command.
+----- output end: help: veeamgo start -----
+[2025-10-20 13:24:43] RUN: help: veeamgo stop
+[2025-10-20 13:24:43] CMD: veeamgo stop --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo stop -----
+Stop resources
+
+Usage:
+  veeamgo stop [command]
+
+Available Commands:
+  instantrecovery     Stop Instant Recovery sessions
+  job                 Stop a job
+  publishdisk         Stop published disks
+
+Flags:
+    -h, --help   help for stop
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo stop [command] --help" for more information about a command.
+----- output end: help: veeamgo stop -----
+[2025-10-20 13:24:43] RUN: help: veeamgo retry
+[2025-10-20 13:24:43] CMD: veeamgo retry --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo retry -----
+Retry resources
+
+Usage:
+  veeamgo retry [command]
+
+Available Commands:
+  job             Retry a job
+
+Flags:
+    -h, --help   help for retry
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo retry [command] --help" for more information about a command.
+----- output end: help: veeamgo retry -----
+[2025-10-20 13:24:43] RUN: help: veeamgo publish
+[2025-10-20 13:24:43] CMD: veeamgo publish --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo publish -----
+Publish resources
+
+Usage:
+  veeamgo publish [command]
+
+Available Commands:
+  disk            Publish backup disks
+
+Flags:
+    -h, --help   help for publish
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo publish [command] --help" for more information about a command.
+----- output end: help: veeamgo publish -----
+[2025-10-20 13:24:43] RUN: help: veeamgo migrate
+[2025-10-20 13:24:43] CMD: veeamgo migrate --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo migrate -----
+Migrate resources
+
+Usage:
+  veeamgo migrate [command]
+
+Available Commands:
+  instantrecovery     Migrate Instant Recovery sessions
+
+Flags:
+    -h, --help   help for migrate
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo migrate [command] --help" for more information about a command.
+----- output end: help: veeamgo migrate -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get server
+[2025-10-20 13:24:43] CMD: veeamgo get server --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get server -----
+Retrieve server information
+
+Usage:
+  veeamgo get server [command]
+
+Available Commands:
+  info            Show server metadata
+  time            Show server clock information
+
+Flags:
+    -h, --help   help for server
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get server [command] --help" for more information about a command.
+----- output end: help: veeamgo get server -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get managedserver
+[2025-10-20 13:24:43] CMD: veeamgo get managedserver --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get managedserver -----
+List managed servers
+
+Usage:
+  veeamgo get managedserver [flags]
+
+Flags:
+    -h, --help           help for managedserver
+        --limit int      Maximum number of managed servers to return (default: all)
+        --name string    Filter by name pattern (supports * wildcards)
+        --type strings   Filter by managed server type (e.g. WindowsHost, LinuxHost)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get managedserver -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get repository
+[2025-10-20 13:24:43] CMD: veeamgo get repository --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get repository -----
+List backup repositories
+
+Usage:
+  veeamgo get repository [flags]
+
+Flags:
+    -h, --help           help for repository
+        --limit int      Maximum number of repositories to return (default: all)
+        --name string    Filter by repository name (supports * wildcards)
+        --type strings   Filter by repository type (e.g. WinLocal, LinuxLocal)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get repository -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get objectrepository
+[2025-10-20 13:24:43] CMD: veeamgo get objectrepository --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get objectrepository -----
+List object storage repositories
+
+Usage:
+  veeamgo get objectrepository [flags]
+
+Flags:
+    -h, --help           help for objectrepository
+        --limit int      Maximum number of repositories to return (default: all)
+        --name string    Filter by repository name (supports * wildcards)
+        --type strings   Filter by repository type (e.g. AmazonS3, AzureBlob, S3Compatible)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get objectrepository -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get sobr
+[2025-10-20 13:24:43] CMD: veeamgo get sobr --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get sobr -----
+List scale-out backup repositories
+
+Usage:
+  veeamgo get sobr [flags]
+
+Flags:
+    -h, --help          help for sobr
+        --limit int     Maximum number of scale-out repositories to return (default: all)
+        --name string   Filter by scale-out repository name (supports * wildcards)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get sobr -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get wanaccelerator
+[2025-10-20 13:24:43] CMD: veeamgo get wanaccelerator --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get wanaccelerator -----
+List WAN accelerators
+
+Usage:
+  veeamgo get wanaccelerator [flags]
+
+Flags:
+    -h, --help          help for wanaccelerator
+        --limit int     Maximum number of WAN accelerators to return (default: all)
+        --name string   Filter by WAN accelerator name (supports * wildcards)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get wanaccelerator -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get generaloption
+[2025-10-20 13:24:43] CMD: veeamgo get generaloption --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get generaloption -----
+Show global notification and SIEM options
+
+Usage:
+  veeamgo get generaloption [flags]
+
+Flags:
+    -h, --help   help for generaloption
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get generaloption -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get job
+[2025-10-20 13:24:43] CMD: veeamgo get job --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get job -----
+List jobs with current state
+
+Supported job types:
+  - VMware Backup
+  - Hyper-V Backup
+  - VMware Replication
+  - Cloud Director Backup
+  - Microsoft Entra Tenant Backup
+  - Microsoft Entra Audit Log Backup
+  - File Backup Copy
+  - Legacy Backup Copy
+  - Backup Copy
+  - Windows Agent Backup
+  - Linux Agent Backup
+  - Microsoft Entra Tenant Backup Copy
+  - NAS Backup
+  - NAS Backup Copy
+  - Oracle RMAN Backup
+  - SAP HANA Backup
+  - AWS Backup Copy
+
+Usage:
+  veeamgo get job [flags]
+  veeamgo get job [command]
+
+Available Commands:
+  history         List session history for a job
+
+Flags:
+    -h, --help                help for job
+        --high-priority       Only include jobs marked high priority
+        --limit int           Maximum number of jobs to return (default: all)
+        --name string         Filter by job name (supports * wildcards)
+        --repository string   Filter by target repository name
+        --result string       Filter by last result (e.g. Success, Warning, Failed)
+        --status string       Filter by current job status (e.g. Running, Stopped)
+        --type strings        Filter by job type (repeatable, accepts EJobType values)
+        --workload string     Filter by workload (e.g. Vmware, HyperV)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get job [command] --help" for more information about a command.
+----- output end: help: veeamgo get job -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get backup
+[2025-10-20 13:24:43] CMD: veeamgo get backup --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get backup -----
+List backups
+
+Usage:
+  veeamgo get backup [flags]
+  veeamgo get backup [command]
+
+Available Commands:
+  files           List files contained in a backup
+  list            List backups
+  objects         List objects protected by a backup
+
+Flags:
+        --backup string           Filter by backup name (supports * wildcards)
+        --created-before string   Include backups created on/before RFC3339 timestamp
+        --created-since string    Include backups created on/after RFC3339 timestamp
+        --desc                    Sort in descending order
+    -h, --help                    help for backup
+        --job-id string           Filter by backup job ID
+        --job-type string         Filter by backup job type (e.g. VSphereBackup)
+        --limit int               Maximum number of backups to return
+        --name string             Filter by backup job name
+        --sort string             Sort by column (e.g. creationTime)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get backup [command] --help" for more information about a command.
+----- output end: help: veeamgo get backup -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get restorepoint
+[2025-10-20 13:24:43] CMD: veeamgo get restorepoint --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get restorepoint -----
+List restore points for a backup job
+
+Usage:
+  veeamgo get restorepoint [flags]
+
+Flags:
+        --backup string           Backup name
+        --created-before string   Include restore points created on/before RFC3339 timestamp
+        --created-since string    Include restore points created on/after RFC3339 timestamp
+        --desc                    Sort in descending order
+    -h, --help                    help for restorepoint
+        --limit int               Maximum number of restore points to return
+        --malware string          Filter by malware status
+        --name string             Backup job name (optional)
+        --object string           Filter by backup object ID
+        --platform string         Filter by platform name (e.g. VMware)
+        --restorepoint string     Filter by restore point name (supports * wildcards)
+        --sort string             Sort by column (e.g. creationTime)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get restorepoint -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get instantrecovery
+[2025-10-20 13:24:43] CMD: veeamgo get instantrecovery --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get instantrecovery -----
+List Instant Recovery sessions
+
+Usage:
+  veeamgo get instantrecovery [flags]
+
+Flags:
+        --all                List Instant Recovery mounts
+    -h, --help               help for instantrecovery
+        --id string          Instant recovery mount ID to describe
+        --limit int          Maximum number of mounts to return
+        --name string        Filter by restore point or object name (supports * wildcards)
+        --platform strings   Filter by platform (vSphere|HyperV|Azure|FCD|DataIntegration)
+        --state string       Filter by mount state (e.g. Published)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get instantrecovery -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get replica
+[2025-10-20 13:24:43] CMD: veeamgo get replica --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get replica -----
+List replica restore points for a replication job
+
+Usage:
+  veeamgo get replica [flags]
+
+Flags:
+        --created-before string   Include restore points created on/before RFC3339 timestamp
+        --created-since string    Include restore points created on/after RFC3339 timestamp
+        --desc                    Sort in descending order
+    -h, --help                    help for replica
+        --limit int               Maximum number of restore points to return
+        --malware string          Filter by malware status
+        --name string             Replication job name (required)
+        --platform string         Filter by platform name (e.g. VMware)
+        --replica string          Replica name (optional if job has a single replica)
+        --replica-point string    Filter by replica restore point name (supports * wildcards)
+        --sort string             Sort by column (e.g. creationTime)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get replica -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get proxy
+[2025-10-20 13:24:43] CMD: veeamgo get proxy --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get proxy -----
+List backup proxies
+
+Usage:
+  veeamgo get proxy [flags]
+
+Flags:
+        --desc             Sort results in descending order
+    -h, --help             help for proxy
+        --host-id string   Filter by host identifier
+        --limit int        Maximum number of records to return (default: all)
+        --name string      Filter by proxy name (supports * wildcards)
+        --sort string      Sort results by column (e.g. name)
+        --type string      Filter by proxy type (e.g. ViProxy, HvProxy)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get proxy -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get trafficrule
+[2025-10-20 13:24:43] CMD: veeamgo get trafficrule --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get trafficrule -----
+List traffic rules and preferred networks
+
+Usage:
+  veeamgo get trafficrule [flags]
+
+Flags:
+    -h, --help   help for trafficrule
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get trafficrule -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get exclusionvm
+[2025-10-20 13:24:43] CMD: veeamgo get exclusionvm --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get exclusionvm -----
+List globally excluded VMs
+
+Usage:
+  veeamgo get exclusionvm [flags]
+
+Flags:
+        --desc          Sort results in descending order
+    -h, --help          help for exclusionvm
+        --limit int     Maximum number of records to return (default: all)
+        --sort string   Sort results by column (e.g. id)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get exclusionvm -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get inventory
+[2025-10-20 13:24:43] CMD: veeamgo get inventory --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get inventory -----
+Explore inventory resources
+
+Usage:
+  veeamgo get inventory [flags]
+  veeamgo get inventory [command]
+
+Available Commands:
+  protectiongroup     List protection groups
+  unstructured        List unstructured data servers
+  virtualinfra        List virtual infrastructure servers
+
+Flags:
+    -h, --help   help for inventory
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get inventory [command] --help" for more information about a command.
+----- output end: help: veeamgo get inventory -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get inventory virtualinfra
+[2025-10-20 13:24:43] CMD: veeamgo get inventory virtualinfra --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get inventory virtualinfra -----
+List virtual infrastructure servers
+
+Usage:
+  veeamgo get inventory virtualinfra [flags]
+  veeamgo get inventory virtualinfra [command]
+
+Available Commands:
+  objects         List inventory objects for a virtual infrastructure server
+
+Flags:
+        --desc               Sort in descending order
+    -h, --help               help for virtualinfra
+        --host string        Filter by host name
+        --limit int          Maximum records to return (default 200) (default 200)
+        --name string        Filter by server name (case insensitive substring)
+        --platform strings   Filter by platform (vsphere|hyperv|clouddirector)
+        --sort string        Sort by field (e.g. name)
+        --type strings       Filter by inventory type (e.g. VCenterServer, Scvmm)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get inventory virtualinfra [command] --help" for more information about a command.
+----- output end: help: veeamgo get inventory virtualinfra -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get inventory virtualinfra objects
+[2025-10-20 13:24:43] CMD: veeamgo get inventory virtualinfra objects --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get inventory virtualinfra objects -----
+List inventory objects for a virtual infrastructure server
+
+Usage:
+  veeamgo get inventory virtualinfra objects [flags]
+
+Flags:
+        --desc                  Sort child objects descending
+    -h, --help                  help for objects
+        --hierarchy string      Hierarchy type (e.g. HostsAndClusters, VmsAndTemplates)
+        --limit int             Maximum child objects to return (default 200) (default 200)
+        --name string           Server or host name to browse
+        --object-name string    Filter objects by name (case insensitive substring)
+        --object-type strings   Filter objects by type (e.g. Datacenter, VirtualMachine)
+        --sort string           Sort child objects by field (e.g. name)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get inventory virtualinfra objects -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get inventory unstructured
+[2025-10-20 13:24:43] CMD: veeamgo get inventory unstructured --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get inventory unstructured -----
+List unstructured data servers
+
+Usage:
+  veeamgo get inventory unstructured [flags]
+
+Flags:
+        --contains string   Filter servers whose name contains the provided value (case insensitive)
+        --desc              Sort in descending order
+    -h, --help              help for unstructured
+        --limit int         Maximum records to return (default 200) (default 200)
+        --name string       Filter servers by name pattern (supports * wildcards)
+        --sort string       Sort by column (Name or Description)
+        --type strings      Filter servers by type (FileServer, SMBShare, NFSShare, NASFiler, S3Compatible, AmazonS3, AzureBlob)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get inventory unstructured -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get session
+[2025-10-20 13:24:43] CMD: veeamgo get session --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get session -----
+List Veeam job sessions
+
+Usage:
+  veeamgo get session [flags]
+  veeamgo get session [command]
+
+Available Commands:
+  logs            Show session log records
+
+Flags:
+        --created-before string   Include sessions created on/before RFC3339 timestamp
+        --created-since string    Include sessions created on/after RFC3339 timestamp
+        --desc                    Sort in descending order (default ascending)
+        --ended-before string     Include sessions ended on/before RFC3339 timestamp
+        --ended-since string      Include sessions ended on/after RFC3339 timestamp
+    -h, --help                    help for session
+        --job string              Filter by job ID
+        --limit int               Maximum number of sessions to return (default: all)
+        --name string             Filter by session name (supports * wildcards)
+        --result strings          Filter by session result
+        --sort string             Sort sessions by column (e.g. creationTime, endTime)
+        --state strings           Filter by session state
+        --type strings            Filter by session type (repeatable)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get session [command] --help" for more information about a command.
+----- output end: help: veeamgo get session -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get session logs
+[2025-10-20 13:24:43] CMD: veeamgo get session logs --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get session logs -----
+Show session log records
+
+Usage:
+  veeamgo get session logs [flags]
+
+Flags:
+    -h, --help            help for logs
+        --id string       Session ID whose logs to fetch
+        --status string   Filter log records by status
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get session logs -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get task
+[2025-10-20 13:24:43] CMD: veeamgo get task --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get task -----
+List task sessions
+
+Usage:
+  veeamgo get task [flags]
+  veeamgo get task [command]
+
+Available Commands:
+  logs            Show task session log records
+
+Flags:
+        --created-before string   Include tasks created on/before RFC3339 timestamp
+        --created-since string    Include tasks created on/after RFC3339 timestamp
+        --desc                    Sort in descending order (default ascending)
+        --ended-before string     Include tasks ended on/before RFC3339 timestamp
+        --ended-since string      Include tasks ended on/after RFC3339 timestamp
+    -h, --help                    help for task
+        --limit int               Maximum number of task sessions to return (default: all)
+        --name string             Filter by task name (supports * wildcards)
+        --result string           Filter by task result
+        --session-id string       Filter by parent session ID
+        --session-type string     Filter by parent session type
+        --sort string             Sort task sessions by column (e.g. creationTime, endTime)
+        --state string            Filter by task state
+        --type string             Filter by task type
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get task [command] --help" for more information about a command.
+----- output end: help: veeamgo get task -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get task logs
+[2025-10-20 13:24:43] CMD: veeamgo get task logs --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get task logs -----
+Show task session log records
+
+Usage:
+  veeamgo get task logs [flags]
+
+Flags:
+    -h, --help            help for logs
+        --id string       Task session ID whose logs to fetch
+        --status string   Filter log records by status
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get task logs -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get security
+[2025-10-20 13:24:43] CMD: veeamgo get security --help
+[2025-10-20 13:24:43] STATUS: success
+----- output begin: help: veeamgo get security -----
+Retrieve resources
+
+Usage:
+  veeamgo get [command]
+
+Available Commands:
+  backup                    List backups
+  exclusionvm               List globally excluded VMs
+  fingerprint               Request a managed server certificate or SSH fingerprint
+  generaloption             Show global notification and SIEM options
+  instantrecovery           List Instant Recovery sessions
+  inventory                 Explore inventory resources
+  job                       List jobs with current state
+  license                   License usage and allocations
+  malwaredetectionevent     List malware detection events
+  managedserver             List managed servers
+  objectrepository          List object storage repositories
+  proxy                     List backup proxies
+  publisheddisk             List published disks
+  replica                   List replica restore points for a replication job
+  repository                List backup repositories
+  restorepoint              List restore points for a backup job
+  securityanalyzer          Security & Compliance Analyzer insights
+  server                    Retrieve server information
+  session                   List Veeam job sessions
+  sobr                      List scale-out backup repositories
+  task                      List task sessions
+  trafficrule               List traffic rules and preferred networks
+  wanaccelerator            List WAN accelerators
+  yararule                  List uploaded YARA rules
+
+Flags:
+    -h, --help   help for get
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get [command] --help" for more information about a command.
+----- output end: help: veeamgo get security -----
+[2025-10-20 13:24:43] RUN: help: veeamgo get securityanalyzer
+[2025-10-20 13:24:43] CMD: veeamgo get securityanalyzer --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get securityanalyzer -----
+Security & Compliance Analyzer insights
+
+Usage:
+  veeamgo get securityanalyzer [command]
+
+Available Commands:
+  results         List analyzer compliance results
+
+Flags:
+    -h, --help   help for securityanalyzer
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get securityanalyzer [command] --help" for more information about a command.
+----- output end: help: veeamgo get securityanalyzer -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get securityanalyzer results
+[2025-10-20 13:24:44] CMD: veeamgo get securityanalyzer results --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get securityanalyzer results -----
+List analyzer compliance results
+
+Usage:
+  veeamgo get securityanalyzer results [flags]
+
+Flags:
+    -h, --help   help for results
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get securityanalyzer results -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get malwaredetectionevent
+[2025-10-20 13:24:44] CMD: veeamgo get malwaredetectionevent --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get malwaredetectionevent -----
+List malware detection events
+
+Usage:
+  veeamgo get malwaredetectionevent [flags]
+
+Flags:
+        --backup-object string     Filter by backup object ID
+        --created-by string        Filter by user that created the event
+        --desc                     Sort results in descending order
+        --detected-before string   Include events detected on/before RFC3339 timestamp
+        --detected-since string    Include events detected on/after RFC3339 timestamp
+        --engine string            Filter by detection engine
+    -h, --help                     help for malwaredetectionevent
+        --limit int                Maximum number of events to return (default: all)
+        --machine-name string      Filter by machine display name
+        --severity string          Filter by severity (Clean|Suspicious|Infected|Informative)
+        --sort string              Sort results by column (e.g. detectionTimeUtc)
+        --source string            Filter by source (Manual|InternalVeeamDetector|External|MarkAsCleanEvent)
+        --state string             Filter by event state (Created|FalsePositive)
+        --type string              Filter by detection type (e.g. YaraScan, AntivirusScan)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get malwaredetectionevent -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get yararule
+[2025-10-20 13:24:44] CMD: veeamgo get yararule --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get yararule -----
+List uploaded YARA rules
+
+Usage:
+  veeamgo get yararule [flags]
+
+Flags:
+    -h, --help   help for yararule
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get yararule -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get publisheddisk
+[2025-10-20 13:24:44] CMD: veeamgo get publisheddisk --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get publisheddisk -----
+List published disks
+
+Usage:
+  veeamgo get publisheddisk [flags]
+
+Flags:
+        --all         List all published disks
+    -h, --help        help for publisheddisk
+        --id string   Published disk mount ID to describe
+        --limit int   Maximum number of mounts to return when using --all
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get publisheddisk -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get license
+[2025-10-20 13:24:44] CMD: veeamgo get license --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get license -----
+License usage and allocations
+
+Usage:
+  veeamgo get license [flags]
+  veeamgo get license [command]
+
+Available Commands:
+  capacity        List capacity license workloads
+  instances       List instance-based workloads
+  sockets         List socket-based workloads
+  summary         Show license summary
+
+Flags:
+    -h, --help   help for license
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo get license [command] --help" for more information about a command.
+----- output end: help: veeamgo get license -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get license summary
+[2025-10-20 13:24:44] CMD: veeamgo get license summary --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get license summary -----
+Show license summary
+
+Usage:
+  veeamgo get license summary [flags]
+
+Flags:
+    -h, --help   help for summary
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get license summary -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get license sockets
+[2025-10-20 13:24:44] CMD: veeamgo get license sockets --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get license sockets -----
+List socket-based workloads
+
+Usage:
+  veeamgo get license sockets [flags]
+
+Flags:
+    -h, --help        help for sockets
+        --limit int   Maximum number of records to return (default: all)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get license sockets -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get license instances
+[2025-10-20 13:24:44] CMD: veeamgo get license instances --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get license instances -----
+List instance-based workloads
+
+Usage:
+  veeamgo get license instances [flags]
+
+Flags:
+    -h, --help        help for instances
+        --limit int   Maximum number of records to return (default: all)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get license instances -----
+[2025-10-20 13:24:44] RUN: help: veeamgo get license capacity
+[2025-10-20 13:24:44] CMD: veeamgo get license capacity --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo get license capacity -----
+List capacity license workloads
+
+Usage:
+  veeamgo get license capacity [flags]
+
+Flags:
+    -h, --help        help for capacity
+        --limit int   Maximum number of records to return (default: all)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo get license capacity -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe managedserver
+[2025-10-20 13:24:44] CMD: veeamgo describe managedserver --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe managedserver -----
+Show detailed managed server information
+
+Usage:
+  veeamgo describe managedserver [flags]
+
+Flags:
+    -h, --help        help for managedserver
+        --id string   Managed server identifier
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe managedserver -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe repository
+[2025-10-20 13:24:44] CMD: veeamgo describe repository --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe repository -----
+Show detailed repository configuration
+
+Usage:
+  veeamgo describe repository [flags]
+
+Flags:
+    -h, --help          help for repository
+        --name string   Repository name to describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe repository -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe objectrepository
+[2025-10-20 13:24:44] CMD: veeamgo describe objectrepository --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe objectrepository -----
+Describe an object storage repository
+
+Usage:
+  veeamgo describe objectrepository [flags]
+
+Flags:
+    -h, --help          help for objectrepository
+        --name string   Object storage repository name to describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe objectrepository -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe sobr
+[2025-10-20 13:24:44] CMD: veeamgo describe sobr --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe sobr -----
+Show detailed scale-out repository configuration
+
+Usage:
+  veeamgo describe sobr [flags]
+
+Flags:
+    -h, --help          help for sobr
+        --name string   Scale-out repository name to describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe sobr -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe wanaccelerator
+[2025-10-20 13:24:44] CMD: veeamgo describe wanaccelerator --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe wanaccelerator -----
+Show detailed WAN accelerator configuration
+
+Usage:
+  veeamgo describe wanaccelerator [flags]
+
+Flags:
+    -h, --help          help for wanaccelerator
+        --name string   WAN accelerator name to describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe wanaccelerator -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe job
+[2025-10-20 13:24:44] CMD: veeamgo describe job --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe job -----
+Show detailed job configuration and state
+
+Supported job types:
+  - VMware Backup
+  - Hyper-V Backup
+  - VMware Replication
+  - Cloud Director Backup
+  - Microsoft Entra Tenant Backup
+  - Microsoft Entra Audit Log Backup
+  - File Backup Copy
+  - Legacy Backup Copy
+  - Backup Copy
+  - Windows Agent Backup
+  - Linux Agent Backup
+  - Microsoft Entra Tenant Backup Copy
+  - NAS Backup
+  - NAS Backup Copy
+  - Oracle RMAN Backup
+  - SAP HANA Backup
+  - AWS Backup Copy
+
+Usage:
+  veeamgo describe job [flags]
+
+Flags:
+    -h, --help          help for job
+        --name string   Job name to describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe job -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe inventory
+[2025-10-20 13:24:44] CMD: veeamgo describe inventory --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe inventory -----
+Describe inventory resources
+
+Usage:
+  veeamgo describe inventory [flags]
+  veeamgo describe inventory [command]
+
+Available Commands:
+  protectiongroup     Describe protection group resources
+  unstructured        Describe an unstructured data server
+  virtualinfra        Describe a virtual infrastructure server
+
+Flags:
+    -h, --help   help for inventory
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo describe inventory [command] --help" for more information about a command.
+----- output end: help: veeamgo describe inventory -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe inventory virtualinfra
+[2025-10-20 13:24:44] CMD: veeamgo describe inventory virtualinfra --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe inventory virtualinfra -----
+Describe a virtual infrastructure server
+
+Usage:
+  veeamgo describe inventory virtualinfra [flags]
+
+Flags:
+        --desc          Sort records descending
+    -h, --help          help for virtualinfra
+        --limit int     Maximum records to inspect (default 200) (default 200)
+        --name string   Server or host name to describe
+        --sort string   Sort records by field (e.g. name)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe inventory virtualinfra -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe security
+[2025-10-20 13:24:44] CMD: veeamgo describe security --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe security -----
+Describe resources
+
+Usage:
+  veeamgo describe [command]
+
+Available Commands:
+  configurationbackup     Describe configuration backup settings
+  exclusionvm             Describe a VM exclusion entry
+  inventory               Describe inventory resources
+  job                     Show detailed job configuration and state
+  managedserver           Show detailed managed server information
+  objectrepository        Describe an object storage repository
+  proxy                   Describe a backup proxy
+  repository              Show detailed repository configuration
+  securityanalyzer        Security & Compliance Analyzer insights
+  session                 Show detailed information about a session
+  sobr                    Show detailed scale-out repository configuration
+  task                    Show detailed information about a task session
+  wanaccelerator          Show detailed WAN accelerator configuration
+
+Flags:
+    -h, --help   help for describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+
+
+Use "veeamgo describe [command] --help" for more information about a command.
+----- output end: help: veeamgo describe security -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe securityanalyzer schedule
+[2025-10-20 13:24:44] CMD: veeamgo describe securityanalyzer schedule --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe securityanalyzer schedule -----
+Show analyzer schedule configuration
+
+Usage:
+  veeamgo describe securityanalyzer schedule [flags]
+
+Flags:
+    -h, --help   help for schedule
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe securityanalyzer schedule -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe session
+[2025-10-20 13:24:44] CMD: veeamgo describe session --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe session -----
+Show detailed information about a session
+
+Usage:
+  veeamgo describe session [flags]
+
+Flags:
+    -h, --help        help for session
+        --id string   Session ID to describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe session -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe task
+[2025-10-20 13:24:44] CMD: veeamgo describe task --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe task -----
+Show detailed information about a task session
+
+Usage:
+  veeamgo describe task [flags]
+
+Flags:
+    -h, --help        help for task
+        --id string   Task session ID to describe
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe task -----
+[2025-10-20 13:24:44] RUN: help: veeamgo describe configurationbackup
+[2025-10-20 13:24:44] CMD: veeamgo describe configurationbackup --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo describe configurationbackup -----
+Describe configuration backup settings
+
+Usage:
+  veeamgo describe configurationbackup [flags]
+
+Flags:
+    -h, --help   help for configurationbackup
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo describe configurationbackup -----
+[2025-10-20 13:24:44] RUN: help: veeamgo publish disk
+[2025-10-20 13:24:44] CMD: veeamgo publish disk --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo publish disk -----
+Publish backup disks
+
+Usage:
+  veeamgo publish disk [flags]
+
+Flags:
+        --allowed-ip strings             Allowed IP address for iSCSI target mode (repeatable)
+        --disk strings                   Restore point disk name to publish (repeatable)
+    -h, --help                           help for disk
+        --mode string                    Publish mode (ISCSITarget|ISCSIWindowsMount|FUSELinuxMount)
+        --mount-host-id string           Mount server ID (optional)
+        --restore-point-id string        Restore point ID to publish
+        --target-credentials-id string   Target server credentials ID (Windows/FUSE modes)
+        --target-server-name string      Target server DNS name or IP (Windows/FUSE modes)
+        --wait                           Wait for the disk publishing session to finish
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo publish disk -----
+[2025-10-20 13:24:44] RUN: help: veeamgo stop publishdisk
+[2025-10-20 13:24:44] CMD: veeamgo stop publishdisk --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo stop publishdisk -----
+Stop published disks
+
+Usage:
+  veeamgo stop publishdisk [flags]
+
+Flags:
+    -h, --help         help for publishdisk
+        --id strings   Published disk mount ID to stop (repeatable)
+        --wait         Wait for the unpublish session to finish
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo stop publishdisk -----
+[2025-10-20 13:24:44] RUN: help: veeamgo template instantrecovery
+[2025-10-20 13:24:44] CMD: veeamgo template instantrecovery --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo template instantrecovery -----
+Generate Instant Recovery customization templates
+
+Usage:
+  veeamgo template instantrecovery [flags]
+
+Flags:
+        --format string     Output format (yaml|json) (default "yaml")
+    -h, --help              help for instantrecovery
+        --list              List available instant recovery templates
+        --mode string       Recovery mode (Customized|Migration) (default "Customized")
+        --platform string   Target platform (vSphere|HyperV)
+        --write string      Destination file path (omit to print to stdout)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo template instantrecovery -----
+[2025-10-20 13:24:44] RUN: help: veeamgo template job
+[2025-10-20 13:24:44] CMD: veeamgo template job --help
+[2025-10-20 13:24:44] STATUS: success
+----- output begin: help: veeamgo template job -----
+Generate YAML blueprints for creating or editing jobs. Combine with 'veeamgo add job --template' to seed new jobs quickly.
+
+Usage:
+  veeamgo template job [flags]
+
+Flags:
+    -h, --help             help for job
+        --list             List available job templates
+        --no-comments      Omit comment lines from the generated template
+        --type string      Job type (EJobType value, see --list)
+        --variant string   Template variant (minimal|full) (default "minimal")
+        --write string     Destination file path (omit to print to stdout)
+
+
+Global Flags:
+        --api-version string   Override API version used for REST calls (for example 1.2-rev1)
+        --config string        Path to configuration file
+        --output string        Output format (table|json) (default "table")
+        --profile string       Profile name to use
+----- output end: help: veeamgo template job -----
+[2025-10-20 13:24:44] 
+[2025-10-20 13:24:44] RESULT: one or more commands failed

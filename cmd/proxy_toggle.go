@@ -8,7 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
 )
 
 func proxyEnableCmd() *cobra.Command {
@@ -21,8 +22,8 @@ func proxyEnableCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdProxyUse,
-		Short: "Enable a backup proxy",
-		Long:  "Enables a disabled backup proxy so it can process new tasks.",
+		Short: helptext.ProxyEnableShort,
+		Long:  helptext.ProxyEnableLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runProxyToggle(cmd, proxyName, proxyID, proxyType, yes, false, "Enable", "Enabled", func(ctx context.Context, api *client.Client, id string) error {
@@ -33,7 +34,7 @@ func proxyEnableCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&proxyName, "name", "", "Proxy name to enable (optional)")
 	cmd.Flags().StringVar(&proxyID, "id", "", "Proxy ID to enable (optional)")
-	cmd.Flags().StringVar(&proxyType, "type", "", "Proxy type to disambiguate by name (optional)")
+	cmd.Flags().StringVar(&proxyType, "type", "", "Proxy platform to disambiguate by name (vmware, hyperv, general)")
 	cmd.Flags().BoolVar(&yes, "yes", false, "Confirm without prompting (required to execute)")
 	return cmd
 }
@@ -48,8 +49,8 @@ func proxyDisableCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdProxyUse,
-		Short: "Disable a backup proxy",
-		Long:  "Disables a backup proxy to prevent it from accepting new tasks.",
+		Short: helptext.ProxyDisableShort,
+		Long:  helptext.ProxyDisableLong,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runProxyToggle(cmd, proxyName, proxyID, proxyType, yes, true, "Disable", "Disabled", func(ctx context.Context, api *client.Client, id string) error {
@@ -60,7 +61,7 @@ func proxyDisableCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&proxyName, "name", "", "Proxy name to disable (optional)")
 	cmd.Flags().StringVar(&proxyID, "id", "", "Proxy ID to disable (optional)")
-	cmd.Flags().StringVar(&proxyType, "type", "", "Proxy type to disambiguate by name (optional)")
+	cmd.Flags().StringVar(&proxyType, "type", "", "Proxy platform to disambiguate by name (vmware, hyperv, general)")
 	cmd.Flags().BoolVar(&yes, "yes", false, "Confirm without prompting (required to execute)")
 	return cmd
 }

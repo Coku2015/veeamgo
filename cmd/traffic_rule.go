@@ -7,17 +7,17 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
-func newTrafficRuleGetCmd(use string, hidden bool, aliases []string) *cobra.Command {
+func newTrafficRuleGetCmd(use string, hidden bool) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     use,
-		Aliases: aliases,
-		Short:   "List traffic rules and preferred networks",
-		Hidden:  hidden,
-		Args:    cobra.NoArgs,
-		RunE:    runTrafficRuleGet,
+		Use:    use,
+		Short:  helptext.TrafficRuleListShort,
+		Hidden: hidden,
+		Args:   cobra.NoArgs,
+		RunE:   runTrafficRuleGet,
 	}
 	return cmd
 }

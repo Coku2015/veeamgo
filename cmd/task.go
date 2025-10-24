@@ -8,8 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/veeamgo/veeamgo/internal/client"
-	"github.com/veeamgo/veeamgo/pkg/output"
+	"github.com/Coku2015/veeamgo/internal/client"
+	"github.com/Coku2015/veeamgo/pkg/helptext"
+	"github.com/Coku2015/veeamgo/pkg/output"
 )
 
 type taskListOptions struct {
@@ -19,9 +20,6 @@ type taskListOptions struct {
 	sessionType   string
 	state         string
 	result        string
-	scanType      string
-	scanResult    string
-	scanState     string
 	createdAfter  string
 	createdBefore string
 	endedAfter    string
@@ -36,7 +34,7 @@ func taskListCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "List task sessions",
+		Short: helptext.TaskListShort,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			ctx, cancel := context.WithTimeout(cmd.Context(), time.Minute)
 			defer cancel()
@@ -53,9 +51,6 @@ func taskListCmd() *cobra.Command {
 				SessionType: opts.sessionType,
 				State:       opts.state,
 				Result:      opts.result,
-				ScanType:    opts.scanType,
-				ScanResult:  opts.scanResult,
-				ScanState:   opts.scanState,
 				MaxItems:    opts.limit,
 			}
 
@@ -137,9 +132,6 @@ func taskListCmd() *cobra.Command {
 	cmd.Flags().StringVar(&opts.sessionType, "session-type", "", "Filter by parent session type")
 	cmd.Flags().StringVar(&opts.state, "state", "", "Filter by task state")
 	cmd.Flags().StringVar(&opts.result, "result", "", "Filter by task result")
-	cmd.Flags().StringVar(&opts.scanType, "scan-type", "", "Filter by scan type")
-	cmd.Flags().StringVar(&opts.scanResult, "scan-result", "", "Filter by scan result")
-	cmd.Flags().StringVar(&opts.scanState, "scan-state", "", "Filter by scan state")
 	cmd.Flags().StringVar(&opts.createdAfter, "created-since", "", "Include tasks created on/after RFC3339 timestamp")
 	cmd.Flags().StringVar(&opts.createdBefore, "created-before", "", "Include tasks created on/before RFC3339 timestamp")
 	cmd.Flags().StringVar(&opts.endedAfter, "ended-since", "", "Include tasks ended on/after RFC3339 timestamp")
@@ -156,7 +148,7 @@ func taskDescribeCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   cmdDescribeUse,
-		Short: "Show detailed information about a task session",
+		Short: helptext.TaskDescribeShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(taskID) == "" {
@@ -214,7 +206,7 @@ func taskLogsCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "logs",
-		Short: "Show task session log records",
+		Short: helptext.TaskLogsShort,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if strings.TrimSpace(taskID) == "" {
