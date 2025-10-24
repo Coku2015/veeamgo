@@ -1,8 +1,8 @@
-# VeeamGo CLI
+# VeeamGo CLI ✨
 
 English | [中文指南](README.zh-CN.md)
 
-VeeamGo is a lightweight CLI for exploring Veeam Backup & Replication (VBR) environments via the official REST API. It gives auditors, operators, and support engineers fast read-only insight without touching the UI.
+VeeamGo is a lightweight CLI for exploring Veeam Backup & Replication (VBR) environments via the official REST API. It gives auditors, operators, and support engineers fast read-only insight without touching the UI. _Crafted through Vibe Coding workflows 🤖🎶._
 
 ## Prerequisites
 - Access to a Veeam Backup & Replication v13.x server with the REST API enabled (HTTPS port 9419 reachable).
@@ -12,18 +12,15 @@ VeeamGo is a lightweight CLI for exploring Veeam Backup & Replication (VBR) envi
 
 ## Download
 - Grab the latest signed binaries from the [GitHub Releases page](https://github.com/Coku2015/veeamgo/releases/latest).
-- Each release ships archives for macOS, Linux, and Windows; extract the archive and keep the `veeamgo` (or `veeamgo.exe`) binary.
+- Each release ships platform-specific binaries for macOS, Linux, and Windows; download the asset that matches your OS/arch and rename it to `veeamgo` (or `veeamgo.exe`).
 - Optional: add the folder to your `PATH` or copy the binary to a directory already on the `PATH`.
 
 ```bash
-# Example: macOS / Linux
-curl -LO https://github.com/Coku2015/veeamgo/releases/latest/download/veeamgo-darwin-arm64.tar.gz
-tar -xzf veeamgo-darwin-arm64.tar.gz
-chmod +x veeamgo
+curl -fSL "https://github.com/Coku2015/veeamgo/releases/download/v13.0.1/veeamgo_linux_amd64" -o veeamgo && chmod +x veeamgo
 ```
 
 ## Quick Start
-1. Download and unpack the binary that matches your platform.
+1. Download the binary that matches your platform and rename it to `veeamgo` (or `veeamgo.exe`).
 2. (Optional) Move it to `/usr/local/bin/` (macOS/Linux) or a folder listed in `%PATH%` (Windows).
 3. Sign in: `veeamgo login --server vbr.example.com --username administrator --insecure`.
 4. Run a command, e.g. `veeamgo get job --limit 5` for a quick inventory check.
